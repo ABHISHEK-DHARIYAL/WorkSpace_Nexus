@@ -8,11 +8,15 @@ const Signup = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [isGoogleSigningIn, setIsGoogleSigningIn] = useState(false);
-  const [googleError, setGoogleError] = useState('');
   const [signupError, setSignupError] = useState('');
-  const { login, loginWithGoogle } = useAuth();
+  const { user, login } = useAuth();
   const navigate = useNavigate();
+
+  React.useEffect(() => {
+    if (user) {
+      navigate('/dashboard');
+    }
+  }, [user, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,20 +35,6 @@ const Signup = () => {
     }
   };
 
-  const handleGoogleLoginClick = async () => {
-    setIsGoogleSigningIn(true);
-    setGoogleError('');
-    try {
-      await loginWithGoogle();
-      navigate('/dashboard');
-    } catch (err: any) {
-      console.error(err);
-      setGoogleError(err?.message || 'Failed to sign in with Google. Please try again.');
-    } finally {
-      setIsGoogleSigningIn(false);
-    }
-  };
-
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-slate-50 relative">
       <div className="max-w-md w-full bg-white p-8 rounded-2xl shadow-xl border border-slate-100">
@@ -53,16 +43,6 @@ const Signup = () => {
         {signupError && (
           <div className="mb-4 text-xs text-red-600 bg-red-50 p-3 rounded-xl border border-red-100">
             {signupError}
-          </div>
-        )}
-
-        {googleError && (
-          <div className="mb-4 text-xs text-red-600 bg-red-50 p-3 rounded-xl border border-red-100 flex items-start space-x-2">
-            <span className="text-red-500 font-bold">⚠️</span>
-            <div>
-              <span className="font-semibold block">Authentication failed</span>
-              <span>{googleError}</span>
-            </div>
           </div>
         )}
 
@@ -105,8 +85,7 @@ const Signup = () => {
           </button>
         </form>
 
-
-        <p className="mt-4 text-center text-sm text-slate-500">
+        <p className="mt-6 text-center text-sm text-slate-500">
           Already have an account? <Link to="/login" className="text-indigo-600 font-bold hover:underline">Login</Link>
         </p>
       </div>

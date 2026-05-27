@@ -1,24 +1,11 @@
-import React, { useState } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
-import { useTheme } from "../../context/ThemeContext";
-import {
-  FileText,
-  LogOut,
-  LayoutDashboard,
-  User as UserIcon,
-  Shield,
-  Lock,
-  CheckCircle2,
-  Loader2,
-  X,
-  Sun,
-  Moon,
-  Menu,
-} from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
-import { authService } from "../../services/api/auth";
-import { useDevice } from "../../context/DeviceContext";
+import React, { useState } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
+import { useTheme } from '../../context/ThemeContext';
+import { FileText, LogOut, LayoutDashboard, User as UserIcon, Shield, Lock, CheckCircle2, Loader2, X, Sun, Moon, Menu } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
+import { authService } from '../../services/api/auth';
+import { useDevice } from '../../context/DeviceContext';
 
 const Navbar: React.FC = () => {
   const { user, logout, updateUser } = useAuth();
@@ -27,17 +14,15 @@ const Navbar: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [showSecurityModal, setShowSecurityModal] = useState(false);
-
+  
   // Edit Username State
   const [isEditingName, setIsEditingName] = useState(false);
-  const [tempName, setTempName] = useState(
-    user ? user.name || user.email?.split("@")[0] || "Member" : ""
-  );
+  const [tempName, setTempName] = useState(user ? (user.name || user.email?.split('@')[0] || 'Member') : '');
 
   // Synchronize tempName when user changes
   React.useEffect(() => {
     if (user) {
-      setTempName(user.name || user.email?.split("@")[0] || "Member");
+      setTempName(user.name || user.email?.split('@')[0] || 'Member');
     }
   }, [user]);
 
@@ -50,45 +35,33 @@ const Navbar: React.FC = () => {
 
   // Security Form State
   const [updatingPassword, setUpdatingPassword] = useState(false);
-  const [newPassword, setNewPassword] = useState("");
+  const [newPassword, setNewPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [passwordStatus, setPasswordStatus] = useState<{
-    type: "success" | "error";
-    msg: string;
-  } | null>(null);
+  const [passwordStatus, setPasswordStatus] = useState<{ type: 'success' | 'error', msg: string } | null>(null);
   const [deletingAccount, setDeletingAccount] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(false);
 
   const handleLogout = () => {
     logout();
-    navigate("/login");
+    navigate('/login');
   };
 
   const handleUpdatePassword = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newPassword || newPassword.length < 6) {
-      setPasswordStatus({
-        type: "error",
-        msg: "Password must be at least 6 characters",
-      });
+      setPasswordStatus({ type: 'error', msg: 'Password must be at least 6 characters' });
       return;
     }
     setUpdatingPassword(true);
     setPasswordStatus(null);
     try {
       await authService.updatePassword({ password: newPassword });
-      setPasswordStatus({
-        type: "success",
-        msg: "Password successfully updated!",
-      });
+      setPasswordStatus({ type: 'success', msg: 'Password successfully updated!' });
       updateUser({ isSocial: false });
-      setNewPassword("");
+      setNewPassword('');
       setTimeout(() => setShowSecurityModal(false), 2000);
     } catch (err: any) {
-      setPasswordStatus({
-        type: "error",
-        msg: err.response?.data?.message || "Failed to update password",
-      });
+      setPasswordStatus({ type: 'error', msg: err.response?.data?.message || 'Failed to update password' });
     } finally {
       setUpdatingPassword(false);
     }
@@ -102,12 +75,9 @@ const Navbar: React.FC = () => {
       setShowSecurityModal(false);
       setDeleteConfirm(false);
       logout();
-      navigate("/login");
+      navigate('/login');
     } catch (err: any) {
-      setPasswordStatus({
-        type: "error",
-        msg: err?.response?.data?.message || "Failed to delete account",
-      });
+      setPasswordStatus({ type: 'error', msg: err?.response?.data?.message || 'Failed to delete account' });
       setDeleteConfirm(false);
     } finally {
       setDeletingAccount(false);
@@ -129,16 +99,11 @@ const Navbar: React.FC = () => {
                   <Menu className="w-4 h-4 sm:w-5 sm:h-5" />
                 </button>
               )}
-              <Link
-                to="/"
-                className="flex items-center space-x-1 sm:space-x-2 group"
-              >
+              <Link to="/" className="flex items-center space-x-1 sm:space-x-2 group">
                 <div className="w-7 h-7 sm:w-9 sm:h-9 bg-[#5b4636] dark:bg-[#eee1ba] rounded-lg flex items-center justify-center transition-transform group-hover:scale-105 shadow-md border border-white/10 dark:border-none">
                   <FileText className="text-white dark:text-black w-3.5 h-3.5 sm:w-5 sm:h-5" />
                 </div>
-                <span className="font-black text-sm xs:text-base sm:text-xl tracking-tight text-[#5b4636] dark:text-[#eee1ba]">
-                  WorkSpace Nexus
-                </span>
+                <span className="font-black text-sm xs:text-base sm:text-xl tracking-tight text-[#5b4636] dark:text-[#eee1ba]">WorkSpace Nexus</span>
               </Link>
             </div>
 
@@ -147,22 +112,14 @@ const Navbar: React.FC = () => {
               <button
                 onClick={toggleTheme}
                 className="p-1 sm:p-1.5 rounded-lg hover:bg-[#f4ecd8] dark:hover:bg-[#1e232e] text-[#5b4636] dark:text-[#eee1ba] transition-all relative overflow-hidden"
-                title={
-                  theme === "light"
-                    ? "Switch to Dark Mode"
-                    : "Switch to Light Mode"
-                }
+                title={theme === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode'}
               >
                 <motion.div
                   initial={false}
-                  animate={{ rotate: theme === "dark" ? 180 : 0 }}
+                  animate={{ rotate: theme === 'dark' ? 180 : 0 }}
                   transition={{ duration: 0.3 }}
                 >
-                  {theme === "dark" ? (
-                    <Sun className="w-3.5 h-3.5 sm:w-4.5 sm:h-4.5" />
-                  ) : (
-                    <Moon className="w-3.5 h-3.5 sm:w-4.5 sm:h-4.5" />
-                  )}
+                  {theme === 'dark' ? <Sun className="w-3.5 h-3.5 sm:w-4.5 sm:h-4.5" /> : <Moon className="w-3.5 h-3.5 sm:w-4.5 sm:h-4.5" />}
                 </motion.div>
               </button>
 
@@ -178,10 +135,9 @@ const Navbar: React.FC = () => {
                   <Link
                     to="/dashboard"
                     className={`flex items-center space-x-1 sm:space-x-2 px-1.5 py-1.5 sm:px-3 sm:py-2 rounded-md transition-all font-bold text-xs sm:text-sm ${
-                      location.pathname === "/dashboard" ||
-                      location.pathname.startsWith("/workspace")
-                        ? "bg-[#eee1ba] dark:bg-[#eee1ba] text-[#5b4636] dark:text-[#0f1115] shadow-sm"
-                        : "hover:bg-[#f4ecd8] dark:hover:bg-[#1e232e] text-[#5b4636]/80 dark:text-[#eee1ba]/80 hover:text-[#5b4636] dark:hover:text-[#eee1ba]"
+                      location.pathname === '/dashboard' || location.pathname.startsWith('/workspace')
+                        ? 'bg-[#eee1ba] dark:bg-[#eee1ba] text-[#5b4636] dark:text-[#0f1115] shadow-sm'
+                        : 'hover:bg-[#f4ecd8] dark:hover:bg-[#1e232e] text-[#5b4636]/80 dark:text-[#eee1ba]/80 hover:text-[#5b4636] dark:hover:text-[#eee1ba]'
                     }`}
                   >
                     <LayoutDashboard className="w-3.5 h-3.5" />
@@ -190,9 +146,9 @@ const Navbar: React.FC = () => {
                   <Link
                     to="/document"
                     className={`flex items-center space-x-1 sm:space-x-2 px-1.5 py-1.5 sm:px-3 sm:py-2 rounded-md transition-all font-bold text-xs sm:text-sm ${
-                      location.pathname === "/document"
-                        ? "bg-[#eee1ba] dark:bg-[#eee1ba] text-[#5b4636] dark:text-[#0f1115] shadow-sm"
-                        : "hover:bg-[#f4ecd8] dark:hover:bg-[#1e232e] text-[#5b4636]/80 dark:text-[#eee1ba]/80 hover:text-[#5b4636] dark:hover:text-[#eee1ba]"
+                      location.pathname === '/document'
+                        ? 'bg-[#eee1ba] dark:bg-[#eee1ba] text-[#5b4636] dark:text-[#0f1115] shadow-sm'
+                        : 'hover:bg-[#f4ecd8] dark:hover:bg-[#1e232e] text-[#5b4636]/80 dark:text-[#eee1ba]/80 hover:text-[#5b4636] dark:hover:text-[#eee1ba]'
                     }`}
                   >
                     <FileText className="w-3.5 h-3.5" />
@@ -208,42 +164,31 @@ const Navbar: React.FC = () => {
                             onChange={(e) => setTempName(e.target.value)}
                             onBlur={handleSaveName}
                             onKeyDown={(e) => {
-                              if (e.key === "Enter") handleSaveName();
-                              else if (e.key === "Escape") {
+                              if (e.key === 'Enter') handleSaveName();
+                              else if (e.key === 'Escape') {
                                 setIsEditingName(false);
-                                setTempName(
-                                  user.name ||
-                                    user.email?.split("@")[0] ||
-                                    "Member"
-                                );
+                                setTempName(user.name || user.email?.split('@')[0] || 'Member');
                               }
                             }}
-                            className="bg-white dark:bg-[#1e232e] text-[#5b4636] dark:text-[#eee1ba] text-xs font-black uppercase text-right px-2 py-1 max-w-30 rounded border border-[#eee1ba] dark:border-[#2d323f] focus:ring-1 focus:ring-[#5b4636] focus:outline-none"
+                            className="bg-white dark:bg-[#1e232e] text-[#5b4636] dark:text-[#eee1ba] text-xs font-black uppercase text-right px-2 py-1 max-w-[120px] rounded border border-[#eee1ba] dark:border-[#2d323f] focus:ring-1 focus:ring-[#5b4636] focus:outline-none"
                             autoFocus
                           />
                         </div>
                       ) : (
-                        <div
+                        <div 
                           onClick={() => setIsEditingName(true)}
                           className="group flex items-center justify-end gap-1.5 cursor-pointer hover:opacity-80 transition-opacity"
                           title="Click to change your username"
                         >
                           <p className="text-xs font-black text-[#5b4636] dark:text-[#eee1ba] leading-none uppercase tracking-tighter">
-                            {user.name || user.email?.split("@")[0] || "Member"}
+                            {user.name || user.email?.split('@')[0] || 'Member'}
                           </p>
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 16 16"
-                            fill="currentColor"
-                            className="w-3 h-3 text-[#5b4636]/40 dark:text-[#eee1ba]/40 group-hover:text-[#5b4636] dark:group-hover:text-[#eee1ba] transition-colors"
-                          >
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-3 h-3 text-[#5b4636]/40 dark:text-[#eee1ba]/40 group-hover:text-[#5b4636] dark:group-hover:text-[#eee1ba] transition-colors">
                             <path d="M13.488 2.513a1.75 1.75 0 0 0-2.475 0L6.75 6.774a2.75 2.75 0 0 0-.596.892l-.848 2.047a.75.75 0 0 0 .98.98l2.047-.848a2.75 2.75 0 0 0 .892-.596l4.261-4.262a1.75 1.75 0 0 0 0-2.474L13.488 2.513ZM12.427 3.573l1.06 1.06a.25.25 0 0 1 0 .354l-.56.56-1.414-1.414.56-.56a.25.25 0 0 1 .354 0ZM11.013 5.17l1.414 1.414-3.666 3.666a1.25 1.25 0 0 1-.405.271l-1.275.527.527-1.275c.068-.166.16-.32.271-.405L11.013 5.17Z" />
                           </svg>
                         </div>
                       )}
-                      <p className="text-[9px] text-[#5b4636]/40 dark:text-[#eee1ba]/40 uppercase tracking-widest font-black mt-1">
-                        {user.role}
-                      </p>
+                      <p className="text-[9px] text-[#5b4636]/40 dark:text-[#eee1ba]/40 uppercase tracking-widest font-black mt-1">{user.role}</p>
                     </div>
                     <div className="w-8 h-8 rounded-full bg-[#f4ecd8] dark:bg-[#1e232e] flex items-center justify-center border border-[#eee1ba] dark:border-[#2d323f] shadow-inner">
                       <UserIcon className="w-4 h-4 text-[#5b4636] dark:text-[#eee1ba]" />
@@ -259,12 +204,7 @@ const Navbar: React.FC = () => {
                 </>
               ) : (
                 <>
-                  <Link
-                    to="/login"
-                    className="text-sm font-bold text-[#5b4636] dark:text-[#eee1ba] hover:text-black dark:hover:text-white transition-colors"
-                  >
-                    Login
-                  </Link>
+                  <Link to="/login" className="text-sm font-bold text-[#5b4636] dark:text-[#eee1ba] hover:text-black dark:hover:text-white transition-colors">Login</Link>
                   <Link
                     to="/signup"
                     className="bg-[#5b4636] dark:bg-[#eee1ba] text-white dark:text-black px-5 py-2 rounded-lg text-sm font-black uppercase tracking-wider hover:bg-black dark:hover:bg-white hover:text-white dark:hover:text-black transition-all shadow-lg border border-white/10 dark:border-none"
@@ -280,15 +220,15 @@ const Navbar: React.FC = () => {
 
       <AnimatePresence>
         {showSecurityModal && (
-          <div className="fixed inset-0 z-60 flex items-center justify-center px-4">
-            <motion.div
+          <div className="fixed inset-0 z-[60] flex items-center justify-center px-4">
+            <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setShowSecurityModal(false)}
-              className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" 
             />
-            <motion.div
+            <motion.div 
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -299,11 +239,9 @@ const Navbar: React.FC = () => {
                   <div className="w-8 h-8 bg-slate-50 dark:bg-[#1f242e] border border-slate-100 dark:border-[#2d323f] rounded-lg flex items-center justify-center">
                     <Shield className="w-4 h-4 text-indigo-600 dark:text-[#eee1ba]" />
                   </div>
-                  <h2 className="font-bold text-slate-900 dark:text-white">
-                    Security Settings
-                  </h2>
+                  <h2 className="font-bold text-slate-900 dark:text-white">Security Settings</h2>
                 </div>
-                <button
+                <button 
                   onClick={() => setShowSecurityModal(false)}
                   className="p-2 hover:bg-slate-50 dark:hover:bg-[#1f242e] rounded-full transition-colors text-slate-400 dark:text-slate-300"
                 >
@@ -319,28 +257,22 @@ const Navbar: React.FC = () => {
                         Change Password
                       </label>
                       <div className="flex items-center space-x-2">
-                        <button
+                        <button 
                           type="button"
                           onClick={(e) => {
-                            const chars =
-                              "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
+                            const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
                             let pass = "";
-                            for (let i = 0; i < 16; i++)
-                              pass += chars.charAt(
-                                Math.floor(Math.random() * chars.length)
-                              );
+                            for (let i = 0; i < 16; i++) pass += chars.charAt(Math.floor(Math.random() * chars.length));
                             setNewPassword(pass);
                             setShowPassword(true);
                             navigator.clipboard.writeText(pass);
-
+                            
                             const originalText = e.currentTarget.innerText;
                             e.currentTarget.innerText = "Copied!";
                             e.currentTarget.classList.add("text-green-600");
                             setTimeout(() => {
                               e.currentTarget.innerText = originalText;
-                              e.currentTarget.classList.remove(
-                                "text-green-600"
-                              );
+                              e.currentTarget.classList.remove("text-green-600");
                             }, 2000);
                           }}
                           className="text-[9px] font-bold text-indigo-600 dark:text-[#eee1ba] hover:underline uppercase tracking-tight transition-colors"
@@ -352,14 +284,14 @@ const Navbar: React.FC = () => {
                           onClick={() => setShowPassword(!showPassword)}
                           className="text-[9px] font-bold text-slate-400 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-[#eee1ba] uppercase tracking-tight"
                         >
-                          {showPassword ? "Hide" : "Show"}
+                          {showPassword ? 'Hide' : 'Show'}
                         </button>
                       </div>
                     </div>
                     <div className="relative">
                       <Lock className="absolute left-3 top-3 w-4 h-4 text-slate-400 dark:text-slate-500" />
                       <input
-                        type={showPassword ? "text" : "password"}
+                        type={showPassword ? 'text' : 'password'}
                         placeholder="New password"
                         value={newPassword}
                         onChange={(e) => setNewPassword(e.target.value)}
@@ -369,18 +301,8 @@ const Navbar: React.FC = () => {
                   </div>
 
                   {passwordStatus && (
-                    <div
-                      className={`p-4 rounded-xl text-xs font-bold flex items-center space-x-3 ${
-                        passwordStatus.type === "success"
-                          ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400"
-                          : "bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-400"
-                      }`}
-                    >
-                      {passwordStatus.type === "success" ? (
-                        <CheckCircle2 className="w-4 h-4" />
-                      ) : (
-                        <Lock className="w-4 h-4" />
-                      )}
+                    <div className={`p-4 rounded-xl text-xs font-bold flex items-center space-x-3 ${passwordStatus.type === 'success' ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400' : 'bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-400'}`}>
+                      {passwordStatus.type === 'success' ? <CheckCircle2 className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
                       <span>{passwordStatus.msg}</span>
                     </div>
                   )}
@@ -396,10 +318,9 @@ const Navbar: React.FC = () => {
                       <span>Reset Password</span>
                     )}
                   </button>
-
+                  
                   <p className="text-[10px] text-slate-400 dark:text-slate-400 text-center leading-relaxed">
-                    Update to a new manually-handled login password. Setting a
-                    password allows you to login without third-party services.
+                    Update to a new manually-handled login password. Setting a password allows you to login without third-party services.
                   </p>
 
                   <div className="border-t border-slate-100 dark:border-[#2d323f] my-4 pt-4" />
@@ -410,9 +331,7 @@ const Navbar: React.FC = () => {
                     </label>
                     <div className="p-4 bg-red-50/25 dark:bg-red-950/10 border border-red-100 dark:border-red-900/30 rounded-xl space-y-3">
                       <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-normal">
-                        Once you delete your account, there is no going back.
-                        All listings and assets associated with this profile
-                        will be permanently deleted.
+                        Once you delete your account, there is no going back. All listings and assets associated with this profile will be permanently deleted.
                       </p>
                       {deleteConfirm ? (
                         <div className="flex gap-2">

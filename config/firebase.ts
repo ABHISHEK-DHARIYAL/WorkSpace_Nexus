@@ -1,89 +1,184 @@
 /// <reference types="vite/client" />
-import { initializeApp, getApps, getApp } from "firebase/app";
-import { getAuth, connectAuthEmulator } from "firebase/auth";
-import {
-  getFirestore,
-  enableIndexedDbPersistence,
-  connectFirestoreEmulator,
-} from "firebase/firestore";
-import { getStorage, connectStorageEmulator } from "firebase/storage";
-import firebaseConfigJson from "../firebase-applet-config.json";
+import { initializeApp, getApps, getApp } from 'firebase/app';
+import { getAuth } from 'firebase/auth';
+import { getFirestore, enableIndexedDbPersistence } from 'firebase/firestore';
+import { getStorage } from 'firebase/storage';
+import firebaseConfigJson from '../firebase-applet-config.json';
 
-/**
- * Production-safe Firebase initialization with environment detection.
- * - Supports localhost development
- * - Supports Vercel production deployment
- * - Supports Firebase emulator for local testing
- * - Lazy initialization prevents multiple app instances
- */
-
-const firebaseConfig = {
-  apiKey: firebaseConfigJson.apiKey,
-  authDomain: firebaseConfigJson.authDomain,
-  projectId: firebaseConfigJson.projectId,
-  storageBucket: firebaseConfigJson.storageBucket,
-  messagingSenderId: firebaseConfigJson.messagingSenderId,
-  appId: firebaseConfigJson.appId,
-  measurementId: firebaseConfigJson.measurementId,
+// ==========================================
+// 1. Environment Detection & URL Utilities
+// ==========================================
+export const detectEnvironment = () => {
+  const origin = typeof window !== 'undefined' ? window.location.origin : '';
+  const isLocalhost = origin.includes('localhost') || origin.includes('127.0.0.1');
+  const isVercel = origin.includes('.vercel.app') || !!import.meta.env.VITE_VERCEL;
+  const isDev = import.meta.env.DEV;
+  
+  return {
+    isLocalhost,
+    isVercel,
+    isDev,
+    isProd: import.meta.env.PROD,
+    origin,
+    label: isLocalhost ? 'localhost' : isVercel ? 'vercel' : isDev ? 'development' : 'production'
+  };
 };
 
-// Detect environment
-const isDevelopment =
-  import.meta.env.DEV || import.meta.env.MODE === "development";
-const isLocalhost =
-  typeof window !== "undefined" &&
-  (window.location.hostname === "localhost" ||
-    window.location.hostname === "127.0.0.1");
-const isProduction =
-  import.meta.env.PROD || import.meta.env.MODE === "production";
+// VITE_APP_URL Resolution
+export const getAppUrl = (): string => {
+  const envUrl = import.meta.env.VITE_APP_URL || '';
+  if (envUrl) return envUrl;
+  
+  if (typeof window !== 'undefined') {
+    return window.location.origin;
+  }
+  return 'https://work-space-nexus.vercel.app';
+};
 
-// Initialize Firebase App only if keys are present (lazy/fail-safe)
-const isConfigured =
-  !!firebaseConfig.apiKey && firebaseConfig.apiKey !== "remixed-api-key";
+export const APP_URL = getAppUrl();
 
+// ==========================================
+// 2. Firebase Config Resolution & Validation
+// ==========================================
+export interface FirebaseValidationResult {
+  isValid: boolean;
+  errors: string[];
+  resolvedConfig: any;
+}
+
+export const validateAndResolveFirebaseConfig = (): FirebaseValidationResult => {
+  const errors: string[] = [];
+  
+  // Prefer VITE_ environment variables (standard Vercel/Vite pattern)
+  const envConfig = {
+    apiKey: import.meta.env.VITE_FIREBASE_API_KEY || '',
+    authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || '',
+    projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || '',
+    storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || '',
+    messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || '',
+    appId: import.meta.env.VITE_FIREBASE_APP_ID || '',
+    measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || '',
+  };
+
+  const isAnyEnvSet = Object.values(envConfig).some(val => !!val);
+  
+  let finalConfig = envConfig;
+  
+  // If no environment variables are defined, fallback to the sandbox/local JSON applet config
+  if (!isAnyEnvSet && firebaseConfigJson) {
+    finalConfig = {
+      apiKey: firebaseConfigJson.apiKey || '',
+      authDomain: firebaseConfigJson.authDomain || '',
+      projectId: firebaseConfigJson.projectId || '',
+      storageBucket: firebaseConfigJson.storageBucket || '',
+      messagingSenderId: firebaseConfigJson.messagingSenderId || '',
+      appId: firebaseConfigJson.appId || '',
+      measurementId: firebaseConfigJson.measurementId || '',
+    };
+  }
+
+  // Validate the final config
+  const requiredKeys: (keyof typeof finalConfig)[] = [
+    'apiKey', 'authDomain', 'projectId', 'storageBucket', 'messagingSenderId', 'appId'
+  ];
+  
+  requiredKeys.forEach(key => {
+    if (!finalConfig[key] || finalConfig[key] === 'remixed-api-key') {
+      errors.push(`Firebase configuration error: Missing "${key}" value.`);
+    }
+  });
+
+  return {
+    isValid: errors.length === 0,
+    errors,
+    resolvedConfig: finalConfig
+  };
+};
+
+const validation = validateAndResolveFirebaseConfig();
+const firebaseConfig = validation.resolvedConfig;
+const isConfigured = validation.isValid;
+
+// ==========================================
+// 3. Stable Initialization
+// ==========================================
 let app = null;
 if (isConfigured) {
-  if (getApps().length > 0) {
-    app = getApp();
-  } else {
-    app = initializeApp(firebaseConfig);
-    if (isDevelopment || isLocalhost) {
-      console.log("[Firebase] Initialized app in development mode");
-    } else if (isProduction) {
-      console.log("[Firebase] Initialized app in production mode");
-    }
+  try {
+    app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
+    console.log('[Firebase Initialization] App initialized successfully in ' + detectEnvironment().label + ' mode.');
+  } catch (err: any) {
+    console.error('[Firebase Initialization] Error initializing Firebase App:', err.message);
   }
 } else {
-  console.warn(
-    "[Firebase] Firebase configuration not fully set. Using fallback authentication."
-  );
+  console.warn('[Firebase Initialization] Firebase is running in SANDBOX fallback mode. Check `.env.example` or variables:\n', validation.errors.join('\n'));
 }
 
 export const auth = app ? getAuth(app) : null;
-export const db = app
-  ? firebaseConfigJson.firestoreDatabaseId
-    ? getFirestore(app, firebaseConfigJson.firestoreDatabaseId)
-    : getFirestore(app)
-  : null;
+export const db = app ? getFirestore(app, firebaseConfigJson?.firestoreDatabaseId || undefined) : null;
 export const storage = app ? getStorage(app) : null;
 
-// Enable offline persistence for Firestore with error handling
 if (db) {
   enableIndexedDbPersistence(db).catch((err) => {
-    // Ignore errors if persistence is already enabled or quota exceeded
-    if (err.code === "failed-precondition") {
-      console.warn(
-        "[Firebase] Multiple tabs open: Persistence already enabled in another tab."
-      );
-    } else if (err.code === "unimplemented") {
-      console.warn("[Firebase] Browser does not support persistence.");
-    } else {
-      console.warn(
-        "[Firebase] Firestore offline persistence warning:",
-        err.message
-      );
-    }
+    console.warn("Firestore client offline persistent cache activation warning:", err.message);
   });
 }
+
+// ==========================================
+// 4. Stable Firebase Auth Error Helpers
+// ==========================================
+export const handleFirebaseAuthError = (error: any): { title: string; message: string; code: string } => {
+  const code = error?.code || '';
+  const debugMsg = error?.message || '';
+  console.error('[Firebase Auth Error Diagnoser]', { code, message: debugMsg });
+  
+  const isApiKeyInvalid = 
+    code === 'auth/api-key-not-valid' || 
+    code === 'auth/invalid-api-key' || 
+    debugMsg.toLowerCase().includes('api-key-not-valid') || 
+    debugMsg.toLowerCase().includes('api key not valid') ||
+    debugMsg.toLowerCase().includes('invalid-api-key');
+
+  if (isApiKeyInvalid) {
+    return {
+      title: 'Invalid Firebase API Key',
+      message: 'The initialized Firebase API Key is invalid or expired. To use live Google Sign-In, please supply a valid API key in your Vercel or local environment configuration under "VITE_FIREBASE_API_KEY". Otherwise, please use our quick-fill button or sign in with standard account credentials (e.g. jane.doe@example.com / password123).',
+      code: 'auth/api-key-not-valid'
+    };
+  }
+
+  switch (code) {
+    case 'auth/unauthorized-domain':
+      return {
+        title: 'Unauthorized Redirect Domain',
+        message: `This Vercel domain is not authorized in your Firebase Console. Go to: Firebase Console > Authentication > Settings > Authorized domains and add "${detectEnvironment().origin}".`,
+        code
+      };
+    case 'auth/popup-blocked':
+      return {
+        title: 'Sign-in Popup Blocked',
+        message: 'Your browser blocked the login popup. Please allow popups for this site, or tap again to retry.',
+        code
+      };
+    case 'auth/popup-closed-by-user':
+      return {
+        title: 'Sign-in Cancelled',
+        message: 'The authentication window was closed before completion. Please try signing in again.',
+        code
+      };
+    case 'auth/network-request-failed':
+      return {
+        title: 'Network Offline',
+        message: 'A network connectivity error occurred. Please verify your internet connection and try again.',
+        code
+      };
+    default:
+      return {
+        title: 'Authentication Unsuccessful',
+        message: error?.message || 'An unexpected login issue occurred. Please check your credentials or try again later.',
+        code
+      };
+  }
+};
 
 export default app;

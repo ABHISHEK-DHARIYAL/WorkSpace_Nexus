@@ -1,19 +1,15 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
-import api from "../services/api/client";
-import {
-  signInWithPopup,
-  signInWithRedirect,
-  getRedirectResult,
-  GoogleAuthProvider,
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import api from '../services/api/client';
+import { 
+  signInWithPopup, 
+  signInWithRedirect, 
+  getRedirectResult, 
+  GoogleAuthProvider, 
   onAuthStateChanged,
-  User as FirebaseUser,
-} from "firebase/auth";
-import { doc, getDoc, setDoc } from "firebase/firestore";
-import { auth, db } from "@/config/firebase";
-import {
-  handleUnauthorizedDomainError,
-  logAuthDebugInfo,
-} from "@/frontend/services/auth/authUtils";
+  User as FirebaseUser
+} from 'firebase/auth';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { auth, db, handleFirebaseAuthError } from '@/config/firebase';
 
 interface AuthContextType {
   user: any;
@@ -26,9 +22,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
@@ -41,7 +35,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
 
     if (db) {
-      const userDocRef = doc(db, "users", email);
+      const userDocRef = doc(db, 'users', email);
       let userDocExists = false;
       try {
         const userDocSnap = await getDoc(userDocRef);
@@ -51,18 +45,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       }
 
       const nowIso = new Date().toISOString();
-
+      
       // Save/update user profile in FireStore
       try {
         const isSA = email.toLowerCase() === "heroofthevil311@gmail.com";
         const profileData: any = {
           uid: fbUser.uid,
-          name: fbUser.displayName || email.split("@")[0],
+          name: fbUser.displayName || email.split('@')[0],
           email: email,
-          profilePicture: fbUser.photoURL || "",
+          profilePicture: fbUser.photoURL || '',
           loginTimestamp: nowIso,
           role: isSA ? "admin" : "user",
-          isSocial: true,
+          isSocial: true
         };
 
         if (!userDocExists) {
@@ -75,17 +69,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         console.error("Firestore user profile save failed:", err);
       }
     } else {
-      console.warn(
-        "Firestore db is not initialized. Handled on local JSON fallback backend sync."
-      );
+      console.warn("Firestore db is not initialized. Handled on local JSON fallback backend sync.");
     }
 
     // Call backend endpoint to register/retrieve custom JWT
     try {
-      const { data } = await api.post("/auth/signup", {
+      const { data } = await api.post('/auth/signup', {
         email: email,
         password: "GOOGLE_AUTH_EXTERNAL",
-        isSocial: true,
+        isSocial: true
       });
       login(data.token, data.user);
     } catch (apiErr) {
@@ -97,14 +89,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     const initAuth = async () => {
       try {
-        // Log debug info on initialization
-        logAuthDebugInfo();
-
         // 1. Wait for Firebase session state initialization if Firebase handles Auth
         let fbUser: FirebaseUser | null = null;
         if (auth) {
           fbUser = await new Promise<FirebaseUser | null>((resolve) => {
-            const unsubscribe = onAuthStateChanged(auth as any, (u) => {
+            const unsubscribe = onAuthStateChanged(auth, (u) => {
               unsubscribe();
               resolve(u);
             });
@@ -113,39 +102,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
         // 2. If a valid persistent Firebase Auth user exists, perform auto-login synchronization
         if (fbUser && fbUser.email) {
-          console.log(
-            "initAuth: Active Firebase persistent session found, syncing..."
-          );
+          console.log("initAuth: Active Firebase persistent session found, syncing...");
           await handleFirebaseUserAuthenticated(fbUser);
           return;
         }
 
         // 3. Otherwise, fall back to existing localStorage custom JWT token verification
-        const token = localStorage.getItem("token");
-        const userData = localStorage.getItem("user");
-
+        const token = localStorage.getItem('token');
+        const userData = localStorage.getItem('user');
+        
         if (token && userData) {
-          api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+          api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
           // Verify with custom endpoint that token is active and valid
-          await api.get("/auth/me");
+          await api.get('/auth/me');
           setUser(JSON.parse(userData));
         } else {
           setUser(null);
         }
       } catch (err) {
-        console.error(
-          "Failed to initialize auth, session may be expired or invalid:",
-          err
-        );
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-        delete api.defaults.headers.common["Authorization"];
+        console.error('Failed to initialize auth, session may be expired or invalid:', err);
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        delete api.defaults.headers.common['Authorization'];
         setUser(null);
       } finally {
         setLoading(false);
       }
     };
-
+    
     initAuth();
   }, []);
 
@@ -155,10 +139,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
     const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
       // If Firebase session exists but local JWT token has expired or is missing, trigger auto-login
-      if (fbUser && fbUser.email && !localStorage.getItem("token")) {
-        console.log(
-          "Firebase persistent session detected. Performing auto-login..."
-        );
+      if (fbUser && fbUser.email && !localStorage.getItem('token')) {
+        console.log("Firebase persistent session detected. Performing auto-login...");
         try {
           setLoading(true);
           await handleFirebaseUserAuthenticated(fbUser);
@@ -196,10 +178,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const handleMockAuthenticate = async (email: string, name: string) => {
     try {
-      const { data } = await api.post("/auth/signup", {
+      const { data } = await api.post('/auth/signup', {
         email,
         password: "GOOGLE_AUTH_EXTERNAL",
-        isSocial: true,
+        isSocial: true
       });
       login(data.token, data.user);
     } catch (apiErr) {
@@ -216,13 +198,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
     const provider = new GoogleAuthProvider();
     provider.setCustomParameters({
-      prompt: "select_account", // Brings up the list of accounts on the device
+      prompt: 'select_account' // Brings up the list of accounts on the device
     });
 
-    const isMobile =
-      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-        navigator.userAgent
-      );
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     const isIframe = window.self !== window.top;
 
     try {
@@ -230,18 +209,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         // In iframe or mobile, popup is blocked, so proceed with redirect directly
         try {
           await signInWithRedirect(auth, provider);
-        } catch (redirectErr: any) {
-          console.warn(
-            "signInWithRedirect failed, attempting popup instead:",
-            redirectErr
-          );
-
-          // Log debug info if unauthorized-domain error
-          if (redirectErr.code === "auth/unauthorized-domain") {
-            logAuthDebugInfo();
-            throw new Error(handleUnauthorizedDomainError(redirectErr));
-          }
-
+        } catch (redirectErr) {
+          console.warn("signInWithRedirect failed, attempting popup instead:", redirectErr);
           const result = await signInWithPopup(auth, provider);
           if (result && result.user) {
             await handleFirebaseUserAuthenticated(result.user);
@@ -254,16 +223,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
             await handleFirebaseUserAuthenticated(result.user);
           }
         } catch (popupErr: any) {
-          // Handle unauthorized-domain error
-          if (popupErr.code === "auth/unauthorized-domain") {
-            logAuthDebugInfo();
-            throw new Error(handleUnauthorizedDomainError(popupErr));
-          }
-
-          if (
-            popupErr.code === "auth/popup-blocked" ||
-            popupErr.message?.includes("popup-blocked")
-          ) {
+          if (popupErr.code === 'auth/popup-blocked' || popupErr.message?.includes('popup-blocked')) {
             console.warn("Popup blocked. Falling back to redirect...");
             await signInWithRedirect(auth, provider);
           } else {
@@ -273,26 +233,36 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       }
     } catch (err: any) {
       console.error("Google Sign-In failed:", err);
-      if (err.code === "auth/popup-blocked") {
-        throw new Error(
-          "Popup blocked by your browser. Please unblock popups or open the application in a new tab using the link below to authenticate successfully."
-        );
+      const diagnosed = handleFirebaseAuthError(err);
+      
+      const isConfigOrBrowserIssue = 
+        err.code?.includes('api-key-not-valid') || 
+        err.code?.includes('unauthorized-domain') || 
+        err.code?.includes('popup-blocked') ||
+        err.message?.toLowerCase().includes('api-key') ||
+        err.message?.toLowerCase().includes('api key') ||
+        err.message?.toLowerCase().includes('unauthorized-domain') ||
+        err.message?.toLowerCase().includes('popup-blocked');
+
+      if (isConfigOrBrowserIssue) {
+        setShowMockGoogleSelector(true);
       }
-      throw err;
+      
+      throw new Error(`${diagnosed.title}: ${diagnosed.message}`);
     }
   };
 
   const login = (token: string, userData: any) => {
-    localStorage.setItem("token", token);
-    localStorage.setItem("user", JSON.stringify(userData));
-    api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    localStorage.setItem('token', token);
+    localStorage.setItem('user', JSON.stringify(userData));
+    api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
     setUser(userData);
   };
 
   const logout = async () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    delete api.defaults.headers.common["Authorization"];
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    delete api.defaults.headers.common['Authorization'];
     setUser(null);
     if (auth) {
       try {
@@ -306,13 +276,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const updateUser = (data: any) => {
     const newUser = { ...user, ...data };
     setUser(newUser);
-    localStorage.setItem("user", JSON.stringify(newUser));
+    localStorage.setItem('user', JSON.stringify(newUser));
   };
 
   return (
-    <AuthContext.Provider
-      value={{ user, loading, login, logout, updateUser, loginWithGoogle }}
-    >
+    <AuthContext.Provider value={{ user, loading, login, logout, updateUser, loginWithGoogle }}>
       {children}
       <MockGoogleAuthModal
         isOpen={showMockGoogleSelector}
@@ -329,41 +297,37 @@ interface MockGoogleAuthModalProps {
   onAuthenticate: (email: string, name: string) => Promise<void>;
 }
 
-const MockGoogleAuthModal: React.FC<MockGoogleAuthModalProps> = ({
-  isOpen,
-  onClose,
-  onAuthenticate,
-}) => {
-  const [customEmail, setCustomEmail] = useState("");
+const MockGoogleAuthModal: React.FC<MockGoogleAuthModalProps> = ({ isOpen, onClose, onAuthenticate }) => {
+  const [customEmail, setCustomEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
 
   if (!isOpen) return null;
 
   const handleSelectAccount = async (email: string, name: string) => {
     setIsSubmitting(true);
-    setError("");
+    setError('');
     try {
       await onAuthenticate(email, name);
       onClose();
     } catch (err: any) {
-      setError(err?.message || "Failed to authenticate.");
+      setError(err?.message || 'Failed to authenticate.');
       setIsSubmitting(false);
     }
   };
 
   const handleCustomSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!customEmail || !customEmail.includes("@")) {
-      setError("Please enter a valid email address.");
+    if (!customEmail || !customEmail.includes('@')) {
+      setError('Please enter a valid email address.');
       return;
     }
-    const name = customEmail.split("@")[0];
+    const name = customEmail.split('@')[0];
     handleSelectAccount(customEmail, name);
   };
 
   return (
-    <div className="fixed inset-0 z-9999 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
       <div className="w-full max-w-md bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-100 dark:border-slate-800 overflow-hidden transform transition-all animate-in fade-in zoom-in-95 duration-200">
         {/* Header matching Google style */}
         <div className="p-6 text-center border-b border-slate-100 dark:border-slate-800">
@@ -390,14 +354,9 @@ const MockGoogleAuthModal: React.FC<MockGoogleAuthModalProps> = ({
               </svg>
             </div>
           </div>
-          <h3 className="text-xl font-bold text-slate-950 dark:text-white">
-            Choose a sandbox account
-          </h3>
+          <h3 className="text-xl font-bold text-slate-950 dark:text-white">Choose a sandbox account</h3>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-            to continue to{" "}
-            <span className="font-semibold text-indigo-600 dark:text-indigo-400 animate-pulse">
-              WorkSpace Nexus
-            </span>
+            to continue to <span className="font-semibold text-indigo-600 dark:text-indigo-400 animate-pulse">WorkSpace Nexus</span>
           </p>
         </div>
 
@@ -410,9 +369,7 @@ const MockGoogleAuthModal: React.FC<MockGoogleAuthModalProps> = ({
         {/* Account Selector List */}
         <div className="p-6 space-y-3">
           <button
-            onClick={() =>
-              handleSelectAccount("jane.doe@example.com", "Jane Doe")
-            }
+            onClick={() => handleSelectAccount('jane.doe@example.com', 'Jane Doe')}
             disabled={isSubmitting}
             className="w-full flex items-center p-3 rounded-xl border border-slate-100 dark:border-slate-800 hover:border-indigo-500 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all text-left group cursor-pointer"
           >
@@ -446,7 +403,7 @@ const MockGoogleAuthModal: React.FC<MockGoogleAuthModalProps> = ({
               value={customEmail}
               onChange={(e) => setCustomEmail(e.target.value)}
               disabled={isSubmitting}
-              className="grow p-2.5 text-sm border border-slate-200 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-mono"
+              className="flex-grow p-2.5 text-sm border border-slate-200 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-mono"
               required
             />
             <button
@@ -462,10 +419,7 @@ const MockGoogleAuthModal: React.FC<MockGoogleAuthModalProps> = ({
         {/* Footer info explaining Firebase is unconfigured */}
         <div className="bg-slate-50 dark:bg-slate-950 p-5 border-t border-slate-100 dark:border-slate-800/80 flex flex-col justify-between items-center text-center">
           <div className="text-[11px] text-slate-400 dark:text-slate-450 max-w-sm mb-3 font-normal leading-relaxed">
-            💡 <span className="font-bold">Sandbox Mode:</span> Real Firebase
-            credentials are unconfigured on this development workspace. We have
-            activated an active in-memory sandbox and mock social auth selection
-            layer so you can run and test immediately!
+            💡 <span className="font-bold">Sandbox Mode:</span> Real Firebase credentials are unconfigured on this development workspace. We have activated an active in-memory sandbox and mock social auth selection layer so you can run and test immediately!
           </div>
           <button
             onClick={onClose}
@@ -482,6 +436,6 @@ const MockGoogleAuthModal: React.FC<MockGoogleAuthModalProps> = ({
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) throw new Error("useAuth must be used within AuthProvider");
+  if (!context) throw new Error('useAuth must be used within AuthProvider');
   return context;
 };
