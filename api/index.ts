@@ -13,8 +13,16 @@ export default async function handler(req: any, res: any) {
       appPromise = createApp();
     }
     const app = await appPromise;
-    // Delegate the request execution directly to our Express app
-    return app(req, res);
+    // Delegate the request execution directly to our Express app and wait for completion
+    return new Promise<void>((resolve, reject) => {
+      res.on("finish", resolve);
+      res.on("close", resolve);
+      res.on("error", (err: any) => {
+        console.error("[Vercel Response Stream Error]:", err);
+        reject(err);
+      });
+      app(req, res);
+    });
   } catch (err: any) {
     console.error("[Vercel Handler Error]:", err);
     res.status(500).json({
