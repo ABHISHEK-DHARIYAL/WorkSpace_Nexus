@@ -1,0 +1,23 @@
+{
+  "heroofthevil311@gmail.com": {
+    "email": "heroofthevil311@gmail.com",
+    "password": "$2b$10$N5Hdd67Z0eZ0r1lgZBawN.gO3gVFVEwD9iG38wASOb4nxixGAnRdC",
+    "role": "user",
+    "isSocial": false,
+    "createdAt": "2026-05-24T19:57:32.409Z"
+  },
+  "hshit7534@gmail.com": {
+    "email": "hshit7534@gmail.com",
+    "password": "$2b$10$Fhx3VThCD/6CNhVzPgYOb.DXPlftCsAQKXgKdrHCYnIcsd2pnux2u",
+    "role": "user",
+    "isSocial": false,
+    "createdAt": "2026-05-26T07:45:46.787Z"
+  },
+  "rajveer@gmail.com": {
+    "email": "rajveer@gmail.com",
+    "password": "$2b$10$1vHW18h.0J03iFnkhqgG.OkPZsF1DeppFCw7FJbAafZcbU/umMh..",
+    "role": "user",
+    "isSocial": false,
+    "createdAt": "2026-05-26T21:04:02.774Z"
+  }
+}

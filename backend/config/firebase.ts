@@ -176,38 +176,50 @@ export async function testFirestoreConnection() {
     return;
   }
   try {
-    // A quick, lightweight read on a non-existent database key to test credentials and access permissions
-    await adminFirestoreInstance.collection("_startup_check_").limit(1).get();
+    // A quick, lightweight read on a non-existent database key to test credentials and access permissions.
+    // Wrap with a strict 2-second timeout to prevent serverless execution hanging on unconfigured Firestore connections.
+    const promiseGet = adminFirestoreInstance.collection("_startup_check_").limit(1).get();
+    const promiseTimeout = new Promise<never>((_, reject) => 
+      setTimeout(() => reject(new Error("Firestore connection check timed out")), 2000)
+    );
+    await Promise.race([promiseGet, promiseTimeout]);
+
     console.log("[Database Service] Firestore connection test: SUCCESS. Live cloud database is fully accessible!");
     isFirestoreWorking = true;
 
-    // Automatically migrate local JSON backup data to live Cloud Firestore if documents are missing
-      const collectionsToSeed = ["users", "workspaces", "listings", "pages", "doc_pages", "bookmarks", "favorites"];
-      for (const colName of collectionsToSeed) {
-        try {
-          const colRef = adminFirestoreInstance.collection(colName);
-          const localData = readCollection(colName);
-          let syncCount = 0;
-          for (const [id, value] of Object.entries(localData)) {
-            if (id === "undefined") continue; // Clear out raw trash data
-            const docRef = colRef.doc(id);
-            const docSnap = await docRef.get();
-            if (!docSnap.exists) {
-              await docRef.set(resolveServerTimestamp(value));
-              syncCount++;
-            }
-          }
-          if (syncCount > 0) {
-            console.log(`[Database Service] Live Firestore: Synchronized ${syncCount} missing documents for collection "${colName}".`);
-          }
-        } catch (colErr: any) {
-          console.error(`[Database Service] Live Firestore: Failed to sync data for collection "${colName}":`, colErr.message);
-        }
-      }
+    // Automatically migrate local JSON backup data to live Cloud Firestore in the background
+    runBackgroundMigration().catch(migrateErr => {
+      console.error("[Database Service] Live Firestore background migration error:", migrateErr);
+    });
   } catch (err: any) {
     // Standardize backend storage mode gracefully as a secure, high-performance local persistence store
     console.log("[Database Service] Backend mode: local persistent JSON database (Active & Fully Operational).");
     isFirestoreWorking = false;
+  }
+}
+
+async function runBackgroundMigration() {
+  const collectionsToSeed = ["users", "workspaces", "listings", "pages", "doc_pages", "bookmarks", "favorites"];
+  for (const colName of collectionsToSeed) {
+    try {
+      const colRef = adminFirestoreInstance.collection(colName);
+      const localData = readCollection(colName);
+      let syncCount = 0;
+      for (const [id, value] of Object.entries(localData)) {
+        if (id === "undefined") continue; // Clear out raw trash data
+        const docRef = colRef.doc(id);
+        const docSnap = await docRef.get();
+        if (!docSnap.exists) {
+          await docRef.set(resolveServerTimestamp(value));
+          syncCount++;
+        }
+      }
+      if (syncCount > 0) {
+        console.log(`[Database Service] Live Firestore: Synchronized ${syncCount} missing documents for collection "${colName}".`);
+      }
+    } catch (colErr: any) {
+      console.error(`[Database Service] Live Firestore: Failed to sync data for collection "${colName}":`, colErr.message);
+    }
   }
 }
 
