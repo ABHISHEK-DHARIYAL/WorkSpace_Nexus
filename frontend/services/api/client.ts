@@ -1,28 +1,7 @@
 import axios from 'axios';
 
-const resolveApiBaseUrl = (): string => {
-  const configuredBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim();
-  if (configuredBaseUrl) {
-    return configuredBaseUrl;
-  }
-
-  if (typeof window !== 'undefined') {
-    const { protocol, hostname, port } = window.location;
-    const isLocalDevHost =
-      hostname === 'localhost' ||
-      hostname === '127.0.0.1' ||
-      hostname === '0.0.0.0';
-
-    if (isLocalDevHost && port && port !== '3000') {
-      return `${protocol}//${hostname}:3000/api`;
-    }
-  }
-
-  return '/api';
-};
-
 const api = axios.create({
-  baseURL: resolveApiBaseUrl(),
+  baseURL: '/api',
 });
 
 api.interceptors.request.use((config) => {

@@ -43,7 +43,7 @@ function AppContent() {
       <Navbar />
       <div className="flex pt-14 sm:pt-16">
         {showSidebar && <Sidebar />}
-        <main className="grow min-w-0">
+        <main className="flex-grow min-w-0">
           <Routes>
             {/* Public Routes */}
             <Route path="/" element={<Home />} />

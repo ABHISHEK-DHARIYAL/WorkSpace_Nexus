@@ -47,12 +47,5 @@
     "role": "user",
     "isSocial": false,
     "createdAt": "2026-05-27T19:52:47.017Z"
-  },
-  "hero@gmail.com": {
-    "email": "hero@gmail.com",
-    "password": "$2b$10$gOhZQaaftOro2qiklx26iOMH82Ja13NDcUcPj/IY.WgrTRBToR0ci",
-    "role": "user",
-    "isSocial": false,
-    "createdAt": "2026-05-27T20:58:49.324Z"
   }
 }

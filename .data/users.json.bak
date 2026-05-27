@@ -40,12 +40,5 @@
     "role": "user",
     "isSocial": false,
     "createdAt": "2026-05-27T19:51:21.607Z"
-  },
-  "heroofthevil311@gmail.com": {
-    "email": "heroofthevil311@gmail.com",
-    "password": "$2b$10$bJamUeHl/TzmZnfOxOtbjuWQCuQRd0REddp7TkWb2/bEgyx80qTFy",
-    "role": "user",
-    "isSocial": false,
-    "createdAt": "2026-05-27T19:52:47.017Z"
   }
 }
