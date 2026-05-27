@@ -1,4 +1,5 @@
-import { Response } from "express";
+import { Request, Response } from "express";
+import { DocParserService } from "../services/docParserService";
 import { sendSuccess, sendError } from "../utils/response";
 import { AuthRequest } from "../middleware/auth";
 
@@ -10,9 +11,6 @@ export class DocUploadController {
       }
 
       const { buffer, originalname, mimetype } = req.file;
-      // Load heavyweight document parsing dependencies only for upload requests
-      // so auth/content routes stay healthy even if optional parser packages fail in serverless.
-      const { DocParserService } = await import("../services/docParserService");
       const result = await DocParserService.parse(buffer, originalname, mimetype, req.user.email);
 
       sendSuccess(res, result, 201);
