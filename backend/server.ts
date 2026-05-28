@@ -1,8 +1,7 @@
-import { createApp } from "./app";
+import app from "./app";
 import { ENV } from "./config/env";
 
-async function startServer() {
-  const app = await createApp();
+function startServer() {
   const PORT = Number(ENV.PORT);
 
   app.listen(PORT, "0.0.0.0", () => {
@@ -15,7 +14,9 @@ async function startServer() {
   });
 }
 
-startServer().catch(err => {
+try {
+  startServer();
+} catch (err) {
   console.error("CRITICAL SERVER START FAILURE:", err);
   process.exit(1);
-});
+}
