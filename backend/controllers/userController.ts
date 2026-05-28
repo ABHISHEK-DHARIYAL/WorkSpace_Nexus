@@ -1,8 +1,11 @@
-import { Request, Response } from "express";
-import { UserService } from "../services/userService";
-import { sendSuccess, sendError } from "../utils/response";
 
-export class UserController {
+const { UserService } = require("../services/userService");
+
+type Request = import("express").Request;
+type Response = import("express").Response;
+const { sendSuccess, sendError } = require("../utils/response");
+
+class UserController {
   static async getAll(req: Request, res: Response) {
     try {
       const users = await UserService.getAll();
@@ -12,3 +15,8 @@ export class UserController {
     }
   }
 }
+
+
+module.exports = {
+  UserController
+};

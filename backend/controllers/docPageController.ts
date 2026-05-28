@@ -1,9 +1,13 @@
-import { Request, Response } from "express";
-import { DocPageService } from "../services/docPageService";
-import { sendSuccess, sendError } from "../utils/response";
-import { AuthRequest } from "../middleware/auth";
 
-export class DocPageController {
+const { DocPageService } = require("../services/docPageService");
+
+type Request = import("express").Request;
+type Response = import("express").Response;
+const { sendSuccess, sendError } = require("../utils/response");
+type AuthRequest = import("../middleware/auth").AuthRequest;
+
+
+class DocPageController {
   static async getAll(req: Request, res: Response) {
     try {
       const pages = await DocPageService.getAll();
@@ -50,3 +54,8 @@ export class DocPageController {
     }
   }
 }
+
+
+module.exports = {
+  DocPageController
+};

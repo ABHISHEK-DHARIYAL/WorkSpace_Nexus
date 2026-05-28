@@ -1,19 +1,6 @@
-import { 
-  collection, 
-  getDocs, 
-  getDoc, 
-  doc, 
-  addDoc, 
-  updateDoc, 
-  deleteDoc, 
-  query, 
-  where, 
-  orderBy,
-  serverTimestamp,
-  db
-} from "../config/db";
+const { collection, getDocs, getDoc, doc, addDoc, updateDoc, deleteDoc, query, where, orderBy, serverTimestamp, db } = require("../config/db");
 
-export class ListingService {
+class ListingService {
   static async getAllByUser(userId: string) {
     const q = query(
       collection(db, "listings"), 
@@ -230,3 +217,8 @@ export class ListingService {
     return { message: "Listing and all associated content deleted successfully" };
   }
 }
+
+
+module.exports = {
+  ListingService
+};

@@ -1,16 +1,4 @@
-import { 
-  db, 
-  doc, 
-  getDoc, 
-  setDoc, 
-  updateDoc, 
-  deleteDoc, 
-  collection, 
-  getDocs, 
-  query, 
-  where,
-  addDoc
-} from "../config/db";
+const { db, doc, getDoc, setDoc, updateDoc, deleteDoc, collection, getDocs, query, where, addDoc } = require("../config/db");
 
 // Localized lists of spam and banned words for strict quality filtering
 const SPAM_KEYWORDS = [
@@ -23,7 +11,7 @@ const BANNED_WORDS = [
   "abuseword1", "fuck", "asshole", "bastard", "bitch", "profanity123", "nsfwcontent"
 ];
 
-export class PublicModerationService {
+class PublicModerationService {
 
   // -------------------------------------------------------------
   // PUBLIC REPORTING LOGIC
@@ -545,3 +533,8 @@ export class PublicModerationService {
     });
   }
 }
+
+
+module.exports = {
+  PublicModerationService
+};

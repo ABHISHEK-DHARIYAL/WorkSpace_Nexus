@@ -1,18 +1,6 @@
-import { 
-  collection, 
-  getDocs, 
-  getDoc, 
-  doc, 
-  addDoc, 
-  updateDoc, 
-  deleteDoc, 
-  query, 
-  where, 
-  orderBy,
-  db
-} from "../config/db";
+const { collection, getDocs, getDoc, doc, addDoc, updateDoc, deleteDoc, query, where, orderBy, db } = require("../config/db");
 
-export class AnnotationService {
+class AnnotationService {
   static async getByPage(pageId: string) {
     const q = query(
       collection(db, "annotations"),
@@ -53,3 +41,8 @@ export class AnnotationService {
     return { message: "Annotation deleted" };
   }
 }
+
+
+module.exports = {
+  AnnotationService
+};

@@ -1,6 +1,6 @@
-import { collection, getDocs, db } from "../config/db";
+const { collection, getDocs, db } = require("../config/db");
 
-export class UserService {
+class UserService {
   static async getAll() {
     const snapshot = await getDocs(collection(db, "users"));
     return snapshot.docs.map((doc) => {
@@ -10,3 +10,8 @@ export class UserService {
     });
   }
 }
+
+
+module.exports = {
+  UserService
+};

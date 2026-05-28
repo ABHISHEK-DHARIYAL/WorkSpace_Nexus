@@ -1,9 +1,10 @@
-import { Router } from "express";
-import { PageController } from "../controllers/pageController";
-import { AnnotationController } from "../controllers/annotationController";
-import { VersionController } from "../controllers/versionController";
-import { authenticate, optionalAuthenticate } from "../middleware/auth";
-import { checkDb } from "../middleware/checkDb";
+const { Router } = require("express");
+const { PageController } = require("../controllers/pageController");
+const { AnnotationController } = require("../controllers/annotationController");
+const { VersionController } = require("../controllers/versionController");
+const { authenticate, optionalAuthenticate } = require("../middleware/auth");
+
+const { checkDb } = require("../middleware/checkDb");
 
 const router = Router();
 
@@ -24,4 +25,4 @@ router.delete("/annotations/:id", authenticate, checkDb, AnnotationController.de
 router.get("/:pageId/versions", authenticate, checkDb, VersionController.getByPage);
 router.post("/versions", authenticate, checkDb, VersionController.create);
 
-export default router;
+module.exports = router;

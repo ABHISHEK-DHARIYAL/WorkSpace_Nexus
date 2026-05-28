@@ -1,14 +1,17 @@
-import { Response } from "express";
-import { AuthRequest } from "../middleware/auth";
-import { PublicExplorerService } from "../services/publicExplorer";
-import { sendSuccess, sendError } from "../utils/response";
-import { ListingService } from "../services/listingService";
-import { PageService } from "../services/pageService";
-import { WorkspaceService } from "../services/workspaceService";
-import { DocPageService } from "../services/docPageService";
-import { DocIndexService } from "../services/docIndexService";
 
-export class PublicController {
+type AuthRequest = import("../middleware/auth").AuthRequest;
+
+
+type Response = import("express").Response;
+const { PublicExplorerService } = require("../services/publicExplorer");
+const { sendSuccess, sendError } = require("../utils/response");
+const { ListingService } = require("../services/listingService");
+const { PageService } = require("../services/pageService");
+const { WorkspaceService } = require("../services/workspaceService");
+const { DocPageService } = require("../services/docPageService");
+const { DocIndexService } = require("../services/docIndexService");
+
+class PublicController {
   // GET /api/public/dashboardHub
   static async getDashboardHub(req: AuthRequest, res: Response) {
     try {
@@ -319,3 +322,8 @@ export class PublicController {
     }
   }
 }
+
+
+module.exports = {
+  PublicController
+};

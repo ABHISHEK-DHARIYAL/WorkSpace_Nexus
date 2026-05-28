@@ -1,8 +1,8 @@
-import fs from "fs";
-import path from "path";
-import jwt from "jsonwebtoken";
-import bcrypt from "bcryptjs";
-import { ENV } from "./env";
+const fs = require("fs");
+const path = require("path");
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
+const { ENV } = require("./env");
 
 // Local persistent directory for JSON-based database
 const isVercelEnv = !!process.env.VERCEL || !!process.env.NOW_BUILDER;
@@ -143,19 +143,19 @@ function writeCollection(colName: string, data: Record<string, any>) {
   }
 }
 
-export const isDatabaseWorking = true;
+const isDatabaseWorking = true;
 
-export async function testDatabaseConnection() {
+async function testDatabaseConnection() {
   console.log("[Database Service] Backend mode: local persistent JSON database operational.");
 }
 
-export const db = { type: "local-db" };
+const db = { type: "local-db" };
 
-export function collection(dbInstance: any, name: string) {
+function collection(dbInstance: any, name: string) {
   return { type: "collection", path: name };
 }
 
-export function doc(...args: any[]) {
+function doc(...args: any[]) {
   if (args.length === 3) {
     return { type: "doc", col: args[1], id: args[2] };
   }
@@ -169,7 +169,7 @@ export function doc(...args: any[]) {
   return { type: "doc", col: "", id: "" };
 }
 
-export async function getDoc(docRef: any) {
+async function getDoc(docRef: any) {
   const colName = docRef.col;
   const data = readCollection(colName);
   const item = data[docRef.id];
@@ -181,7 +181,7 @@ export async function getDoc(docRef: any) {
   };
 }
 
-export async function setDoc(docRef: any, data: any, options?: any) {
+async function setDoc(docRef: any, data: any, options?: any) {
   const colName = docRef.col;
   const colData = readCollection(colName);
   const parsedData = resolveServerTimestamp(data);
@@ -194,7 +194,7 @@ export async function setDoc(docRef: any, data: any, options?: any) {
   writeCollection(colName, colData);
 }
 
-export async function updateDoc(docRef: any, data: any) {
+async function updateDoc(docRef: any, data: any) {
   const colName = docRef.col;
   const colData = readCollection(colName);
   const parsedData = resolveServerTimestamp(data);
@@ -202,7 +202,7 @@ export async function updateDoc(docRef: any, data: any) {
   writeCollection(colName, colData);
 }
 
-export async function addDoc(colRef: any, data: any) {
+async function addDoc(colRef: any, data: any) {
   const id = Math.random().toString(36).substring(2, 11) + Date.now().toString(36);
   const parsedData = resolveServerTimestamp(data);
   const colName = colRef.path;
@@ -212,7 +212,7 @@ export async function addDoc(colRef: any, data: any) {
   return { id, type: "doc", col: colName };
 }
 
-export async function deleteDoc(docRef: any) {
+async function deleteDoc(docRef: any) {
   let colName = "";
   let docId = "";
 
@@ -236,7 +236,7 @@ export async function deleteDoc(docRef: any) {
   }
 }
 
-export function query(targetRef: any, ...constraints: any[]) {
+function query(targetRef: any, ...constraints: any[]) {
   return {
     type: "query",
     col: targetRef.type === "collection" ? targetRef.path : targetRef.col,
@@ -244,19 +244,19 @@ export function query(targetRef: any, ...constraints: any[]) {
   };
 }
 
-export function where(field: string, op: string, value: any) {
+function where(field: string, op: string, value: any) {
   return { type: "where", field, op, value };
 }
 
-export function orderBy(field: string, direction: "asc" | "desc" = "asc") {
+function orderBy(field: string, direction: "asc" | "desc" = "asc") {
   return { type: "orderBy", field, direction };
 }
 
-export function limit(count: number) {
+function limit(count: number) {
   return { type: "limit", count };
 }
 
-export function serverTimestamp() {
+function serverTimestamp() {
   return { type: "serverTimestamp" };
 }
 
@@ -283,7 +283,7 @@ function resolveServerTimestamp(data: any): any {
   return resolved;
 }
 
-export async function getDocs(target: any) {
+async function getDocs(target: any) {
   const colName = target.col || (target.type === "collection" ? target.path : "");
   if (!colName) {
     return { docs: [], empty: true, size: 0 };
@@ -418,3 +418,23 @@ try {
 } catch (seedErr) {
   console.error("Failed to sync user roles restore:", seedErr);
 }
+
+
+module.exports = {
+  isDatabaseWorking,
+  db,
+  testDatabaseConnection,
+  getDoc,
+  setDoc,
+  updateDoc,
+  addDoc,
+  deleteDoc,
+  getDocs,
+  collection,
+  doc,
+  query,
+  where,
+  orderBy,
+  limit,
+  serverTimestamp
+};

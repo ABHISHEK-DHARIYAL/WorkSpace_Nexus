@@ -1,8 +1,9 @@
-import { Router } from "express";
-import multer from "multer";
-import { DocUploadController } from "../controllers/docUploadController";
-import { authenticate } from "../middleware/auth";
-import { checkDb } from "../middleware/checkDb";
+const { Router } = require("express");
+const multer = require("multer");
+const { DocUploadController } = require("../controllers/docUploadController");
+const { authenticate } = require("../middleware/auth");
+
+const { checkDb } = require("../middleware/checkDb");
 
 const router = Router();
 
@@ -28,4 +29,4 @@ const upload = multer({
 
 router.post("/upload", authenticate, checkDb, upload.single("file"), DocUploadController.upload);
 
-export default router;
+module.exports = router;

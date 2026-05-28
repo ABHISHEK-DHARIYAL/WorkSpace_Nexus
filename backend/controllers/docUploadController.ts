@@ -1,9 +1,13 @@
-import { Request, Response } from "express";
-import { DocParserService } from "../services/docParserService";
-import { sendSuccess, sendError } from "../utils/response";
-import { AuthRequest } from "../middleware/auth";
 
-export class DocUploadController {
+const { DocParserService } = require("../services/docParserService");
+
+type Request = import("express").Request;
+type Response = import("express").Response;
+const { sendSuccess, sendError } = require("../utils/response");
+type AuthRequest = import("../middleware/auth").AuthRequest;
+
+
+class DocUploadController {
   static async upload(req: AuthRequest, res: Response) {
     try {
       if (!req.file) {
@@ -20,3 +24,8 @@ export class DocUploadController {
     }
   }
 }
+
+
+module.exports = {
+  DocUploadController
+};

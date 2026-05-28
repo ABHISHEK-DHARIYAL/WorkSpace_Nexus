@@ -1,18 +1,6 @@
-import { 
-  collection, 
-  getDocs, 
-  getDoc, 
-  doc, 
-  addDoc, 
-  updateDoc, 
-  deleteDoc, 
-  query, 
-  where, 
-  orderBy,
-  db
-} from "../config/db";
+const { collection, getDocs, getDoc, doc, addDoc, updateDoc, deleteDoc, query, where, orderBy, db } = require("../config/db");
 
-export class DocIndexService {
+class DocIndexService {
   static async getByProject(projectId: string) {
     const q = query(
       collection(db, "doc_indices"),
@@ -65,3 +53,8 @@ export class DocIndexService {
     return { message: "Index item deleted successfully" };
   }
 }
+
+
+module.exports = {
+  DocIndexService
+};

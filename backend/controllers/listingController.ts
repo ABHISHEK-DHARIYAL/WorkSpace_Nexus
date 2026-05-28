@@ -1,9 +1,13 @@
-import { Request, Response } from "express";
-import { ListingService } from "../services/listingService";
-import { sendSuccess, sendError } from "../utils/response";
-import { AuthRequest } from "../middleware/auth";
 
-export class ListingController {
+const { ListingService } = require("../services/listingService");
+
+type Request = import("express").Request;
+type Response = import("express").Response;
+const { sendSuccess, sendError } = require("../utils/response");
+type AuthRequest = import("../middleware/auth").AuthRequest;
+
+
+class ListingController {
   static async getAll(req: AuthRequest, res: Response) {
     try {
       const listings = await ListingService.getAllByUser(req.user.email);
@@ -86,3 +90,8 @@ export class ListingController {
     }
   }
 }
+
+
+module.exports = {
+  ListingController
+};

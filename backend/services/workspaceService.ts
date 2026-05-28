@@ -1,19 +1,6 @@
-import { 
-  collection, 
-  getDocs, 
-  getDoc, 
-  doc, 
-  addDoc,
-  setDoc,
-  updateDoc, 
-  deleteDoc, 
-  query, 
-  where, 
-  orderBy,
-  db
-} from "../config/db";
+const { collection, getDocs, getDoc, doc, addDoc, setDoc, updateDoc, deleteDoc, query, where, orderBy, db } = require("../config/db");
 
-export class WorkspaceService {
+class WorkspaceService {
   static async getAllByUser(userId: string) {
     const q = query(
       collection(db, "workspaces"), 
@@ -132,3 +119,8 @@ export class WorkspaceService {
     return { message: "Workspace deleted successfully" };
   }
 }
+
+
+module.exports = {
+  WorkspaceService
+};

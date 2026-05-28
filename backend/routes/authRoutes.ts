@@ -1,7 +1,8 @@
-import { Router } from "express";
-import { AuthController } from "../controllers/authController";
-import { authenticate } from "../middleware/auth";
-import { checkDb } from "../middleware/checkDb";
+const { Router } = require("express");
+const { AuthController } = require("../controllers/authController");
+const { authenticate } = require("../middleware/auth");
+
+const { checkDb } = require("../middleware/checkDb");
 
 const router = Router();
 
@@ -13,4 +14,4 @@ router.get("/me", authenticate, checkDb, (req: any, res: any) => {
   res.json({ status: "success", user: req.user });
 });
 
-export default router;
+module.exports = router;

@@ -1,12 +1,7 @@
-import express from 'express';
-import { 
-  getAllWorkspaces, 
-  getWorkspaceById, 
-  createWorkspace, 
-  updateWorkspace, 
-  deleteWorkspace 
-} from '../controllers/workspaceController';
-import { authenticate } from '../middleware/auth';
+const express = require("express");
+const { getAllWorkspaces, getWorkspaceById, createWorkspace, updateWorkspace, deleteWorkspace } = require("../controllers/workspaceController");
+const { authenticate } = require("../middleware/auth");
+
 
 const router = express.Router();
 
@@ -16,4 +11,4 @@ router.post('/', authenticate, createWorkspace);
 router.put('/:id', authenticate, updateWorkspace);
 router.delete('/:id', authenticate, deleteWorkspace);
 
-export default router;
+module.exports = router;

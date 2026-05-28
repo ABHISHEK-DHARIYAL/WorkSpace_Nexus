@@ -1,6 +1,6 @@
-import { db, doc, getDoc } from "../config/db";
+const { db, doc, getDoc } = require("../config/db");
 
-export class PublicSecurityService {
+class PublicSecurityService {
   /**
    * Asserts if the given user is an administrator.
    */
@@ -56,3 +56,8 @@ export class PublicSecurityService {
     }
   }
 }
+
+
+module.exports = {
+  PublicSecurityService
+};

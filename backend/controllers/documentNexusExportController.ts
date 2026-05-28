@@ -1,9 +1,12 @@
-import { Response } from "express";
-import { AuthRequest } from "../middleware/auth";
-import { DocumentNexusExportService } from "../services/documentNexusExportService";
-import { sendError } from "../utils/response";
 
-export class DocumentNexusExportController {
+type AuthRequest = import("../middleware/auth").AuthRequest;
+
+
+type Response = import("express").Response;
+const { DocumentNexusExportService } = require("../services/documentNexusExportService");
+const { sendError } = require("../utils/response");
+
+class DocumentNexusExportController {
   /**
    * GET /export/document-nexus
    * Compiles and exports all of standard user's Document Nexus projects inside a single ZIP file.
@@ -30,3 +33,8 @@ export class DocumentNexusExportController {
     }
   }
 }
+
+
+module.exports = {
+  DocumentNexusExportController
+};

@@ -1,5 +1,5 @@
-import { testDatabaseConnection } from "./config/db";
-import { ListingService } from "./services/listingService";
+const { testDatabaseConnection } = require("./config/db");
+const { ListingService } = require("./services/listingService");
 
 async function main() {
   console.log("Starting test-get-by-id diagnostic...");

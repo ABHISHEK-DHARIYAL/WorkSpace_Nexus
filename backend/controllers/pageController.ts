@@ -1,10 +1,14 @@
-import { Request, Response } from "express";
-import { PageService } from "../services/pageService";
-import { ListingService } from "../services/listingService";
-import { sendSuccess, sendError } from "../utils/response";
-import { AuthRequest } from "../middleware/auth";
 
-export class PageController {
+const { PageService } = require("../services/pageService");
+
+type Request = import("express").Request;
+type Response = import("express").Response;
+const { ListingService } = require("../services/listingService");
+const { sendSuccess, sendError } = require("../utils/response");
+type AuthRequest = import("../middleware/auth").AuthRequest;
+
+
+class PageController {
   static async getByListing(req: AuthRequest, res: Response) {
     try {
       const { listingId } = req.params;
@@ -76,3 +80,8 @@ export class PageController {
     }
   }
 }
+
+
+module.exports = {
+  PageController
+};

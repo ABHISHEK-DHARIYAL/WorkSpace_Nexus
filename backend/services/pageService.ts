@@ -1,18 +1,6 @@
-import { 
-  collection, 
-  getDocs, 
-  getDoc, 
-  doc, 
-  addDoc, 
-  updateDoc, 
-  deleteDoc, 
-  query, 
-  where, 
-  orderBy,
-  db
-} from "../config/db";
+const { collection, getDocs, getDoc, doc, addDoc, updateDoc, deleteDoc, query, where, orderBy, db } = require("../config/db");
 
-export class PageService {
+class PageService {
   static async getByListing(listingId: string) {
     const q = query(
       collection(db, "pages"), 
@@ -176,3 +164,8 @@ export class PageService {
     return matchedPages;
   }
 }
+
+
+module.exports = {
+  PageService
+};

@@ -1,5 +1,5 @@
-import app from "./app";
-import { ENV } from "./config/env";
+const app = require("./app");
+const { ENV } = require("./config/env");
 
 function startServer() {
   const PORT = Number(ENV.PORT);

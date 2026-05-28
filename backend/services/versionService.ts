@@ -1,17 +1,6 @@
-import { 
-  collection, 
-  getDocs, 
-  getDoc, 
-  doc, 
-  addDoc, 
-  query, 
-  where, 
-  orderBy,
-  limit,
-  db
-} from "../config/db";
+const { collection, getDocs, getDoc, doc, addDoc, query, where, orderBy, limit, db } = require("../config/db");
 
-export class VersionService {
+class VersionService {
   static async createSnapshot(pageId: string, content: string, title: string) {
     const snapshot = {
       pageId,
@@ -34,3 +23,8 @@ export class VersionService {
     return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
   }
 }
+
+
+module.exports = {
+  VersionService
+};

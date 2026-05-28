@@ -1,15 +1,6 @@
-import { 
-  collection, 
-  getDocs, 
-  getDoc, 
-  doc, 
-  addDoc, 
-  query, 
-  where,
-  db
-} from "../config/db";
+const { collection, getDocs, getDoc, doc, addDoc, query, where, db } = require("../config/db");
 
-export class HighlightService {
+class HighlightService {
   static async getAll() {
     const q = collection(db, "highlights");
     const snapshot = await getDocs(q);
@@ -44,3 +35,8 @@ export class HighlightService {
     return { id: docRef.id, ...newAnnotation };
   }
 }
+
+
+module.exports = {
+  HighlightService
+};

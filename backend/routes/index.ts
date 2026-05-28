@@ -1,21 +1,21 @@
-import { Router } from "express";
-import authRoutes from "./authRoutes";
-import contentRoutes from "./contentRoutes";
-import userRoutes from "./userRoutes";
-import listingRoutes from "./listingRoutes";
-import workspaceRoutes from "./workspaceRoutes";
-import pageRoutes from "./pageRoutes";
-import highlightRoutes from "./highlightRoutes";
-import docPageRoutes from "./docPageRoutes";
-import docIndexRoutes from "./docIndexRoutes";
-import docUploadRoutes from "./docUploadRoutes";
-import searchRoutes from "./searchRoutes";
-import publicRoutes from "./publicRoutes";
-import exportRoutes from "./exportRoutes";
-import workspaceHubExportRoutes from "./workspaceHubExportRoutes";
-import documentNexusExportRoutes from "./documentNexusExportRoutes";
-import { sendSuccess } from "../utils/response";
-import { isDatabaseWorking } from "../config/db";
+const { Router } = require("express");
+const authRoutes = require("./authRoutes");
+const contentRoutes = require("./contentRoutes");
+const userRoutes = require("./userRoutes");
+const listingRoutes = require("./listingRoutes");
+const workspaceRoutes = require("./workspaceRoutes");
+const pageRoutes = require("./pageRoutes");
+const highlightRoutes = require("./highlightRoutes");
+const docPageRoutes = require("./docPageRoutes");
+const docIndexRoutes = require("./docIndexRoutes");
+const docUploadRoutes = require("./docUploadRoutes");
+const searchRoutes = require("./searchRoutes");
+const publicRoutes = require("./publicRoutes");
+const exportRoutes = require("./exportRoutes");
+const workspaceHubExportRoutes = require("./workspaceHubExportRoutes");
+const documentNexusExportRoutes = require("./documentNexusExportRoutes");
+const { sendSuccess } = require("../utils/response");
+const { isDatabaseWorking } = require("../config/db");
 
 const router = Router();
 
@@ -43,4 +43,4 @@ router.use("/export", exportRoutes);
 router.use("/export", workspaceHubExportRoutes);
 router.use("/export", documentNexusExportRoutes);
 
-export default router;
+module.exports = router;

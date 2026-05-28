@@ -1,18 +1,6 @@
-import { 
-  collection, 
-  getDocs, 
-  getDoc, 
-  doc, 
-  addDoc, 
-  updateDoc, 
-  deleteDoc, 
-  query, 
-  where, 
-  orderBy,
-  db
-} from "../config/db";
+const { collection, getDocs, getDoc, doc, addDoc, updateDoc, deleteDoc, query, where, orderBy, db } = require("../config/db");
 
-export class DocPageService {
+class DocPageService {
   static async getByProject(projectId: string) {
     const q = query(
       collection(db, "doc_pages"),
@@ -64,3 +52,8 @@ export class DocPageService {
     return { message: "Page deleted successfully" };
   }
 }
+
+
+module.exports = {
+  DocPageService
+};

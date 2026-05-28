@@ -1,4 +1,4 @@
-export class HighlightExportService {
+class HighlightExportService {
   /**
    * Compiles custom highlight listings and styling coordinates payload representation
    */
@@ -15,3 +15,8 @@ export class HighlightExportService {
     return JSON.stringify(formatted, null, 2);
   }
 }
+
+
+module.exports = {
+  HighlightExportService
+};

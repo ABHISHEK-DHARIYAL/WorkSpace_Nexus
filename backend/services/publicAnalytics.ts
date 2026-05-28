@@ -1,6 +1,6 @@
-import { db, doc, getDoc, collection, getDocs, query, where } from "../config/db";
+const { db, doc, getDoc, collection, getDocs, query, where } = require("../config/db");
 
-export class PublicAnalyticsService {
+class PublicAnalyticsService {
   /**
    * Aggregates public content and calculates comprehensive admin metrics.
    */
@@ -166,3 +166,8 @@ export class PublicAnalyticsService {
     };
   }
 }
+
+
+module.exports = {
+  PublicAnalyticsService
+};

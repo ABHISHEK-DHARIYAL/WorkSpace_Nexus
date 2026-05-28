@@ -1,11 +1,14 @@
-import { Response } from "express";
-import { AuthRequest } from "../middleware/auth";
-import { ProjectExporter } from "../services/projectExporter";
-import { ZipService } from "../services/zipService";
-import { ListingService } from "../services/listingService";
-import { sendSuccess, sendError } from "../utils/response";
 
-export class ExportController {
+type AuthRequest = import("../middleware/auth").AuthRequest;
+
+
+type Response = import("express").Response;
+const { ProjectExporter } = require("../services/projectExporter");
+const { ZipService } = require("../services/zipService");
+const { ListingService } = require("../services/listingService");
+const { sendSuccess, sendError } = require("../utils/response");
+
+class ExportController {
   /**
    * GET /export/project/:id
    * Compresses and exports a single project by ID as a downloadable ZIP file.
@@ -69,3 +72,8 @@ export class ExportController {
     }
   }
 }
+
+
+module.exports = {
+  ExportController
+};

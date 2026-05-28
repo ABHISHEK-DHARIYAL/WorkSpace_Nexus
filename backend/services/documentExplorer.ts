@@ -1,6 +1,6 @@
-import { collection, getDocs, db, getDoc, doc } from "../config/db";
+const { collection, getDocs, db, getDoc, doc } = require("../config/db");
 
-export class DocumentExplorer {
+class DocumentExplorer {
   static async getNexusData() {
     const usersSnapshot = await getDocs(collection(db, "users"));
     const workspacesSnapshot = await getDocs(collection(db, "workspaces"));
@@ -121,3 +121,8 @@ export class DocumentExplorer {
     };
   }
 }
+
+
+module.exports = {
+  DocumentExplorer
+};

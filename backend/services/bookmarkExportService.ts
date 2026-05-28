@@ -1,4 +1,4 @@
-export class BookmarkExportService {
+class BookmarkExportService {
   /**
    * Compiles custom bookmark list elements payload representation
    */
@@ -14,3 +14,8 @@ export class BookmarkExportService {
     return JSON.stringify(formatted, null, 2);
   }
 }
+
+
+module.exports = {
+  BookmarkExportService
+};

@@ -1,4 +1,4 @@
-export class IndexExportService {
+class IndexExportService {
   /**
    * Generates a structural, fully responsive Table of Contents index html page
    */
@@ -136,3 +136,8 @@ export class IndexExportService {
 </html>`;
   }
 }
+
+
+module.exports = {
+  IndexExportService
+};

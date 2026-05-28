@@ -1,4 +1,4 @@
-export class PageExportService {
+class PageExportService {
   /**
    * Formats a sequential array of raw pages into custom HTML elements with readable filenames
    */
@@ -59,3 +59,8 @@ export class PageExportService {
     });
   }
 }
+
+
+module.exports = {
+  PageExportService
+};

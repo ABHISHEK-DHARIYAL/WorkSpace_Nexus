@@ -1,9 +1,13 @@
-import { Request, Response } from "express";
-import { AuthService } from "../services/authService";
-import { sendSuccess, sendError } from "../utils/response";
-import { AuthRequest } from "../middleware/auth";
 
-export class AuthController {
+const { AuthService } = require("../services/authService");
+
+type Request = import("express").Request;
+type Response = import("express").Response;
+const { sendSuccess, sendError } = require("../utils/response");
+type AuthRequest = import("../middleware/auth").AuthRequest;
+
+
+class AuthController {
   static async signup(req: Request, res: Response) {
     try {
       const { email, password, isSocial } = req.body;
@@ -53,3 +57,8 @@ export class AuthController {
     }
   }
 }
+
+
+module.exports = {
+  AuthController
+};

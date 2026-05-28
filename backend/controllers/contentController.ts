@@ -1,9 +1,13 @@
-import { Request, Response } from "express";
-import { ContentService } from "../services/contentService";
-import { sendSuccess, sendError } from "../utils/response";
-import { AuthRequest } from "../middleware/auth";
 
-export class ContentController {
+const { ContentService } = require("../services/contentService");
+
+type Request = import("express").Request;
+type Response = import("express").Response;
+const { sendSuccess, sendError } = require("../utils/response");
+type AuthRequest = import("../middleware/auth").AuthRequest;
+
+
+class ContentController {
   static async getAll(req: Request, res: Response) {
     try {
       const contents = await ContentService.getAll();
@@ -41,3 +45,8 @@ export class ContentController {
     }
   }
 }
+
+
+module.exports = {
+  ContentController
+};

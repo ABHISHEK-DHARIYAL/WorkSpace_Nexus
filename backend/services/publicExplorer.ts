@@ -1,6 +1,6 @@
-import { collection, getDocs, db, query, where, doc, updateDoc, deleteDoc, addDoc, getDoc, orderBy } from "../config/db";
+const { collection, getDocs, db, query, where, doc, updateDoc, deleteDoc, addDoc, getDoc, orderBy } = require("../config/db");
 
-export interface AuditLog {
+interface AuditLog {
   id?: string;
   adminEmail: string;
   adminName: string;
@@ -13,7 +13,7 @@ export interface AuditLog {
   timestamp: string;
 }
 
-export class PublicExplorerService {
+class PublicExplorerService {
   // -------------------------------------------------------------
   // DASHBOARD HUB: SECURE PUBLIC ANALYTICS & HIERARCHY
   // -------------------------------------------------------------
@@ -630,3 +630,8 @@ export class PublicExplorerService {
     return { message: "Content and all cascade references permanently purged." };
   }
 }
+
+
+module.exports = {
+  PublicExplorerService
+};

@@ -1,8 +1,11 @@
-import { Request, Response } from "express";
-import { db, collection, query, where, getDocs } from "../config/db";
-import { sendSuccess, sendError } from "../utils/response";
 
-export const SearchController = {
+const { db, collection, query, where, getDocs } = require("../config/db");
+
+type Request = import("express").Request;
+type Response = import("express").Response;
+const { sendSuccess, sendError } = require("../utils/response");
+
+const SearchController = {
   async search(req: Request, res: Response) {
     try {
       const { query: searchQuery, listingId } = req.query;
@@ -30,4 +33,9 @@ export const SearchController = {
       sendError(res, error.message);
     }
   }
+};
+
+
+module.exports = {
+  SearchController
 };

@@ -1,7 +1,7 @@
-import mammoth from "mammoth";
-import { PageService } from "./pageService";
-import { ListingService } from "./listingService";
-import * as PDFParseModule from "pdf-parse";
+const mammoth = require("mammoth");
+const { PageService } = require("./pageService");
+const { ListingService } = require("./listingService");
+const PDFParseModule = require("pdf-parse");
 
 // Defensive check for PDFParse constructor
 const getPDFParse = () => {
@@ -30,7 +30,7 @@ export interface ParsedDoc {
   }>;
 }
 
-export class DocParserService {
+class DocParserService {
   /**
    * Main entry point for document parsing
    */
@@ -256,3 +256,8 @@ export class DocParserService {
     };
   }
 }
+
+
+module.exports = {
+  DocParserService
+};

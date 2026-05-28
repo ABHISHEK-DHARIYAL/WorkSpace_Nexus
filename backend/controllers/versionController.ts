@@ -1,9 +1,12 @@
-import { Response } from "express";
-import { VersionService } from "../services/versionService";
-import { sendSuccess, sendError } from "../utils/response";
-import { AuthRequest } from "../middleware/auth";
 
-export class VersionController {
+const { VersionService } = require("../services/versionService");
+
+type Response = import("express").Response;
+const { sendSuccess, sendError } = require("../utils/response");
+type AuthRequest = import("../middleware/auth").AuthRequest;
+
+
+class VersionController {
   static async getByPage(req: AuthRequest, res: Response) {
     try {
       const versions = await VersionService.getByPage(req.params.pageId);
@@ -23,3 +26,8 @@ export class VersionController {
     }
   }
 }
+
+
+module.exports = {
+  VersionController
+};

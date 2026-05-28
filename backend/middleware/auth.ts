@@ -1,8 +1,12 @@
-import { Request, Response, NextFunction } from "express";
-import jwt from "jsonwebtoken";
-import { db, doc, getDoc } from "../config/db";
-import { ENV } from "../config/env";
-import { sendError } from "../utils/response";
+
+const jwt = require("jsonwebtoken");
+
+type Request = import("express").Request;
+type Response = import("express").Response;
+type NextFunction = import("express").NextFunction;
+const { db, doc, getDoc } = require("../config/db");
+const { ENV } = require("../config/env");
+const { sendError } = require("../utils/response");
 
 export interface AuthRequest extends Request {
   user?: any;
@@ -23,7 +27,7 @@ const ensureUserInDb = async (email: string, uid?: string) => {
   return null;
 };
 
-export const optionalAuthenticate = async (req: AuthRequest, res: Response, next: NextFunction) => {
+const optionalAuthenticate = async (req: AuthRequest, res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization;
   if (!authHeader) {
     req.user = null;
@@ -80,7 +84,7 @@ export const optionalAuthenticate = async (req: AuthRequest, res: Response, next
   return next();
 };
 
-export const authenticate = async (req: AuthRequest, res: Response, next: NextFunction) => {
+const authenticate = async (req: AuthRequest, res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization;
   if (!authHeader) {
     return sendError(res, "Unauthorized: No token provided", 401);
@@ -139,9 +143,16 @@ export const authenticate = async (req: AuthRequest, res: Response, next: NextFu
   return next();
 };
 
-export const isAdmin = (req: AuthRequest, res: Response, next: NextFunction) => {
+const isAdmin = (req: AuthRequest, res: Response, next: NextFunction) => {
   if (req.user?.role !== "admin") {
     return sendError(res, "Forbidden: Admin access required", 403);
   }
   next();
+};
+
+
+module.exports = {
+  optionalAuthenticate,
+  authenticate,
+  isAdmin
 };

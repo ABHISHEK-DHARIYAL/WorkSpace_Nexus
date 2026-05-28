@@ -1,10 +1,10 @@
-import express from "express";
-import path from "path";
-import cors from "cors";
-import morgan from "morgan";
-import routes from "./routes";
-import { ENV } from "./config/env";
-import { testDatabaseConnection } from "./config/db";
+const express = require("express");
+const path = require("path");
+const cors = require("cors");
+const morgan = require("morgan");
+const routes = require("./routes");
+const { ENV } = require("./config/env");
+const { testDatabaseConnection } = require("./config/db");
 
 // Test database connection on startup
 testDatabaseConnection();
@@ -21,7 +21,7 @@ app.use(morgan("dev"));
 app.use("/api", routes);
 
 // Catch-all for API routes before static serving to prevent API route requests from falling through to client index.html serving
-app.use("/api/*", (req: express.Request, res: express.Response) => {
+app.use("/api/*", (req: any, res: any) => {
   res.status(404).json({
     message: `API route not found: ${req.method} ${req.baseUrl || req.url}`
   });
@@ -30,33 +30,27 @@ app.use("/api/*", (req: express.Request, res: express.Response) => {
 // Vite / Static Serving (Serverless / Production vs Dev)
 if (ENV.NODE_ENV !== "production" && !process.env.VERCEL && !process.env.NOW_BUILDER) {
   console.log("Setting up Vite middleware...");
-  // Dynamically load and register Vite middleware in background to avoid blocking module load
-  import("vite")
-    .then(({ createServer: createViteServer }) => {
-      createViteServer({
-        server: { middlewareMode: true },
-        appType: "spa",
-      })
-        .then((vite) => {
-          app.use(vite.middlewares);
-        })
-        .catch((err) => {
-          console.error("Vite server loader error:", err);
-        });
+  const { createServer } = require("vite");
+  createServer({
+    server: { middlewareMode: true },
+    appType: "spa",
+  })
+    .then((viteServer: any) => {
+      app.use(viteServer.middlewares);
     })
-    .catch((err) => {
-      console.error("Vite import error:", err);
+    .catch((err: any) => {
+      console.error("Vite server loader error or import error:", err);
     });
 } else {
   const distPath = path.resolve(process.cwd(), "dist");
   app.use(express.static(distPath));
-  app.get("*", (req, res) => {
+  app.get("*", (req: any, res: any) => {
     res.sendFile(path.resolve(distPath, "index.html"));
   });
 }
 
 // Global error handler
-app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+app.use((err: any, req: any, res: any, next: any) => {
   console.error("Unhandled Error:", err);
   res.status(err.status || 500).json({
     message: err.message || "An unexpected error occurred",
@@ -64,6 +58,6 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
   });
 });
 
-export default app;
+module.exports = app;
 
 

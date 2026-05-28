@@ -1,15 +1,6 @@
-import { 
-  collection, 
-  getDocs, 
-  getDoc, 
-  doc, 
-  query, 
-  where, 
-  orderBy,
-  db
-} from "../config/db";
+const { collection, getDocs, getDoc, doc, query, where, orderBy, db } = require("../config/db");
 
-export class ProjectExporter {
+class ProjectExporter {
   /**
    * Collects all databases records associated to a specific project (listing)
    */
@@ -138,3 +129,8 @@ export class ProjectExporter {
     };
   }
 }
+
+
+module.exports = {
+  ProjectExporter
+};
