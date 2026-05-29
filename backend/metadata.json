@@ -1,6 +1,6 @@
 {
-  "name": "Remix: Remix: Remix: Remix: Remix: Remix: Remix: Remix: Remix: Remix: Remix: Remix: Remix: Remix: Remix: Remix: Remix: Remix: Remix: Remix: Remix: Remix: DocCMS - Role Based Content System",
-  "description": "A full-stack document-like CMS with admin and user roles, featuring custom JWT authentication and dynamic content pages.",
+  "name": "Workspace Nexus",
+  "description": "A modern production-ready workspace and dynamic content management system featuring seamless document, highlight, and file management with Firebase integration.",
   "requestFramePermissions": [],
   "majorCapabilities": [
     "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"

@@ -28,6 +28,7 @@ export default defineConfig(({mode}) => {
   const firebaseStorageBucket = env.FIREBASE_STORAGE_BUCKET || appletConfig.storageBucket || env.VITE_FIREBASE_STORAGE_BUCKET || "";
   const firebaseSenderId = env.FIREBASE_MESSAGING_SENDER_ID || appletConfig.messagingSenderId || env.VITE_FIREBASE_MESSAGING_SENDER_ID || "";
   const firebaseAppId = env.FIREBASE_APP_ID || appletConfig.appId || env.VITE_FIREBASE_APP_ID || "";
+  const apiURL = env.VITE_API_URL || "";
 
   return {
     plugins: [react(), tailwindcss()],
@@ -39,7 +40,7 @@ export default defineConfig(({mode}) => {
       'import.meta.env.VITE_FIREBASE_STORAGE_BUCKET': JSON.stringify(firebaseStorageBucket),
       'import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID': JSON.stringify(firebaseSenderId),
       'import.meta.env.VITE_FIREBASE_APP_ID': JSON.stringify(firebaseAppId),
-      'import.meta.env.VITE_API_URL': JSON.stringify(""),
+      'import.meta.env.VITE_API_URL': JSON.stringify(apiURL),
     },
     resolve: {
       alias: {
@@ -54,7 +55,7 @@ export default defineConfig(({mode}) => {
       watch: process.env.DISABLE_HMR === 'true' ? null : {},
       proxy: {
         '/api': {
-          target: env.VITE_API_URL || 'http://localhost:3001',
+          target: 'http://localhost:3001',
           changeOrigin: true,
           secure: false,
         },

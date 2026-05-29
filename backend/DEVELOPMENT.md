@@ -29,7 +29,7 @@ In Unified Mode, a single Express server orchestrates the application.
 
 In Separated Mode, the frontend (Vite) and backend (Express API) run as separate servers. 
 - The **Backend API** runs separately on port `3001` (avoids port conflicts automatically and skips spinning up Vite dev-server middleware to conserve CPU/memory).
-- The **Frontend App** runs separately on port `3000`. It automatically proxies and forwards all `/api/*` requests to the separated backend on `http://localhost:3001` (configurable via `VITE_API_URL` environment variable).
+- The **Frontend App** runs separately on port `3000`. It automatically proxies and forwards all `/api/*` requests to the separated backend on `http://localhost:3001`.
 
 ### Steps:
 

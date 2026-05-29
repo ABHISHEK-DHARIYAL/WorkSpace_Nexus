@@ -4,7 +4,8 @@ import { doc, getDoc, setDoc, deleteDoc, db, collection, query, where, getDocs }
 import { ENV } from "../config/env";
 
 const isAdminEmail = (email: string): boolean => {
-  return false;
+  const clean = (email || "").trim().toLowerCase();
+  return ["admin@workspace.com", "hshit7534@gmail.com", "rajveer@gmail.com"].includes(clean);
 };
 
 export class AuthService {
@@ -237,5 +238,29 @@ export class AuthService {
     await deleteDoc(userRef);
     console.log(`[AuthService.deleteAccount] Successfully deleted user account: ${cleanEmail}`);
     return { message: "Account deleted successfully" };
+  }
+
+  static async resetPassword(email: string) {
+    const cleanEmail = (email || "").trim().toLowerCase();
+    const userRef = doc(db, "users", cleanEmail);
+    const userDoc = await getDoc(userRef);
+    
+    if (!userDoc.exists()) {
+      // For security reasons, don't confirm the user does not exist explicitly to avoid username harvest
+      return { message: "If the email is registered, a password reset email has been sent." };
+    }
+    
+    console.log(`[AuthService.resetPassword] Triggered secure password reset mock sequence for: ${cleanEmail}`);
+    // Simulate/Generate reset instructions
+    return { 
+      message: "If the email is registered, a password reset email has been sent.", 
+      mockResetUrl: `http://localhost:3000/reset-password?email=${encodeURIComponent(cleanEmail)}&token=mock-verify-pass-token`
+    };
+  }
+
+  static async refreshToken(email: string, role: string) {
+    const cleanEmail = (email || "").trim().toLowerCase();
+    const token = jwt.sign({ email: cleanEmail, role }, ENV.JWT_SECRET, { expiresIn: "1d" });
+    return { token, user: { email: cleanEmail, role } };
   }
 }

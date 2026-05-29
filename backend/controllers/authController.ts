@@ -28,6 +28,37 @@ export class AuthController {
     }
   }
 
+  static async logout(req: Request, res: Response) {
+    try {
+      sendSuccess(res, { message: "Successfully logged out from backend session" });
+    } catch (error: any) {
+      sendError(res, error.message);
+    }
+  }
+
+  static async resetPassword(req: Request, res: Response) {
+    try {
+      const { email } = req.body;
+      if (!email) return sendError(res, "Email address is required", 400);
+      
+      const result = await AuthService.resetPassword(email);
+      sendSuccess(res, result);
+    } catch (error: any) {
+      sendError(res, error.message, 400);
+    }
+  }
+
+  static async refreshToken(req: AuthRequest, res: Response) {
+    try {
+      const email = req.user.email;
+      const role = req.user.role;
+      const result = await AuthService.refreshToken(email, role);
+      sendSuccess(res, result);
+    } catch (error: any) {
+      sendError(res, error.message, 401);
+    }
+  }
+
   static async updatePassword(req: AuthRequest, res: Response) {
     try {
       const { password } = req.body;
