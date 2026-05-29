@@ -9,6 +9,7 @@ import {
   PlusCircle, FolderPlus, MoreVertical, Briefcase, Download, Loader2
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useNotifications } from '../context/NotificationContext';
 
 const workspaceService = {
   getAll: () => api.get("/workspace"),
@@ -119,6 +120,7 @@ const WorkspaceCard: React.FC<{
 const WorkspaceDashboard: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { showToast } = useNotifications();
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [workspaces, setWorkspaces] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -273,6 +275,7 @@ const WorkspaceDashboard: React.FC = () => {
     try {
       const { data } = await workspaceService.create({ name: newName, description: newDesc });
       setWorkspaces([data, ...(Array.isArray(workspaces) ? workspaces : [])]);
+      showToast(`Workspace "${newName}" created successfully!`, 'success', 'Workspace Created', 3000);
       setShowCreateModal(false);
       setNewName('');
       setNewDesc('');
@@ -299,6 +302,7 @@ const WorkspaceDashboard: React.FC = () => {
       await workspaceService.update(renameWorkspaceId, { name: renameWorkspaceName, description: renameWorkspaceDesc });
       const safeWsList = Array.isArray(workspaces) ? workspaces : [];
       setWorkspaces(safeWsList.map(w => w.id === renameWorkspaceId ? { ...w, name: renameWorkspaceName, description: renameWorkspaceDesc } : w));
+      showToast(`Workspace renamed to "${renameWorkspaceName}"!`, 'success', 'Workspace Updated', 3000);
       setRenameWorkspaceId(null);
     } catch (err) {
       alert('Update failed');
@@ -318,6 +322,7 @@ const WorkspaceDashboard: React.FC = () => {
       await workspaceService.delete(deleteConfirmId);
       const safeWsList = Array.isArray(workspaces) ? workspaces : [];
       setWorkspaces(safeWsList.filter(w => w.id !== deleteConfirmId));
+      showToast('Workspace successfully deleted.', 'success', 'Workspace Removed', 3000);
       setDeleteConfirmId(null);
     } catch (err) {
       alert('Delete failed');

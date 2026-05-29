@@ -36,6 +36,7 @@ import {
 import { publicService } from '../services/api/public';
 import { WorkspaceHubProjectsView } from '../components/workspace/WorkspaceHubProjectsView';
 import { useAuth } from '../context/AuthContext';
+import { useNotifications, triggerNotification } from '../context/NotificationContext';
 
 const listingService = {
   getAll: () => api.get("/listing"),
@@ -173,6 +174,7 @@ const DocUpload: React.FC<DocUploadProps> = ({ onSuccess, onCancel }) => {
       });
 
       setStatus('success');
+      triggerNotification(`Document "${file.name}" uploaded and parsed successfully!`, 'success', 'File Upload Completed');
       if (onSuccess) {
         onSuccess(response.data.listing);
       }
@@ -355,6 +357,7 @@ const ListingDashboard: React.FC = () => {
   const { workspaceId } = useParams<{ workspaceId: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { showToast } = useNotifications();
   const [listings, setListings] = useState<any[]>([]);
   const [allPages, setAllPages] = useState<any[]>([]);
   const [workspace, setWorkspace] = useState<any>(null);
@@ -411,6 +414,7 @@ const ListingDashboard: React.FC = () => {
       window.URL.revokeObjectURL(url);
 
       setExportDone(true);
+      showToast('Your Workspace Hub ZIP export package is ready and downloading!', 'success', 'Bulk Export Finished', 4000);
     } catch (err: any) {
       console.error("Workspace Hub bulk ZIP download failed:", err);
       let friendlyMessage = "Failed to export your Workspace Hub ZIP archive.";
@@ -616,6 +620,7 @@ const ListingDashboard: React.FC = () => {
       }
       await listingService.delete(deleteConfirmId);
       setListings(listings.filter(l => l.id !== deleteConfirmId));
+      showToast('Project has been permanently deleted from this workspace.', 'success', 'Project Deleted', 3000);
       setDeleteConfirmId(null);
     } catch (err: any) {
       console.error('Failed to delete listing', err);
@@ -639,6 +644,7 @@ const ListingDashboard: React.FC = () => {
         addedToNexus: false
       });
       setListings([data, ...listings]);
+      showToast(`Project "${newTitle}" created successfully!`, 'success', 'Project Created', 3000);
       setShowCreateModal(false);
       setNewTitle('');
       setNewDesc('');
@@ -659,6 +665,7 @@ const ListingDashboard: React.FC = () => {
     try {
       await listingService.update(id, { title: tempTitle });
       setListings(listings.map(l => l.id === id ? { ...l, title: tempTitle } : l));
+      showToast('Project renamed successfully!', 'success', 'Project Name Saved', 2500);
       setEditingId(null);
     } catch (err) {
       alert('Failed to rename');
@@ -669,6 +676,12 @@ const ListingDashboard: React.FC = () => {
     try {
       await listingService.update(id, { isBookmarked: !currentStatus });
       setListings(listings.map(l => l.id === id ? { ...l, isBookmarked: !currentStatus } : l));
+      showToast(
+        !currentStatus ? 'Project added to your favorite bookmarks list!' : 'Project removed from your bookmarks.',
+        'success',
+        !currentStatus ? 'Bookmarked' : 'Unbookmarked',
+        2500
+      );
     } catch (err) {
       console.error('Failed to toggle listing bookmark', err);
     }
@@ -678,6 +691,12 @@ const ListingDashboard: React.FC = () => {
     try {
       await api.put(`/page/${id}`, { isBookmarked: !currentStatus });
       setAllPages(allPages.map(p => p.id === id ? { ...p, isBookmarked: !currentStatus } : p));
+      showToast(
+        !currentStatus ? 'Page added to your favorite bookmarks list!' : 'Page removed from your bookmarks.',
+        'success',
+        !currentStatus ? 'Bookmarked' : 'Unbookmarked',
+        2500
+      );
     } catch (err) {
       console.error('Failed to toggle page bookmark', err);
     }

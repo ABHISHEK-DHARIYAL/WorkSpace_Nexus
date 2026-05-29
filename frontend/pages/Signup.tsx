@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useNotifications } from '../context/NotificationContext';
 import { Eye, EyeOff } from 'lucide-react';
 import api from '../services/api/client';
 
@@ -12,6 +13,7 @@ const Signup = () => {
   const [googleError, setGoogleError] = useState('');
   const [signupError, setSignupError] = useState('');
   const { user, signupWithEmail, loginWithGoogle } = useAuth();
+  const { showToast, showModal, activeModal } = useNotifications();
   const navigate = useNavigate();
 
   React.useEffect(() => {
@@ -25,10 +27,13 @@ const Signup = () => {
     setSignupError('');
     try {
       await signupWithEmail(email, password);
+      showToast('Account successfully created! Welcome onboard.', 'success', 'Account Created', 4000);
       navigate('/dashboard');
     } catch (err: any) {
       console.error(err);
-      setSignupError(err?.message || 'Signup failed. Please try again.');
+      const errMsg = err?.message || 'Signup failed. Please try again.';
+      setSignupError(errMsg);
+      showToast(errMsg, 'error', 'Signup Failed', 4005);
     }
   };
 
@@ -37,10 +42,13 @@ const Signup = () => {
     setGoogleError('');
     try {
       await loginWithGoogle();
+      showToast('Successfully signed in with Google!', 'success', 'Welcome', 3000);
       navigate('/dashboard');
     } catch (err: any) {
       console.error(err);
-      setGoogleError(err?.message || 'Failed to sign in with Google. Please try again.');
+      const errMsg = err?.message || 'Failed to sign in with Google. Please try again.';
+      setGoogleError(errMsg);
+      showToast(errMsg, 'error', 'Authentication Failed', 5000);
     } finally {
       setIsGoogleSigningIn(false);
     }
@@ -51,13 +59,34 @@ const Signup = () => {
       <div className="max-w-md w-full bg-white p-8 rounded-2xl shadow-xl border border-slate-100">
         <h2 className="text-3xl font-black mb-6 text-slate-900">Sign Up</h2>
         
-        {signupError && (
-          <div className="mb-4 text-xs text-red-600 bg-red-50 p-3 rounded-xl border border-red-100">
-            {signupError}
+        {!activeModal && signupError && (
+          <div className="mb-4 text-xs text-red-600 bg-red-50 p-4 rounded-xl border border-red-100 space-y-2">
+            <p className="font-bold">{signupError}</p>
+            {signupError.includes("already exists") && (
+              <div className="pt-2 border-t border-red-200/50 flex flex-col gap-2">
+                <p className="text-[11px] text-slate-500 font-medium">
+                  This user may already be seeded or pre-registered in the sandbox. You can use standard login directly!
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const cleanEmail = email.trim();
+                    if (cleanEmail) {
+                      navigate(`/login?email=${encodeURIComponent(cleanEmail)}`);
+                    } else {
+                      navigate('/login');
+                    }
+                  }}
+                  className="w-full text-center py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-bold text-[10.5px] uppercase transition-colors cursor-pointer"
+                >
+                  Log In with {email || "Account"} instead
+                </button>
+              </div>
+            )}
           </div>
         )}
 
-        {googleError && (
+        {!activeModal && googleError && (
           <div className="mb-4 text-xs text-red-650 bg-red-50/70 p-4 rounded-xl border border-red-100 flex flex-col gap-2 shadow-xs transition-all">
             <div className="flex items-start space-x-2">
               <span className="text-red-500 font-bold text-sm mt-0.5">⚠️</span>
@@ -136,10 +165,7 @@ const Signup = () => {
           </button>
         </form>
 
-
-
-
-        <p className="mt-4 text-center text-sm text-slate-500">
+        <p className="mt-6 text-center text-sm text-slate-500">
           Already have an account? <Link to="/login" className="text-indigo-600 font-bold hover:underline">Login</Link>
         </p>
       </div>

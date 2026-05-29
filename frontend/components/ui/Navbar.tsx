@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
+import { useNotifications } from '../../context/NotificationContext';
 import { FileText, LogOut, LayoutDashboard, User as UserIcon, Shield, Lock, CheckCircle2, Loader2, X, Sun, Moon, Menu } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { authService } from '../../services/api/auth';
@@ -11,6 +12,7 @@ const Navbar: React.FC = () => {
   const { user, logout, updateUser } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const { mobileSidebarOpen, setMobileSidebarOpen } = useDevice();
+  const { showToast } = useNotifications();
   const navigate = useNavigate();
   const location = useLocation();
   const [showSecurityModal, setShowSecurityModal] = useState(false);
@@ -29,6 +31,7 @@ const Navbar: React.FC = () => {
   const handleSaveName = () => {
     if (tempName.trim()) {
       updateUser({ name: tempName.trim() });
+      showToast('Profile name updated successfully!', 'success', 'Profile Updated', 3000);
     }
     setIsEditingName(false);
   };
@@ -43,6 +46,7 @@ const Navbar: React.FC = () => {
 
   const handleLogout = () => {
     logout();
+    showToast('Logged out successfully. See you next session!', 'success', 'Signed Out', 3000);
     navigate('/login');
   };
 
@@ -57,6 +61,7 @@ const Navbar: React.FC = () => {
     try {
       await authService.updatePassword({ password: newPassword });
       setPasswordStatus({ type: 'success', msg: 'Password successfully updated!' });
+      showToast('Your security credentials have been updated successfully!', 'success', 'Password Updated', 3500);
       updateUser({ isSocial: false });
       setNewPassword('');
       setTimeout(() => setShowSecurityModal(false), 2000);
@@ -75,6 +80,7 @@ const Navbar: React.FC = () => {
       setShowSecurityModal(false);
       setDeleteConfirm(false);
       logout();
+      showToast('Your account was permanently deleted from our records.', 'info', 'Account Terminated', 5000);
       navigate('/login');
     } catch (err: any) {
       setPasswordStatus({ type: 'error', msg: err?.message || err?.response?.data?.message || 'Failed to delete account' });

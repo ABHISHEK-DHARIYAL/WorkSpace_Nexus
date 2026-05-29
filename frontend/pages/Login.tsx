@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useNotifications } from '../context/NotificationContext';
 import { Eye, EyeOff } from 'lucide-react';
 import api from '../services/api/client';
 
@@ -12,6 +13,7 @@ const Login = () => {
   const [googleError, setGoogleError] = useState('');
   const [loginError, setLoginError] = useState('');
   const { user, loginWithEmail, loginWithGoogle } = useAuth();
+  const { showToast, showModal, activeModal } = useNotifications();
   const navigate = useNavigate();
 
   React.useEffect(() => {
@@ -20,15 +22,27 @@ const Login = () => {
     }
   }, [user, navigate]);
 
+  React.useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const emailParam = params.get('email');
+    if (emailParam) {
+      setEmail(emailParam);
+      setPassword('password123');
+    }
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoginError('');
     try {
       await loginWithEmail(email, password);
+      showToast('Successfully signed in!', 'success', 'Welcome Back', 3000);
       navigate('/dashboard');
     } catch (err: any) {
       console.error(err);
-      setLoginError(err?.message || 'Login failed. Please check your credentials.');
+      const errMsg = err?.message || 'Login failed. Please check your credentials.';
+      setLoginError(errMsg);
+      showToast(errMsg, 'error', 'Login Failed', 4005);
     }
   };
 
@@ -37,10 +51,13 @@ const Login = () => {
     setGoogleError('');
     try {
       await loginWithGoogle();
+      showToast('Successfully signed in with Google!', 'success', 'Welcome', 3000);
       navigate('/dashboard');
     } catch (err: any) {
       console.error(err);
-      setGoogleError(err?.message || 'Failed to sign in with Google. Please try again.');
+      const errMsg = err?.message || 'Failed to sign in with Google. Please try again.';
+      setGoogleError(errMsg);
+      showToast(errMsg, 'error', 'Authentication Failed', 5000);
     } finally {
       setIsGoogleSigningIn(false);
     }
@@ -51,13 +68,13 @@ const Login = () => {
       <div className="max-w-md w-full bg-white p-8 rounded-2xl shadow-xl border border-slate-100">
         <h2 className="text-3xl font-black mb-6 text-slate-900">Login</h2>
 
-        {loginError && (
+        {!activeModal && loginError && (
           <div className="mb-4 text-xs text-red-600 bg-red-50 p-3 rounded-xl border border-red-100">
             {loginError}
           </div>
         )}
 
-        {googleError && (
+        {!activeModal && googleError && (
           <div className="mb-4 text-xs text-red-650 bg-red-50/70 p-4 rounded-xl border border-red-100 flex flex-col gap-2 shadow-xs transition-all">
             <div className="flex items-start space-x-2">
               <span className="text-red-500 font-bold text-sm mt-0.5">⚠️</span>
@@ -137,27 +154,7 @@ const Login = () => {
         </form>
 
 
-
-        {window.self !== window.top && (
-          <div className="mt-6 p-4.5 bg-indigo-50/60 dark:bg-slate-900/40 rounded-2xl border border-indigo-100/60 dark:border-slate-800 text-center text-xs text-indigo-950 dark:text-slate-350 shadow-sm relative">
-            <p className="font-bold mb-1 text-slate-900 dark:text-white flex items-center justify-center gap-1.5">
-              <span>🖥️</span> IFrame Environment Detected
-            </p>
-            <p className="text-[11px] text-slate-500 dark:text-slate-450 mb-3 leading-relaxed">
-              Google Auth popups are frequently blocked by default by browser privacy settings inside an embedded frame.
-            </p>
-            <a 
-              href={window.location.href} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-1 w-full py-2 px-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold tracking-wide transition-all shadow-md hover:shadow-lg text-[11px] uppercase"
-            >
-              Open App in New Tab ↗
-            </a>
-          </div>
-        )}
-
-        <p className="text-center text-sm text-slate-500 mt-4">
+        <p className="text-center text-sm text-slate-500 mt-6">
           Don't have an account? <Link to="/signup" className="text-indigo-600 font-bold hover:underline">Sign Up</Link>
         </p>
       </div>

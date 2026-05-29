@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { triggerNotification } from '../../context/NotificationContext';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || '/api',
@@ -108,6 +109,8 @@ api.interceptors.response.use(
           message: error.response?.data?.message || error.message,
           url
         });
+        const errorMsg = error.response?.data?.message || error.message || 'Connection lost or server unavailable.';
+        triggerNotification(errorMsg, 'error', 'API Request Failure');
       }
     }
     return Promise.reject(error);

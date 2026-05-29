@@ -230,8 +230,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const loginWithGoogle = async () => {
-    // Force show Google account selector list for zero-login latency and local sandbox consistency
-    console.log("Firebase is disabled. Showing Google sandbox account selector list.");
+    if (auth) {
+      try {
+        setLoading(true);
+        const provider = new GoogleAuthProvider();
+        provider.setCustomParameters({ prompt: 'select_account' });
+        const result = await signInWithPopup(auth, provider);
+        if (result && result.user) {
+          await handleFirebaseUserAuthenticated(result.user);
+          return;
+        }
+      } catch (err: any) {
+        console.error("Firebase Google Auth failed:", err);
+        const diagnosed = handleFirebaseAuthError(err);
+        console.warn("Falling back to sandbox account selector due to error:", diagnosed.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+    
+    // Fallback to high-fidelity Sandbox / Mock Account Selector
+    console.log("Showing Google sandbox account selector list.");
     setShowMockGoogleSelector(true);
   };
 
@@ -451,6 +470,27 @@ const MockGoogleAuthModal: React.FC<MockGoogleAuthModalProps> = ({ isOpen, onClo
               </span>
             </div>
             <span className="text-[10px] bg-teal-100 dark:bg-teal-950/30 text-teal-800 dark:text-teal-300 font-bold px-2 py-0.5 rounded-full uppercase">
+              Google
+            </span>
+          </button>
+
+          <button
+            onClick={() => handleSelectAccount('rajveerhelloworld@gmail.com', 'Rajveer Helloworld')}
+            disabled={isSubmitting}
+            className="w-full flex items-center p-3 rounded-xl border border-slate-200 dark:border-indigo-800/80 hover:border-indigo-500 hover:bg-indigo-50/30 dark:hover:bg-indigo-950/10 transition-all text-left bg-indigo-50/10 dark:bg-indigo-950/5 group cursor-pointer"
+          >
+            <div className="w-10 h-10 rounded-full bg-violet-100 text-violet-600 font-bold flex items-center justify-center text-sm mr-3">
+              RV
+            </div>
+            <div className="flex-1">
+              <span className="block font-bold text-sm text-slate-900 dark:text-white group-hover:text-violet-500 transition-colors">
+                Rajveer Helloworld (My Google User)
+              </span>
+              <span className="block text-xs text-slate-500 dark:text-slate-450 font-mono">
+                rajveerhelloworld@gmail.com
+              </span>
+            </div>
+            <span className="text-[10px] bg-indigo-150 dark:bg-indigo-950/30 text-indigo-800 dark:text-indigo-300 font-bold px-2 py-0.5 rounded-full uppercase">
               Google
             </span>
           </button>

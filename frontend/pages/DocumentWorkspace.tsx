@@ -35,6 +35,7 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { triggerNotification } from '../context/NotificationContext';
 import Editor from '../components/editor/Editor';
 import { DocumentSidebar } from '../components/workspace/DocumentSidebar';
 import { DocumentTopToolbar, DocumentCanvasToolbar } from '../components/workspace/DocumentWorkspaceToolbars';
@@ -110,7 +111,7 @@ const DocumentWorkspace: React.FC = () => {
 
   const handleDownloadDocumentNexus = async () => {
     if (!user) {
-      alert("Please log in to download your Document Nexus!");
+      triggerNotification("Please log in to download your Document Nexus!", 'warning', 'Authentication Required');
       return;
     }
 
@@ -178,7 +179,7 @@ const DocumentWorkspace: React.FC = () => {
 
   const handleDownloadAllProjects = async () => {
     if (!user) {
-      alert("Please log in to download your projects!");
+      triggerNotification("Please log in to download your projects!", 'warning', 'Authentication Required');
       return;
     }
 
@@ -553,8 +554,9 @@ const DocumentWorkspace: React.FC = () => {
       setShowAddWorkspaceModal(false);
       setNewWorkspaceName('');
       setNewWorkspaceDesc('');
+      triggerNotification('Workspace constructed successfully!', 'success', 'Workspace Created');
     } catch (err) {
-      alert('Failed to construct workspace');
+      triggerNotification('Failed to construct workspace', 'error', 'Workspace Creation Failed');
     }
   };
 
@@ -573,8 +575,9 @@ const DocumentWorkspace: React.FC = () => {
         setSelectedWorkspace({ ...selectedWorkspace, name: renameWorkspaceName, description: renameWorkspaceDesc });
       }
       setWorkspaceToRename(null);
+      triggerNotification('Workspace updated successfully!', 'success', 'Workspace Updated');
     } catch (err) {
-      alert('Update Workspace failed');
+      triggerNotification('Update Workspace failed', 'error', 'Workspace Update Failed');
     }
   };
 
@@ -590,8 +593,9 @@ const DocumentWorkspace: React.FC = () => {
         setSelectedWorkspace(remaining[0] || null);
       }
       setWorkspaceToDelete(null);
+      triggerNotification('Workspace deleted successfully!', 'success', 'Workspace Deleted', 3000);
     } catch (err) {
-      alert('Deconstructing Workspace failed');
+      triggerNotification('Deconstructing Workspace failed', 'error', 'Workspace Deletion Failed');
     }
   };
 
@@ -603,9 +607,10 @@ const DocumentWorkspace: React.FC = () => {
       if (selectedProject?.id === projectId) {
         setSelectedProject({ ...selectedProject, isBookmarked: !currentStatus });
       }
+      triggerNotification(!currentStatus ? 'Project added to bookmarks!' : 'Project removed from bookmarks', 'success', 'Bookmarks');
     } catch (err: any) {
       console.error("Failed to star listing", err);
-      alert("Failed to bookmark project: " + (err?.response?.data?.message || err?.message));
+      triggerNotification("Failed to bookmark project: " + (err?.response?.data?.message || err?.message), 'error', 'Bookmark Failed');
     }
   };
 
@@ -617,8 +622,9 @@ const DocumentWorkspace: React.FC = () => {
       if (selectedProject?.id === projectId) {
         setSelectedProject({ ...selectedProject, title: newTitle });
       }
+      triggerNotification('Project renamed successfully!', 'success', 'Project Updated');
     } catch (err: any) {
-      alert("Failed to rename project: " + (err?.response?.data?.message || err?.message));
+      triggerNotification("Failed to rename project: " + (err?.response?.data?.message || err?.message), 'error', 'Rename Failed');
     }
   };
 
@@ -631,8 +637,9 @@ const DocumentWorkspace: React.FC = () => {
       if (selectedProject?.id === projectId) {
         setSelectedProject({ ...selectedProject, visibility: newVal });
       }
+      triggerNotification(`Visibility set to ${newVal} successfully!`, 'success', 'Visibility Updated');
     } catch (err: any) {
-      alert(err?.response?.data?.message || 'Failed to update visibility');
+      triggerNotification(err?.response?.data?.message || 'Failed to update visibility', 'error', 'Visibility Change Failed');
     }
   };
 
@@ -680,8 +687,9 @@ const DocumentWorkspace: React.FC = () => {
         });
       }
       setSelectedProjectForSettings(null);
+      triggerNotification('Project settings updated successfully!', 'success', 'Settings Updated');
     } catch (err: any) {
-      alert(err?.response?.data?.message || 'Failed to update visibility & tags');
+      triggerNotification(err?.response?.data?.message || 'Failed to update visibility & tags', 'error', 'Settings Update Failed');
     } finally {
       setSavingProjectSettings(false);
     }
@@ -704,8 +712,9 @@ const DocumentWorkspace: React.FC = () => {
       
       setShowLinkProjectModal(false);
       setSelectedProjectToLink('');
+      triggerNotification('Project linked to Nexus workspace successfully!', 'success', 'Project Linked');
     } catch (err: any) {
-      alert(err || 'Failed to link workspace project');
+      triggerNotification(typeof err === 'string' ? err : (err?.message || 'Failed to link workspace project'), 'error', 'Project Linking Failed');
     } finally {
       setLinkingProject(false);
     }
@@ -788,8 +797,9 @@ const DocumentWorkspace: React.FC = () => {
         setSelectedProject(remaining[0] || null);
       }
       setProjectToDelete(null);
-    } catch (err) {
-      alert("Deleting project failed");
+      triggerNotification('Project deleted successfully!', 'success', 'Project Deleted');
+    } catch (err: any) {
+      triggerNotification(err?.message || "Deleting project failed", 'error', 'Project Deletion Failed');
     }
   };
 
@@ -821,8 +831,9 @@ const DocumentWorkspace: React.FC = () => {
       });
       setPages([samplePage, ...pages]);
       setCurrentIndex(0);
+      triggerNotification('New project established successfully!', 'success', 'Project Created');
     } catch (err) {
-      alert('Failed to establish new Project listing');
+      triggerNotification('Failed to establish new Project listing', 'error', 'Project Creation Failed');
     }
   };
 
@@ -863,7 +874,7 @@ const DocumentWorkspace: React.FC = () => {
   const handleIndexAdd = async (e: React.FormEvent) => {
     e.preventDefault();
     if (indexForm.pageIds.length === 0) {
-      alert('Please select at least one page');
+      triggerNotification('Please select at least one page', 'warning', 'No Pages Selected');
       return;
     }
     try {
@@ -878,8 +889,9 @@ const DocumentWorkspace: React.FC = () => {
       setShowIndexModal(false);
       setIndexForm({ title: '', pageIds: [], sectionId: '' });
       setPageSearch('');
+      triggerNotification('Index outline anchor created successfully!', 'success', 'Index Created');
     } catch (err) {
-      alert('Failed to create index outline anchor');
+      triggerNotification('Failed to create index outline anchor', 'error', 'Index Creation Failed');
     }
   };
 
@@ -887,8 +899,9 @@ const DocumentWorkspace: React.FC = () => {
     try {
       await docIndexService.delete(id);
       setIndices(indices.filter(i => i.id !== id));
+      triggerNotification('Index outline node deleted successfully!', 'success', 'Index Deleted');
     } catch (err) {
-      alert('Delete failed');
+      triggerNotification('Delete failed', 'error', 'Index Deletion Failed');
     }
   };
 
@@ -990,10 +1003,10 @@ const DocumentWorkspace: React.FC = () => {
 
       // reload
       await loadSystemData();
-      alert("Interactive Guide & System Spec Workspace seeded successfully!");
+      triggerNotification("Interactive Guide & System Spec Workspace seeded successfully!", "success", "Workspace Hub Seeded", 5000);
     } catch (err: any) {
       console.error("Workspace seeding failed", err);
-      alert("Failed to seed sample pages and index lines. " + (err?.message || err));
+      triggerNotification("Failed to seed sample pages and index lines. " + (err?.message || err), "error", "Seeding Failed");
     } finally {
       setLoading(false);
     }
@@ -1008,8 +1021,9 @@ const DocumentWorkspace: React.FC = () => {
       });
       setPages([...pages, data]);
       setCurrentIndex(filteredPages.length);
+      triggerNotification('Draft page added successfully!', 'success', 'Page Created', 2500);
     } catch (err) {
-      alert('Failed to add page');
+      triggerNotification('Failed to add page', 'error', 'Page Creation Failed');
     }
   };
 
@@ -1037,8 +1051,9 @@ const DocumentWorkspace: React.FC = () => {
         setCurrentIndex(0);
       }
       setDeleteConfirmId(null);
+      triggerNotification('Page deleted successfully!', 'success', 'Page Deleted');
     } catch (err) {
-      alert('Delete document page failed');
+      triggerNotification('Delete document page failed', 'error', 'Page Deletion Failed');
     }
   };
 
@@ -1053,8 +1068,9 @@ const DocumentWorkspace: React.FC = () => {
       } else {
         setCurrentIndex(0);
       }
+      triggerNotification('Page deleted successfully!', 'success', 'Page Deleted');
     } catch (err) {
-      alert('Delete page failed');
+      triggerNotification('Delete page failed', 'error', 'Page Deletion Failed');
     }
   };
 
@@ -1065,8 +1081,9 @@ const DocumentWorkspace: React.FC = () => {
       await docPageService.update(id, { title: tempTitle });
       setPages(pages.map(p => p.id === id ? { ...p, title: tempTitle } : p));
       setEditingTitle(false);
+      triggerNotification('Page title updated successfully!', 'success', 'Page Updated');
     } catch (err) {
-      alert('Failed to update title');
+      triggerNotification('Failed to update title', 'error', 'Page Update Failed');
     }
   };
 
@@ -2018,8 +2035,9 @@ const DocumentWorkspace: React.FC = () => {
                     try {
                       await docPageService.update(id, { title: newTitle });
                       setPages(pages.map(p => p.id === id ? { ...p, title: newTitle } : p));
+                      triggerNotification('Page title updated successfully!', 'success', 'Page Renamed');
                     } catch (err) {
-                      alert('Failed to rename page');
+                      triggerNotification('Failed to rename page', 'error', 'Page Rename Failed');
                     }
                   }}
                   activeTab={activeTab}

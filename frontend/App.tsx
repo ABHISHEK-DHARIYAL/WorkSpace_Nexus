@@ -8,6 +8,8 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { DeviceProvider } from './context/DeviceContext';
 import { ScaleProvider } from './providers/ScaleProvider';
+import { NotificationProvider } from './context/NotificationContext';
+import { SafeGuard } from './components/ui/SafeGuard';
 import Navbar from './components/ui/Navbar';
 import ProtectedRoute from './components/ui/ProtectedRoute';
 import Sidebar from './components/ui/Sidebar';
@@ -137,15 +139,19 @@ function AppContent() {
 export default function App() {
   return (
     <Router>
-      <ThemeProvider>
-        <DeviceProvider>
-          <ScaleProvider>
-            <AuthProvider>
-              <AppContent />
-            </AuthProvider>
-          </ScaleProvider>
-        </DeviceProvider>
-      </ThemeProvider>
+      <SafeGuard>
+        <ThemeProvider>
+          <DeviceProvider>
+            <ScaleProvider>
+              <NotificationProvider>
+                <AuthProvider>
+                  <AppContent />
+                </AuthProvider>
+              </NotificationProvider>
+            </ScaleProvider>
+          </DeviceProvider>
+        </ThemeProvider>
+      </SafeGuard>
     </Router>
   );
 }

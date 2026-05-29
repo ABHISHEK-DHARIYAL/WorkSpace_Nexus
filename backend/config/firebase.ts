@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import { fileURLToPath } from "url";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import { ENV } from "./env";
@@ -165,8 +166,30 @@ import * as admin from "firebase-admin";
 import { getFirestore as getAdminFirestore } from "firebase-admin/firestore";
 import { getApps, initializeApp } from "firebase-admin/app";
 
+// Safely load and merge firebase-applet-config.json for absolute environment consistency
+let appletConfig: any = {};
+try {
+  const rootConfigPath = path.resolve(process.cwd(), "backend/firebase-applet-config.json");
+  let currentDir = "";
+  try {
+    currentDir = __dirname;
+  } catch {
+    currentDir = path.dirname(fileURLToPath(import.meta.url));
+  }
+  const subConfigPath = path.resolve(currentDir, "../firebase-applet-config.json");
+  const configPath = fs.existsSync(rootConfigPath) ? rootConfigPath : (fs.existsSync(subConfigPath) ? subConfigPath : "");
+  if (configPath) {
+    appletConfig = JSON.parse(fs.readFileSync(configPath, "utf8"));
+    console.log("[Database Service] Backend loaded Configs from firebase-applet-config.json");
+  }
+} catch (err) {
+  console.warn("[Database Service] Could not load firebase-applet-config.json:", err);
+}
+
+const finalProjectId = process.env.FIREBASE_PROJECT_ID || appletConfig.projectId || "";
+
 const isConfigured = !!(
-  process.env.FIREBASE_PROJECT_ID ||
+  finalProjectId ||
   (process.env.FIREBASE_PRIVATE_KEY && process.env.FIREBASE_CLIENT_EMAIL)
 );
 
@@ -192,26 +215,25 @@ if (shouldInitAdminSdk) {
         ? process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n')
         : undefined;
       const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
-      const projectId = process.env.FIREBASE_PROJECT_ID || "";
 
       if (privateKey && clientEmail) {
         const adminCred = admin.credential || (admin as any).default?.credential;
         adminApp = initializeApp({
           credential: adminCred.cert({
-            projectId,
+            projectId: finalProjectId,
             clientEmail,
             privateKey,
           }),
         });
       } else {
         adminApp = initializeApp({
-          projectId: projectId,
+          projectId: finalProjectId,
         });
       }
     }
-    const dbId = process.env.FIREBASE_DATABASE_ID || undefined;
+    const dbId = appletConfig.firestoreDatabaseId || undefined;
     adminFirestoreInstance = getAdminFirestore(adminApp, dbId);
-    console.log("Firebase Admin SDK initialized successfully.");
+    console.log(`Firebase Admin SDK initialized successfully for database: ${dbId || "(default)"}`);
   } catch (err) {
     console.error("Firebase Admin SDK init error:", err);
   }
@@ -664,7 +686,23 @@ try {
     updatedUsers = true;
   }
 
-  const nonAdminEmails = ["heroofthevil311@gmail.com", "hshit7534@gmail.com", "rajveer@gmail.com"];
+  // Seed rajveerhelloworld@gmail.com so user can login directly
+  if (!users["rajveerhelloworld@gmail.com"]) {
+    users["rajveerhelloworld@gmail.com"] = {
+      email: "rajveerhelloworld@gmail.com",
+      role: "user",
+      isSocial: false,
+      password: bcrypt.hashSync("password123", 10),
+      createdAt: new Date().toISOString()
+    };
+    updatedUsers = true;
+    console.log("[Database Service] Seeded default active sandbox user: rajveerhelloworld@gmail.com");
+  } else if (!users["rajveerhelloworld@gmail.com"].password) {
+    users["rajveerhelloworld@gmail.com"].password = bcrypt.hashSync("password123", 10);
+    updatedUsers = true;
+  }
+
+  const nonAdminEmails = ["heroofthevil311@gmail.com", "hshit7534@gmail.com", "rajveer@gmail.com", "rajveerhelloworld@gmail.com"];
   for (const email of nonAdminEmails) {
     if (users[email] && users[email].role === "admin") {
       users[email].role = "user";

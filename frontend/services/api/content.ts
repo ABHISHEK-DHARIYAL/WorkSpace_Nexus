@@ -150,7 +150,8 @@ export const contentService = {
       }
       return { data: items };
     } catch (err) {
-      handleFirestoreError(err, OperationType.GET, pathForDocs);
+      console.warn("[Content Service] Live Firestore getAll query failed, falling back to local sandbox memory:", err);
+      return { data: getLocalFallbackContents() };
     }
   },
 
@@ -177,7 +178,10 @@ export const contentService = {
         }
       };
     } catch (err) {
-      handleFirestoreError(err, OperationType.GET, `${pathForDocs}/slug/${slug}`);
+      console.warn(`[Content Service] Live Firestore getBySlug query failed for ${slug}, falling back to local sandbox memory:`, err);
+      const local = getLocalFallbackContents();
+      const item = local.find(x => x.slug === slug);
+      return { data: item || null };
     }
   },
 

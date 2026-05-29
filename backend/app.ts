@@ -60,6 +60,8 @@ export async function createApp() {
     console.log("Setting up Vite middleware...");
     const { createServer: createViteServer } = await import("vite");
     const vite = await createViteServer({
+      root: path.resolve(process.cwd(), "frontend"),
+      configFile: path.resolve(process.cwd(), "frontend/vite.config.ts"),
       server: { middlewareMode: true },
       appType: "spa",
     });

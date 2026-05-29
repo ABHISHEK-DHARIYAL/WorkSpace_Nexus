@@ -1,7 +1,7 @@
 /// <reference types="vite/client" />
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
-import { getFirestore, enableIndexedDbPersistence } from 'firebase/firestore';
+import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 
 // ==========================================
@@ -10,7 +10,7 @@ import { getStorage } from 'firebase/storage';
 export const detectEnvironment = () => {
   const origin = typeof window !== 'undefined' ? window.location.origin : '';
   const isLocalhost = origin.includes('localhost') || origin.includes('127.0.0.1');
-  const isVercel = origin.includes('.vercel.app') || !!import.meta.env.VITE_VERCEL;
+  const isVercel = origin.includes('.vercel.app');
   const isDev = import.meta.env.DEV;
   
   return {
@@ -99,14 +99,14 @@ if (isConfigured) {
 }
 
 export const auth = app ? getAuth(app) : null;
-export const db = app ? getFirestore(app, import.meta.env.VITE_FIREBASE_DATABASE_ID || undefined) : null;
+export const db = app 
+  ? initializeFirestore(app, {
+      localCache: persistentLocalCache({
+        tabManager: persistentMultipleTabManager()
+      })
+    }, import.meta.env.VITE_FIREBASE_DATABASE_ID || undefined)
+  : null;
 export const storage = app ? getStorage(app) : null;
-
-if (db) {
-  enableIndexedDbPersistence(db).catch((err) => {
-    console.warn("Firestore client offline persistent cache activation warning:", err.message);
-  });
-}
 
 // ==========================================
 // 4. Stable Firebase Auth Error Helpers
