@@ -17,42 +17,16 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    function isEmailVerified() {
-      return isSignedIn() && (
-        request.auth.token.email_verified == true || 
-        request.auth.token.firebase.sign_in_provider == 'google.com'
-      );
-    }
-
-    function isAdmin() {
-      return isSignedIn() && (
-        request.auth.token.email == 'admin@workspace.com'
-      );
-    }
-
-    function isValidId(id) {
-      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
-    }
-
-    function canAccessListing(listingId) {
-      return get(/databases/$(database)/documents/listings/$(listingId)).data.visibility == 'public' || 
-             (isSignedIn() && (
-               get(/databases/$(database)/documents/listings/$(listingId)).data.owner == request.auth.uid || 
-               get(/databases/$(database)/documents/listings/$(listingId)).data.owner == request.auth.token.email || 
-               isAdmin()
-             ));
-    }
-
     // --- 1. Users Collection ---
     match /users/{email} {
-      allow read: if isSignedIn() && (request.auth.token.email == email || isAdmin());
-      allow write: if isSignedIn() && (request.auth.token.email == email || isAdmin());
+      allow read: if isSignedIn() && (request.auth.token.email == email || request.auth.token.email == 'admin@workspace.com');
+      allow write: if isSignedIn() && (request.auth.token.email == email || request.auth.token.email == 'admin@workspace.com');
     }
 
     // --- 2. Contents (CMS Pages) ---
     match /contents/{contentId} {
       allow read: if true;
-      allow write: if isAdmin();
+      allow write: if isSignedIn() && request.auth.token.email == 'admin@workspace.com';
     }
 
     // --- 3. Workspaces ---
@@ -61,13 +35,13 @@ service cloud.firestore {
         resource.data.owner == request.auth.uid || 
         resource.data.owner == request.auth.token.email || 
         workspaceId.startsWith('main-') || 
-        isAdmin()
+        request.auth.token.email == 'admin@workspace.com'
       );
       allow create: if isSignedIn() && request.resource.data.owner == request.auth.uid;
       allow update, delete: if isSignedIn() && (
         resource.data.owner == request.auth.uid || 
         resource.data.owner == request.auth.token.email || 
-        isAdmin()
+        request.auth.token.email == 'admin@workspace.com'
       );
     }
 
@@ -77,42 +51,55 @@ service cloud.firestore {
         isSignedIn() && (
           resource.data.owner == request.auth.uid || 
           resource.data.owner == request.auth.token.email || 
-          isAdmin()
+          request.auth.token.email == 'admin@workspace.com'
         )
       );
       allow create: if isSignedIn() && request.resource.data.owner == request.auth.uid;
       allow update, delete: if isSignedIn() && (
         resource.data.owner == request.auth.uid || 
         resource.data.owner == request.auth.token.email || 
-        isAdmin()
+        request.auth.token.email == 'admin@workspace.com'
       );
     }
 
     // --- 5. Pages of Document Listings ---
     match /pages/{pageId} {
-      allow read: if canAccessListing(resource.data.listingId);
+      allow read: if get(/databases/$(database)/documents/listings/$(resource.data.listingId)).data.visibility == 'public' || 
+                   (isSignedIn() && (
+                      get(/databases/$(database)/documents/listings/$(resource.data.listingId)).data.owner == request.auth.uid || 
+                      get(/databases/$(database)/documents/listings/$(resource.data.listingId)).data.owner == request.auth.token.email || 
+                      request.auth.token.email == 'admin@workspace.com'
+                    ));
       allow create: if isSignedIn() && (
         get(/databases/$(database)/documents/listings/$(request.resource.data.listingId)).data.owner == request.auth.uid || 
-        isAdmin()
+        request.auth.token.email == 'admin@workspace.com'
       );
       allow update, delete: if isSignedIn() && (
         get(/databases/$(database)/documents/listings/$(resource.data.listingId)).data.owner == request.auth.uid || 
-        isAdmin()
+        request.auth.token.email == 'admin@workspace.com'
       );
     }
 
     // --- 6. Highlights ---
     match /highlights/{highlightId} {
-      allow read: if canAccessListing(resource.data.listingId);
-      allow create: if isSignedIn() && canAccessListing(request.resource.data.listingId);
-      allow update, delete: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow read: if get(/databases/$(database)/documents/listings/$(resource.data.listingId)).data.visibility == 'public' || 
+                   (isSignedIn() && (
+                      get(/databases/$(database)/documents/listings/$(resource.data.listingId)).data.owner == request.auth.uid || 
+                      get(/databases/$(database)/documents/listings/$(resource.data.listingId)).data.owner == request.auth.token.email || 
+                      request.auth.token.email == 'admin@workspace.com'
+                    ));
+      allow create: if isSignedIn() && (
+        get(/databases/$(database)/documents/listings/$(request.resource.data.listingId)).data.visibility == 'public' || 
+        get(/databases/$(database)/documents/listings/$(request.resource.data.listingId)).data.owner == request.auth.uid
+      );
+      allow update, delete: if isSignedIn() && (resource.data.userId == request.auth.uid || request.auth.token.email == 'admin@workspace.com');
     }
 
     // --- 7. Annotations ---
     match /annotations/{annotationId} {
       allow read: if isSignedIn();
       allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
-      allow update, delete: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow update, delete: if isSignedIn() && (resource.data.userId == request.auth.uid || request.auth.token.email == 'admin@workspace.com');
     }
 
     // --- 8. Public Interaction Collections ---
@@ -138,8 +125,22 @@ service cloud.firestore {
       allow read, write: if isSignedIn();
     }
     match /admin_audit_logs/{logId} {
-      allow read: if isAdmin();
+      allow read: if isSignedIn() && request.auth.token.email == 'admin@workspace.com';
       allow create: if isSignedIn();
+    }
+
+    // --- 9. Workspace Hub and Document Nexus Independent Collections ---
+    match /workspaceHubWorkspaces/{workspaceId} {
+      allow read, write: if isSignedIn();
+    }
+    match /workspaceHubProjects/{projectId} {
+      allow read, write: if isSignedIn();
+    }
+    match /documentNexusWorkspaces/{workspaceId} {
+      allow read, write: if isSignedIn();
+    }
+    match /documentNexusDocuments/{documentId} {
+      allow read, write: if isSignedIn();
     }
   }
 }

@@ -15,12 +15,24 @@ export class ProjectExporter {
    */
   static async exportProjectData(projectId: string, userEmail: string, isAdmin = false) {
     // 1. Get Listing (Project Metadata)
-    const listingRef = doc(db, "listings", projectId);
-    const listingSnap = await getDoc(listingRef);
-    if (!listingSnap.exists()) {
-      throw new Error("Project not found");
+    let listingRef = doc(db, "workspaceHubProjects", projectId);
+    let listingSnap = await getDoc(listingRef);
+    let isNexusDoc = false;
+    let listing;
+
+    if (listingSnap.exists()) {
+      listing = { id: listingSnap.id, ...listingSnap.data() as any };
+    } else {
+      // Try Document Nexus documents
+      listingRef = doc(db, "documentNexusDocuments", projectId);
+      listingSnap = await getDoc(listingRef);
+      if (listingSnap.exists()) {
+        listing = { id: listingSnap.id, ...listingSnap.data() as any };
+        isNexusDoc = true;
+      } else {
+        throw new Error("Project not found");
+      }
     }
-    const listing = { id: listingSnap.id, ...listingSnap.data() as any };
 
     // Validate ownership before allowing export
     if (listing.owner !== userEmail && !isAdmin) {
@@ -31,7 +43,7 @@ export class ProjectExporter {
     let pages: any[] = [];
     let indices: any[] = [];
 
-    if (listing.addedToNexus === true) {
+    if (isNexusDoc || listing.addedToNexus === true) {
       // Document pages for Nexus format
       const pagesQuery = query(
         collection(db, "doc_pages"), 

@@ -14,6 +14,8 @@ import publicRoutes from "./publicRoutes";
 import exportRoutes from "./exportRoutes";
 import workspaceHubExportRoutes from "./workspaceHubExportRoutes";
 import documentNexusExportRoutes from "./documentNexusExportRoutes";
+import documentNexusWorkspaceRoutes from "./documentNexusWorkspaceRoutes";
+import documentNexusDocumentRoutes from "./documentNexusDocumentRoutes";
 import { sendSuccess } from "../utils/response";
 import { isFirestoreWorking } from "../config/firebase";
 
@@ -35,6 +37,8 @@ router.use("/index", docIndexRoutes);
 router.use("/users", userRoutes);
 router.use("/workspace", workspaceRoutes);
 router.use("/listing", listingRoutes);
+router.use("/document-nexus/workspace", documentNexusWorkspaceRoutes);
+router.use("/document-nexus/document", documentNexusDocumentRoutes);
 router.use("/page", pageRoutes);
 router.use("/highlight", highlightRoutes);
 router.use("/docs", docUploadRoutes);

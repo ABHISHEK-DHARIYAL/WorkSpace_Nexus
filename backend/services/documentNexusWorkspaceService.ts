@@ -13,10 +13,10 @@ import {
   db
 } from "../config/firebase";
 
-export class WorkspaceService {
+export class DocumentNexusWorkspaceService {
   static async getAllByUser(userId: string) {
     const q = query(
-      collection(db, "workspaceHubWorkspaces"), 
+      collection(db, "documentNexusWorkspaces"), 
       where("owner", "==", userId),
       orderBy("updatedAt", "desc")
     );
@@ -24,30 +24,30 @@ export class WorkspaceService {
     let workspaces = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() as any }));
 
     if (workspaces.length === 0) {
-      const defaultId = `main-${userId.replace(/[^a-zA-Z0-9]/g, '-')}`;
+      const defaultId = `nexus-main-${userId.replace(/[^a-zA-Z0-9]/g, '-')}`;
       const defaultWs = {
-        name: "Main Workspace",
-        description: "Your default workspace for projects.",
+        name: "Main Nexus Workspace",
+        description: "Your default workspace for documents.",
         owner: userId,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         projectCount: 0
       };
-      await setDoc(doc(db, "workspaceHubWorkspaces", defaultId), defaultWs);
+      await setDoc(doc(db, "documentNexusWorkspaces", defaultId), defaultWs);
       workspaces = [{ id: defaultId, ...defaultWs }];
     }
 
-    // Fetch all listings owned by this user to dynamically calculate and auto-heal projectCount (excluding Document Nexus projects)
+    // Fetch all listings owned by this user to dynamically calculate and auto-heal projectCount
     try {
       const listingsQuery = query(
-        collection(db, "workspaceHubProjects"),
+        collection(db, "documentNexusDocuments"),
         where("owner", "==", userId)
       );
       const listingsSnapshot = await getDocs(listingsQuery);
       const allListings = listingsSnapshot.docs.map(d => d.data());
 
       for (const ws of workspaces) {
-        const isMain = ws.id.startsWith('main-');
+        const isMain = ws.id.startsWith('nexus-main-');
         const wsListings = allListings.filter(l => {
           if (isMain) {
             return !l.workspaceId || l.workspaceId === ws.id || l.workspaceId === 'main';
@@ -56,32 +56,32 @@ export class WorkspaceService {
         });
         const realCount = wsListings.length;
         if (ws.projectCount !== realCount) {
-          const docRef = doc(db, "workspaceHubWorkspaces", ws.id);
+          const docRef = doc(db, "documentNexusWorkspaces", ws.id);
           await updateDoc(docRef, { projectCount: realCount });
           ws.projectCount = realCount;
         }
       }
     } catch (err) {
-      console.error("Failed to dynamically sync project counts:", err);
+      console.error("Failed to dynamically sync Document Nexus document counts:", err);
     }
 
     return workspaces;
   }
 
   static async getById(id: string) {
-    const docRef = doc(db, "workspaceHubWorkspaces", id);
+    const docRef = doc(db, "documentNexusWorkspaces", id);
     const docSnap = await getDoc(docRef);
     if (!docSnap.exists()) return null;
     const ws = { id: docSnap.id, ...docSnap.data() as any };
 
-    // Dynamically calculate and sync projectCount (excluding Document Nexus projects)
+    // Dynamically calculate and sync projectCount
     try {
       const listingsQuery = query(
-        collection(db, "workspaceHubProjects"),
+        collection(db, "documentNexusDocuments"),
         where("owner", "==", ws.owner)
       );
       const listingsSnapshot = await getDocs(listingsQuery);
-      const isMain = ws.id.startsWith('main-');
+      const isMain = ws.id.startsWith('nexus-main-');
       const wsListings = listingsSnapshot.docs.map(d => d.data()).filter(l => {
         if (isMain) {
           return !l.workspaceId || l.workspaceId === ws.id || l.workspaceId === 'main';
@@ -94,7 +94,7 @@ export class WorkspaceService {
         ws.projectCount = realCount;
       }
     } catch (err) {
-      console.error("Failed to dynamically sync projectCount for workspace by id:", err);
+      console.error("Failed to dynamically sync documentCount for workspace by id:", err);
     }
 
     return ws;
@@ -109,12 +109,12 @@ export class WorkspaceService {
       updatedAt: new Date().toISOString(),
       projectCount: 0
     };
-    const docRef = await addDoc(collection(db, "workspaceHubWorkspaces"), newWorkspace);
+    const docRef = await addDoc(collection(db, "documentNexusWorkspaces"), newWorkspace);
     return { id: docRef.id, ...newWorkspace };
   }
 
   static async update(id: string, data: any) {
-    const docRef = doc(db, "workspaceHubWorkspaces", id);
+    const docRef = doc(db, "documentNexusWorkspaces", id);
     const updateData = {
       ...data,
       updatedAt: new Date().toISOString()
@@ -124,9 +124,7 @@ export class WorkspaceService {
   }
 
   static async delete(id: string) {
-    // Note: We might want to handle what happens to listings in this workspace
-    // For now, just delete the workspace
-    await deleteDoc(doc(db, "workspaceHubWorkspaces", id));
-    return { message: "Workspace deleted successfully" };
+    await deleteDoc(doc(db, "documentNexusWorkspaces", id));
+    return { message: "Document Nexus workspace deleted successfully" };
   }
 }

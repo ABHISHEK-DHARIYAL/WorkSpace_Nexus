@@ -16,7 +16,7 @@ import {
 export class ListingService {
   static async getAllByUser(userId: string) {
     const q = query(
-      collection(db, "listings"), 
+      collection(db, "workspaceHubProjects"), 
       where("owner", "==", userId),
       orderBy("updatedAt", "desc")
     );
@@ -34,7 +34,7 @@ export class ListingService {
         if (pagesSnapshot.size > 0) {
           const pageIds = pagesSnapshot.docs.map(d => d.id);
           // Update the listing document in Firestore to persist the fix
-          const listingRef = doc(db, "listings", l.id);
+          const listingRef = doc(db, "workspaceHubProjects", l.id);
           await updateDoc(listingRef, { 
             pages: pageIds,
             updatedAt: new Date().toISOString()
@@ -54,7 +54,7 @@ export class ListingService {
     let listings: any[];
     if (isMain) {
       const q = query(
-        collection(db, "listings"),
+        collection(db, "workspaceHubProjects"),
         where("owner", "==", userId)
       );
       const snapshot = await getDocs(q);
@@ -62,7 +62,7 @@ export class ListingService {
       listings = allListings.filter(l => !l.workspaceId || l.workspaceId === workspaceId || l.workspaceId === 'main');
     } else {
       const q = query(
-        collection(db, "listings"), 
+        collection(db, "workspaceHubProjects"), 
         where("workspaceId", "==", workspaceId),
         orderBy("updatedAt", "desc")
       );
@@ -79,7 +79,7 @@ export class ListingService {
         
         if (pagesSnapshot.size > 0) {
           const pageIds = pagesSnapshot.docs.map(d => d.id);
-          const listingRef = doc(db, "listings", l.id);
+          const listingRef = doc(db, "workspaceHubProjects", l.id);
           await updateDoc(listingRef, { 
             pages: pageIds,
             updatedAt: new Date().toISOString()
@@ -94,7 +94,7 @@ export class ListingService {
   }
 
   static async getById(id: string) {
-    const docRef = doc(db, "listings", id);
+    const docRef = doc(db, "workspaceHubProjects", id);
     const docSnap = await getDoc(docRef);
     if (!docSnap.exists()) return null;
     
@@ -171,18 +171,18 @@ export class ListingService {
       owner: ownerId,
       visibility: data.visibility || "private",
       tags: data.tags || [],
-      addedToNexus: data.addedToNexus !== undefined ? !!data.addedToNexus : false,
+      addedToNexus: false, // Workspace Hub is completely independent
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       pages: [],
       index: [],
       highlights: []
     };
-    const docRef = await addDoc(collection(db, "listings"), newListing);
+    const docRef = await addDoc(collection(db, "workspaceHubProjects"), newListing);
     
-    // Update workspace project count (only if not added to Nexus)
-    if (data.workspaceId && data.workspaceId !== "main" && data.addedToNexus !== true) {
-      const workspaceRef = doc(db, "workspaces", data.workspaceId);
+    // Update workspace project count
+    if (data.workspaceId && data.workspaceId !== "main") {
+      const workspaceRef = doc(db, "workspaceHubWorkspaces", data.workspaceId);
       const wsSnap = await getDoc(workspaceRef);
       if (wsSnap.exists()) {
         const wsData = wsSnap.data();
@@ -197,7 +197,7 @@ export class ListingService {
   }
 
   static async update(id: string, data: any) {
-    const docRef = doc(db, "listings", id);
+    const docRef = doc(db, "workspaceHubProjects", id);
     const updateData = {
       ...data,
       updatedAt: new Date().toISOString()
@@ -225,7 +225,7 @@ export class ListingService {
     await Promise.all(deleteBatch);
 
     // 2. Delete the listing itself
-    await deleteDoc(doc(db, "listings", id));
+    await deleteDoc(doc(db, "workspaceHubProjects", id));
     
     return { message: "Listing and all associated content deleted successfully" };
   }

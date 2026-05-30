@@ -57,22 +57,11 @@ const workspaceService = {
   getById: (id: string) => api.get(`/workspace/${id}`),
 };
 
+import SharedLoader from '../components/ui/Loader';
+
 const Loader: React.FC = () => {
   return (
-    <div className="flex items-center justify-center min-h-[400px]">
-      <motion.div
-        animate={{
-          scale: [1, 1.1, 1],
-          rotate: [0, 180, 360],
-        }}
-        transition={{
-          duration: 1.5,
-          repeat: Infinity,
-          ease: "easeInOut"
-        }}
-        className="w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full"
-      />
-    </div>
+    <SharedLoader size="lg" message="Syncing with Listing Dashboard..." />
   );
 };
 
@@ -1234,24 +1223,24 @@ const ListingDashboard: React.FC = () => {
   if (loading) return <Loader />;
 
   return (
-    <div className="workspace-hub-main-wrapper min-h-screen bg-slate-50/50 dark:bg-[#0f1115] text-slate-800 dark:text-slate-200 flex transition-colors duration-300">
-      {/* Mobile Sidebar backdrop */}
+    <div className="workspace-hub-main-wrapper flex flex-row w-full min-h-screen bg-slate-50/50 dark:bg-[#0f1115] text-slate-800 dark:text-slate-200 transition-colors duration-300">
+      {/* Mobile Sidebar backdrop overlay */}
       {isMobileSidebarOpen && (
         <div 
-          className="fixed inset-0 bg-slate-910/60 backdrop-blur-sm z-40 lg:hidden" 
+          className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 md:hidden" 
           onClick={() => setIsMobileSidebarOpen(false)}
         />
       )}
 
-      {/* Sidebar - Desktop & Mobile Drawer */}
-      <aside className={`workspace-hub-sidebar bg-white dark:bg-[#15181e] border-r border-slate-100 dark:border-[#2d323f] flex-shrink-0 flex-col transition-all duration-300 ${
+      {/* Sidebar - Desktop collapsible, tablet collapsible, mobile drawer */}
+      <aside className={`workspace-hub-sidebar bg-white dark:bg-[#15181e] border-r border-slate-100 dark:border-[#2d323f] flex-shrink-0 flex flex-col transition-all duration-300 overflow-y-auto ${
         isMobileSidebarOpen 
-          ? 'fixed inset-y-0 left-0 z-50 flex w-80 shadow-2xl h-screen' 
-          : 'hidden lg:flex sticky top-0 h-screen ' + (isSidebarCollapsed ? 'w-20' : 'w-80')
-      }`}>
-        <div className={`workspace-hub-top-pane transition-all duration-300 ${isSidebarCollapsed && !isMobileSidebarOpen ? 'p-4 pb-2' : 'p-8 pb-4'}`}>
+          ? 'fixed inset-y-0 left-0 z-50 w-[300px] shadow-2xl flex' 
+          : 'hidden md:flex'
+      } ${isSidebarCollapsed ? 'md:w-20' : 'md:w-[300px]'}`}>
+        <div className={`workspace-hub-top-pane transition-all duration-300 ${isSidebarCollapsed ? 'p-4 pb-2' : 'p-8 pb-4'}`}>
           <div className="flex items-center justify-between mb-10">
-            <Link to="/dashboard" className={`flex items-center gap-3 group ${isSidebarCollapsed && !isMobileSidebarOpen ? 'justify-center' : ''}`}>
+            <Link to="/dashboard" className={`flex items-center gap-3 group ${isSidebarCollapsed ? 'md:justify-center' : ''}`}>
                <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-black text-sm shadow-md shadow-indigo-600/20">D</div>
                {(!isSidebarCollapsed || isMobileSidebarOpen) && (
                  <span className="text-xl font-black text-slate-900 dark:text-white tracking-tighter uppercase whitespace-nowrap">Doc Hub</span>
@@ -1260,8 +1249,8 @@ const ListingDashboard: React.FC = () => {
             {isMobileSidebarOpen && (
               <button 
                 onClick={() => setIsMobileSidebarOpen(false)}
-                className="lg:hidden p-1.5 bg-slate-100 hover:bg-slate-250 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-lg text-slate-500 hover:text-slate-800 dark:hover:text-white transition cursor-pointer"
-                title="Close Sidebar"
+                className="md:hidden p-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-lg text-slate-500 hover:text-slate-800 dark:hover:text-white transition cursor-pointer"
+                title="Close Sidebar Menu"
               >
                 <X size={16} />
               </button>
@@ -1384,16 +1373,15 @@ const ListingDashboard: React.FC = () => {
       </aside>
 
       {/* Main Content Area */}
-      <main className="flex-1 min-w-0 overflow-y-auto">
+      <main className="flex-1 min-w-0">
         <header className="bg-white/80 dark:bg-[#15181e]/80 backdrop-blur-md border-b border-slate-100 dark:border-[#2d323f] sticky top-0 z-30 px-6 py-4 flex items-center justify-between transition-colors duration-300">
            <div className="flex items-center gap-4">
               <button 
                 onClick={() => setIsMobileSidebarOpen(true)}
-                className="lg:hidden p-2 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 rounded-xl text-slate-600 dark:text-slate-350 hover:text-indigo-600 dark:hover:text-indigo-400 flex items-center gap-1.5 border border-slate-200 dark:border-slate-850 bg-white/50 dark:bg-[#15181e]/50 shadow-xs cursor-pointer transition-all"
-                title="Expand Workspace Sidebar"
+                className="md:hidden p-2 hover:bg-slate-100 dark:hover:bg-[#1f242e] rounded-xl text-slate-500 cursor-pointer"
+                title="Open Workspace Menu"
               >
-                <List size={18} />
-                <span className="text-[10px] font-black uppercase tracking-wider inline">Expand sidebar</span>
+                <List size={20} />
               </button>
               <Link to="/dashboard" className="lg:hidden p-2 hover:bg-slate-100 dark:hover:bg-[#1f242e] rounded-xl text-slate-550" title="Return to Core Dashboard">
                  <ArrowLeft size={20} />

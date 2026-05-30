@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
@@ -34,6 +35,18 @@ import DocumentNexusBookmarkReader from './pages/DocumentNexusBookmarkReader';
 function AppContent() {
   const { user } = useAuth();
   const location = useLocation();
+  const [isImmersive, setIsImmersive] = useState(false);
+
+  React.useEffect(() => {
+    const handleImmersiveChange = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      setIsImmersive(!!customEvent.detail?.active);
+    };
+    window.addEventListener('immersive-mode-change', handleImmersiveChange);
+    return () => {
+      window.removeEventListener('immersive-mode-change', handleImmersiveChange);
+    };
+  }, []);
 
   const publicPaths = ['/', '/login', '/signup'];
   const isPublic = publicPaths.includes(location.pathname) || location.pathname.startsWith('/content/');
@@ -42,9 +55,9 @@ function AppContent() {
 
   return (
     <div className="min-h-screen bg-[#f8fafc] text-slate-800 dark:bg-[#0f1115] dark:text-slate-200 transition-colors duration-300 font-sans selection:bg-black dark:selection:bg-[#eee1ba] selection:text-white dark:selection:text-black">
-      <Navbar />
-      <div className="flex pt-14 sm:pt-16">
-        {showSidebar && <Sidebar />}
+      {!isImmersive && <Navbar />}
+      <div className={`flex ${isImmersive ? 'pt-0' : 'pt-14 sm:pt-16'}`}>
+        {showSidebar && !isImmersive && <Sidebar />}
         <main className="flex-grow min-w-0">
           <Routes>
             {/* Public Routes */}

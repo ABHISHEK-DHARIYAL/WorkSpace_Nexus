@@ -29,14 +29,10 @@ import { EditorSidebar } from '../components/editor/EditorSidebar';
 import { EditorStats } from '../components/editor/EditorStats';
 import { ComfortWorkspaceSettings } from '../components/workspace/ComfortWorkspaceSettings';
 
+import SharedLoader from '../components/ui/Loader';
+
 const Loader: React.FC = () => (
-  <div className="flex items-center justify-center min-h-[400px]">
-    <motion.div
-      animate={{ scale: [1, 1.1, 1], rotate: [0, 180, 360] }}
-      transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-      className="w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full"
-    />
-  </div>
+  <SharedLoader size="lg" message="Loading editor controls..." />
 );
 
 const listingService = {
@@ -67,6 +63,47 @@ const ListingEditor: React.FC = () => {
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [isZenMode, setIsZenMode] = useState(false);
   const [stats, setStats] = useState({ words: 0, characters: 0, readingTime: 0 });
+
+  useEffect(() => {
+    // Notify top-level App.tsx to hide global Navbar and Sidebar
+    window.dispatchEvent(new CustomEvent('immersive-mode-change', { detail: { active: isZenMode } }));
+
+    if (isZenMode) {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch((err) => {
+          console.warn(`Fullscreen request failed: ${err.message}`);
+        });
+      }
+    } else {
+      if (document.fullscreenElement) {
+        document.exitFullscreen().catch((err) => {
+          console.warn(`Fullscreen exit failed: ${err.message}`);
+        });
+      }
+    }
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isZenMode) {
+        setIsZenMode(false);
+      }
+    };
+
+    const handleFullscreenChange = () => {
+      if (!document.fullscreenElement && isZenMode) {
+        setIsZenMode(false);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+      // Ensure we restore layout when leaving page
+      window.dispatchEvent(new CustomEvent('immersive-mode-change', { detail: { active: false } }));
+    };
+  }, [isZenMode]);
 
   // Comfort layout & eyecare settings states
   const [readerTheme, setReaderTheme] = useState<'slate' | 'vanilla' | 'midnight'>('slate');
@@ -335,21 +372,37 @@ const ListingEditor: React.FC = () => {
 
             {/* Floating exit zen mode button removed as requested, since the option is present in the toolbar */}
 
-            <div className={`mx-auto h-full p-6 lg:p-10 flex flex-col transition-all duration-500 ${isZenMode ? 'max-w-3xl py-24' : 'max-w-5xl'}`}>
+            {isZenMode && (
+              <button
+                type="button"
+                onClick={() => setIsZenMode(false)}
+                className="fixed top-6 right-6 z-50 px-4 py-2 bg-slate-900/80 dark:bg-black/70 hover:bg-rose-600 hover:text-white text-slate-200 rounded-xl text-xs font-black uppercase tracking-wider shadow-lg flex items-center gap-1.5 transition-all duration-300 transform hover:scale-105 active:scale-95 cursor-pointer backdrop-blur-md border border-slate-700/50"
+                title="Exit Immersive Mode (Esc)"
+              >
+                <Minimize2 size={13} />
+                <span>Exit Immersive</span>
+              </button>
+            )}
+
+            <div className={`flex flex-col transition-all duration-500 ${isZenMode ? 'w-full h-full p-0 max-w-none' : 'mx-auto h-full p-6 lg:p-10 max-w-5xl w-full'}`}>
               {currentPageId ? (
                 <motion.div 
                   layout
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className={`h-full flex flex-col rounded-[32px] border transition-colors duration-500 ${
-                    readerTheme === 'midnight' 
-                      ? 'bg-[#151924]/90 border-[#2d323f]/80 shadow-2xl shadow-black/40 text-slate-100' 
-                      : readerTheme === 'vanilla' 
-                        ? 'bg-[#fdf6e3] border-[#eee1ba] shadow-lg text-[#5b4636]' 
-                        : 'bg-white border-slate-200 shadow-sm text-slate-800'
-                  } overflow-hidden`}
+                  className={`flex-grow flex flex-col transition-colors duration-500 overflow-hidden ${
+                    isZenMode 
+                      ? 'border-0 bg-transparent shadow-none' 
+                      : (
+                        readerTheme === 'midnight' 
+                          ? 'bg-[#151924]/90 border border-[#2d323f]/80 shadow-2xl shadow-black/40 rounded-[32px]' 
+                          : readerTheme === 'vanilla' 
+                            ? 'bg-[#fdf6e3] border-[#eee1ba] shadow-lg text-[#5b4636] rounded-[32px]' 
+                            : 'bg-white border border-slate-200 shadow-sm text-slate-800 rounded-[32px]'
+                      )
+                  }`}
                 >
-                <div className="flex-grow overflow-y-auto p-12 custom-scrollbar">
+                <div className={`flex-grow overflow-y-auto custom-scrollbar ${isZenMode ? 'p-8 md:p-20 max-w-3xl mx-auto w-full' : 'p-12'}`}>
                   <Editor 
                     content={currentPage?.content || ''} 
                     onChange={handlePageUpdate} 
@@ -359,7 +412,7 @@ const ListingEditor: React.FC = () => {
                     className={readerTheme === 'midnight' ? 'prose-invert text-white' : ''}
                   />
                 </div>
-                <EditorStats stats={stats} />
+                {!isZenMode && <EditorStats stats={stats} />}
               </motion.div>
             ) : (
               <div className="flex flex-col items-center justify-center h-full text-slate-400">

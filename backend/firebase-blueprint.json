@@ -145,6 +145,22 @@
     "/annotations/{annotationId}": {
       "schema": "Annotation",
       "description": "Collaborative page annotations/comments."
+    },
+    "/workspaceHubWorkspaces/{workspaceId}": {
+      "schema": "Workspace",
+      "description": "Workspace Hub dedicated workspace groups."
+    },
+    "/workspaceHubProjects/{projectId}": {
+      "schema": "Listing",
+      "description": "Workspace Hub isolated project listings."
+    },
+    "/documentNexusWorkspaces/{workspaceId}": {
+      "schema": "Workspace",
+      "description": "Document Nexus isolated workspace groups."
+    },
+    "/documentNexusDocuments/{documentId}": {
+      "schema": "Listing",
+      "description": "Document Nexus dedicated document listings."
     }
   }
 }

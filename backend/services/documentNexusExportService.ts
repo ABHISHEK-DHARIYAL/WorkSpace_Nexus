@@ -1,12 +1,11 @@
-import { ListingService } from "./listingService";
-import { WorkspaceService } from "./workspaceService";
+import { DocumentNexusDocumentService } from "./documentNexusDocumentService";
+import { DocumentNexusWorkspaceService } from "./documentNexusWorkspaceService";
 import { ProjectExporter } from "./projectExporter";
 import { ZipService } from "./zipService";
 
 export class DocumentNexusExportService {
   /**
    * Compiles and exports all of standard user's Document Nexus projects inside a single ZIP file.
-   * Only includes listings where addedToNexus === true.
    */
   static async exportUserDocumentNexus(userEmail: string): Promise<Buffer> {
     if (!userEmail) {
@@ -14,13 +13,10 @@ export class DocumentNexusExportService {
     }
 
     // 1. Retrieve all workspaces for this user
-    const workspaces = await WorkspaceService.getAllByUser(userEmail);
+    const workspaces = await DocumentNexusWorkspaceService.getAllByUser(userEmail);
 
-    // 2. Retrieve all listings owned by the user
-    const allUserListings = await ListingService.getAllByUser(userEmail);
-
-    // 3. Filter down only to standard Document Nexus listings (addedToNexus === true)
-    const nexusListings = allUserListings.filter(l => l.addedToNexus === true);
+    // 2. Retrieve all documents owned by the user for Document Nexus
+    const nexusListings = await DocumentNexusDocumentService.getAllByUser(userEmail);
 
     if (nexusListings.length === 0) {
       throw new Error("No projects found in your Document Nexus to export. Import or create a project in the Document Nexus first!");

@@ -13,10 +13,7 @@ export class WorkspaceHubExportService {
     }
 
     // 1. Get all listings owned by the user
-    const allUserListings = await ListingService.getAllByUser(userEmail);
-
-    // 2. Filter down only to standard Workspace Hub listings (addedToNexus !== true)
-    const hubListings = allUserListings.filter(l => l.addedToNexus !== true);
+    const hubListings = await ListingService.getAllByUser(userEmail);
 
     if (hubListings.length === 0) {
       throw new Error("No projects found in your Workspace Hub to export.");

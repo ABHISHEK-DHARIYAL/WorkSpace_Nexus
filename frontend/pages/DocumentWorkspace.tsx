@@ -44,19 +44,19 @@ import { DocumentNexusProjectsView } from '../components/workspace/DocumentNexus
 
 // Internal/External Services
 const workspaceService = {
-  getAll: () => api.get("/workspace"),
-  create: (data: any) => api.post("/workspace", data),
-  update: (id: string, data: any) => api.put(`/workspace/${id}`, data),
-  delete: (id: string) => api.delete(`/workspace/${id}`),
+  getAll: () => api.get("/document-nexus/workspace"),
+  create: (data: any) => api.post("/document-nexus/workspace", data),
+  update: (id: string, data: any) => api.put(`/document-nexus/workspace/${id}`, data),
+  delete: (id: string) => api.delete(`/document-nexus/workspace/${id}`),
 };
 
 const listingService = {
-  getAll: () => api.get("/listing"),
-  getByWorkspace: (workspaceId: string) => api.get(`/listing/workspace/${workspaceId}`),
-  getById: (id: string) => api.get(`/listing/${id}`),
-  create: (data: any) => api.post("/listing", data),
-  update: (id: string, data: any) => api.put(`/listing/${id}`, data),
-  delete: (id: string) => api.delete(`/listing/${id}`),
+  getAll: () => api.get("/document-nexus/document"),
+  getByWorkspace: (workspaceId: string) => api.get(`/document-nexus/document/workspace/${workspaceId}`),
+  getById: (id: string) => api.get(`/document-nexus/document/${id}`),
+  create: (data: any) => api.post("/document-nexus/document", data),
+  update: (id: string, data: any) => api.put(`/document-nexus/document/${id}`, data),
+  delete: (id: string) => api.delete(`/document-nexus/document/${id}`),
 };
 
 const docPageService = {
@@ -79,10 +79,10 @@ const annotationService = {
   getAll: () => api.get("/highlight"),
 };
 
+import SharedLoader from '../components/ui/Loader';
+
 const Loader: React.FC = () => (
-  <div className="flex items-center justify-center min-h-[400px]">
-    <motion.div animate={{ scale: [1, 1.1, 1], rotate: [0, 380, 720] }} transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }} className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full" />
-  </div>
+  <SharedLoader size="lg" message="Loading Document Nexus..." />
 );
 
 const DocumentWorkspace: React.FC = () => {
@@ -332,6 +332,47 @@ const DocumentWorkspace: React.FC = () => {
   const [showSearch, setShowSearch] = useState(false);
   const [activeTab, setActiveTab] = useState<'pages' | 'index'>('pages');
   const [isFullScreen, setIsFullScreen] = useState(false);
+
+  useEffect(() => {
+    // Notify top-level App.tsx to hide global Navbar and Sidebar
+    window.dispatchEvent(new CustomEvent('immersive-mode-change', { detail: { active: isFullScreen } }));
+
+    if (isFullScreen) {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch((err) => {
+          console.warn(`Fullscreen request failed: ${err.message}`);
+        });
+      }
+    } else {
+      if (document.fullscreenElement) {
+        document.exitFullscreen().catch((err) => {
+          console.warn(`Fullscreen exit failed: ${err.message}`);
+        });
+      }
+    }
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isFullScreen) {
+        setIsFullScreen(false);
+      }
+    };
+
+    const handleFullscreenChange = () => {
+      if (!document.fullscreenElement && isFullScreen) {
+        setIsFullScreen(false);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+      // Ensure we restore layout when leaving page
+      window.dispatchEvent(new CustomEvent('immersive-mode-change', { detail: { active: false } }));
+    };
+  }, [isFullScreen]);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   // Project Settings (Visibility & Tags) States for Document Workspace
@@ -1162,56 +1203,58 @@ const DocumentWorkspace: React.FC = () => {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#0f1115] text-slate-800 dark:text-slate-200 flex flex-col transition-colors duration-300">
       {/* Global Tab Panel Switcher */}
-      <div className="bg-white dark:bg-[#15181e] border-b border-slate-200 dark:border-[#2d323f] sticky top-16 z-40 shadow-sm transition-colors duration-300">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-14">
-            <div className="flex gap-1.5 md:gap-2">
-              <button 
-                onClick={() => setCurrentMainTab('workspaces')}
-                className={`flex items-center gap-1.5 px-2.5 py-2 md:px-4 md:py-2 rounded-xl text-[10px] md:text-xs font-black uppercase tracking-wider md:tracking-widest transition-all ${
-                  currentMainTab === 'workspaces' 
-                    ? 'bg-slate-900 dark:bg-[#eee1ba] text-white dark:text-black shadow-md' 
-                    : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100 dark:hover:bg-[#1f242e] dark:hover:text-white'
-                }`}
-              >
-                <Briefcase size={13} />
-                <span className="hidden md:inline">1. Workspaces Hub</span>
-                <span className="inline md:hidden">Workspaces</span>
-              </button>
-              <button 
-                onClick={() => setCurrentMainTab('project-hub')}
-                className={`flex items-center gap-1.5 px-2.5 py-2 md:px-4 md:py-2 rounded-xl text-[10px] md:text-xs font-black uppercase tracking-wider md:tracking-widest transition-all ${
-                  currentMainTab === 'project-hub' 
-                    ? 'bg-slate-900 dark:bg-[#eee1ba] text-white dark:text-black shadow-md' 
-                    : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100 dark:hover:bg-[#1f242e] dark:hover:text-white'
-                }`}
-              >
-                <LayoutList size={13} />
-                <span className="hidden md:inline">2. Projects Hub</span>
-                <span className="inline md:hidden">Projects</span>
-              </button>
-              <button 
-                onClick={() => setCurrentMainTab('document-canvas')}
-                className={`flex items-center gap-1.5 px-2.5 py-2 md:px-4 md:py-2 rounded-xl text-[10px] md:text-xs font-black uppercase tracking-wider md:tracking-widest transition-all ${
-                  currentMainTab === 'document-canvas' 
-                    ? 'bg-slate-900 dark:bg-[#eee1ba] text-white dark:text-black shadow-md' 
-                    : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100 dark:hover:bg-[#1f242e] dark:hover:text-white'
-                }`}
-              >
-                <FilePlus size={13} />
-                <span className="hidden md:inline">3. Document Workspace</span>
-                <span className="inline md:hidden">Workspace</span>
-              </button>
-            </div>
-            {selectedWorkspace && (
-              <div className="hidden lg:flex items-center gap-2 text-xs font-black uppercase tracking-wider text-slate-400">
-                <span className="w-2 h-2 rounded-full bg-indigo-500 inline-block animate-ping" />
-                <span>Ecosystem Active: {selectedWorkspace.name}</span>
+      {!isFullScreen && (
+        <div className="bg-white dark:bg-[#15181e] border-b border-slate-205 dark:border-[#2d323f] sticky top-16 z-40 shadow-sm transition-colors duration-300">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center h-14">
+              <div className="flex gap-1.5 md:gap-2">
+                <button 
+                  onClick={() => setCurrentMainTab('workspaces')}
+                  className={`flex items-center gap-1.5 px-2.5 py-2 md:px-4 md:py-2 rounded-xl text-[10px] md:text-xs font-black uppercase tracking-wider md:tracking-widest transition-all ${
+                    currentMainTab === 'workspaces' 
+                      ? 'bg-slate-900 dark:bg-[#eee1ba] text-white dark:text-black shadow-md' 
+                      : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100 dark:hover:bg-[#1f242e] dark:hover:text-white'
+                  }`}
+                >
+                  <Briefcase size={13} />
+                  <span className="hidden md:inline">1. Workspaces Hub</span>
+                  <span className="inline md:hidden">Workspaces</span>
+                </button>
+                <button 
+                  onClick={() => setCurrentMainTab('project-hub')}
+                  className={`flex items-center gap-1.5 px-2.5 py-2 md:px-4 md:py-2 rounded-xl text-[10px] md:text-xs font-black uppercase tracking-wider md:tracking-widest transition-all ${
+                    currentMainTab === 'project-hub' 
+                      ? 'bg-slate-900 dark:bg-[#eee1ba] text-white dark:text-black shadow-md' 
+                      : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100 dark:hover:bg-[#1f242e] dark:hover:text-white'
+                  }`}
+                >
+                  <LayoutList size={13} />
+                  <span className="hidden md:inline">2. Projects Hub</span>
+                  <span className="inline md:hidden">Projects</span>
+                </button>
+                <button 
+                  onClick={() => setCurrentMainTab('document-canvas')}
+                  className={`flex items-center gap-1.5 px-2.5 py-2 md:px-4 md:py-2 rounded-xl text-[10px] md:text-xs font-black uppercase tracking-wider md:tracking-widest transition-all ${
+                    currentMainTab === 'document-canvas' 
+                      ? 'bg-slate-900 dark:bg-[#eee1ba] text-white dark:text-black shadow-md' 
+                      : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100 dark:hover:bg-[#1f242e] dark:hover:text-white'
+                  }`}
+                >
+                  <FilePlus size={13} />
+                  <span className="hidden md:inline">3. Document Workspace</span>
+                  <span className="inline md:hidden">Workspace</span>
+                </button>
               </div>
-            )}
+              {selectedWorkspace && (
+                <div className="hidden lg:flex items-center gap-2 text-xs font-black uppercase tracking-wider text-slate-400">
+                  <span className="w-2 h-2 rounded-full bg-indigo-500 inline-block animate-ping" />
+                  <span>Ecosystem Active: {selectedWorkspace.name}</span>
+                </div>
+              )}
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       <div className="flex-grow">
         {/* VIEW 1: WORKSPACES HUB & DASHBOARD */}
@@ -2049,9 +2092,22 @@ const DocumentWorkspace: React.FC = () => {
               )}
               {/* Main canvas sequential content reader & editor view */}
               <main className={`flex-grow flex flex-col relative z-10 transition-colors duration-300 ${getWorkspaceBackdropClasses()}`}>
+                {/* Floating exit button in immersive mode */}
+                {isFullScreen && (
+                  <button
+                    type="button"
+                    onClick={() => setIsFullScreen(false)}
+                    className="fixed top-6 right-6 z-50 px-4 py-2 bg-slate-900/80 dark:bg-black/70 hover:bg-rose-600 hover:text-white text-slate-200 rounded-xl text-xs font-black uppercase tracking-wider shadow-lg flex items-center gap-1.5 transition-all duration-300 transform hover:scale-105 active:scale-95 cursor-pointer backdrop-blur-md border border-slate-700/50"
+                    title="Exit Immersive Mode (Esc)"
+                  >
+                    <Minimize2 size={13} />
+                    <span>Exit Immersive</span>
+                  </button>
+                )}
+
                 {/* Page view sequential documents area */}
-                <div className="flex-grow overflow-y-auto p-4 md:p-8 custom-scrollbar">
-                  <div className="max-w-4xl mx-auto pb-32 space-y-8">
+                <div className={`flex-grow overflow-y-auto custom-scrollbar ${isFullScreen ? 'p-2 sm:p-6 md:p-10 lg:p-12' : 'p-4 md:p-8'}`}>
+                  <div className={`mx-auto pb-32 space-y-6 ${isFullScreen ? 'max-w-[92%] xl:max-w-[88%] w-full' : 'max-w-4xl'}`}>
                     {/* Brand New Dedicated Writing Features Toolbar Div */}
                     <DocumentCanvasToolbar
                       selectedProject={selectedProject}
@@ -2116,7 +2172,11 @@ const DocumentWorkspace: React.FC = () => {
                           id={page.id}
                           initial={{ opacity: 0, y: 10 }}
                           animate={{ opacity: 1, y: 0 }}
-                          className={`relative group/page rounded-2xl border shadow-lg overflow-hidden transition-all ${getReaderClasses()}`}
+                          className={`relative group/page transition-all duration-300 ${
+                            isFullScreen 
+                              ? `rounded-3xl border border-slate-205 dark:border-slate-800/40 shadow-xl ${getReaderClasses()}` 
+                              : `rounded-2xl border shadow-lg overflow-hidden ${getReaderClasses()}`
+                          }`}
                         >
                           {/* Left boundary text typography column indicator */}
                           <div className={`absolute -left-12 top-0 bottom-0 flex flex-col items-center py-8 opacity-0 group-hover/page:opacity-20 transition-opacity pointer-events-none select-none ${readerTheme === 'midnight' ? 'text-slate-400' : 'text-slate-500'}`}>
@@ -2127,35 +2187,71 @@ const DocumentWorkspace: React.FC = () => {
                             <div className={`w-px flex-grow ${readerTheme === 'midnight' ? 'bg-[#3b4354]' : 'bg-slate-300'}`} />
                           </div>
 
-                          <div className="p-8">
-                            <Editor 
-                              content={page.content || ''}
-                              onChange={(content) => handlePageUpdate(page.id, content)}
-                              readOnly={isReaderMode}
-                              placeholder={`Sequence write inside editor outline for ${page.title}...`}
-                              className={`${isReaderMode ? 'prose-emerald' : 'prose-indigo'} ${readerTheme === 'midnight' ? 'prose-invert text-white' : ''}`}
-                              listingId={selectedProject?.id}
-                              pageId={page.id}
-                            />
+                          <div className={`p-6 md:p-10 lg:p-12 ${isFullScreen ? 'flex flex-col items-center' : ''}`}>
+                            <div className={isFullScreen ? 'w-full max-w-5xl md:max-w-6xl' : 'w-full'}>
+                              {/* Document/Page Header: Large elegant Page Title */}
+                              <div className="mb-8 pb-4 border-b border-slate-100 dark:border-slate-800/20">
+                                <span className="text-[10px] font-black uppercase tracking-widest text-[#6366f1] dark:text-[#a5b4fc] block mb-1">
+                                  DOCUMENT PAGE {pIdx + 1}
+                                </span>
+                                {isReaderMode ? (
+                                  <h1 className={`text-2xl md:text-3.5xl font-black tracking-tight ${readerTheme === 'midnight' ? 'text-slate-100 font-sans' : 'text-slate-900 font-sans'}`}>
+                                    {page.title}
+                                  </h1>
+                                ) : (
+                                  <input
+                                    type="text"
+                                    value={page.title || ''}
+                                    onChange={async (e) => {
+                                      const newTitle = e.target.value;
+                                      setPages(pages.map(p => p.id === page.id ? { ...p, title: newTitle } : p));
+                                      try {
+                                        await docPageService.update(page.id, { title: newTitle });
+                                      } catch (err) {
+                                        console.error("Failed to sync title change", err);
+                                      }
+                                    }}
+                                    className={`w-full bg-transparent border-none outline-none focus:ring-0 p-0 text-2xl md:text-3.5xl font-black tracking-tight ${
+                                      readerTheme === 'midnight' 
+                                        ? 'text-slate-100 placeholder-slate-850' 
+                                        : 'text-slate-900 placeholder-slate-300'
+                                    }`}
+                                    placeholder="Untitled Page"
+                                  />
+                                )}
+                              </div>
+
+                              <Editor 
+                                content={page.content || ''}
+                                onChange={(content) => handlePageUpdate(page.id, content)}
+                                readOnly={isReaderMode}
+                                placeholder={`Sequence write inside editor outline for ${page.title}...`}
+                                className={`${isReaderMode ? 'prose-emerald' : 'prose-indigo'} ${readerTheme === 'midnight' ? 'prose-invert text-white' : ''}`}
+                                listingId={selectedProject?.id}
+                                pageId={page.id}
+                              />
+                            </div>
                           </div>
 
                           {/* Footer row per page */}
-                          <div className={`p-4 border-t flex justify-between items-center text-[10px] font-black uppercase tracking-wider transition-all duration-300 ${
+                          <div className={`p-4 px-6 md:px-10 lg:px-12 border-t flex justify-between items-center text-[10px] font-black uppercase tracking-wider transition-all duration-300 ${
                             readerTheme === 'midnight' 
                               ? 'bg-[#1b212f]/60 border-[#222938] text-slate-400' 
                               : readerTheme === 'vanilla' 
                                 ? 'bg-[#f4ecd8]/60 border-[#eee1ba] text-[#8c745d]' 
                                 : 'bg-slate-50/50 border-slate-100 text-slate-400'
                           }`}>
-                            <span>{page.title} — Page {(Array.isArray(pages) ? pages : []).findIndex(p => p.id === page.id) + 1} Boundary</span>
-                            {!isReaderMode && (
-                              <button 
-                                onClick={() => fastDeletePage(page.id)}
-                                className="text-red-500 hover:text-red-750 font-bold hover:underline"
-                              >
-                                Delete Page
-                              </button>
-                            )}
+                            <div className={`w-full flex justify-between items-center ${isFullScreen ? 'max-w-5xl md:max-w-6xl mx-auto' : ''}`}>
+                              <span>{page.title} — Page {(Array.isArray(pages) ? pages : []).findIndex(p => p.id === page.id) + 1} Boundary</span>
+                              {!isReaderMode && (
+                                <button 
+                                  onClick={() => fastDeletePage(page.id)}
+                                  className="text-red-500 hover:text-red-750 font-bold hover:underline"
+                                >
+                                  Delete Page
+                                </button>
+                              )}
+                            </div>
                           </div>
                         </motion.div>
                       ))

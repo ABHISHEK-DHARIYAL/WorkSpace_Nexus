@@ -29,14 +29,10 @@ import Reader from '../components/reader/Reader';
 import { annotationService } from '../services/annotationService';
 import { ComfortWorkspaceSettings } from '../components/workspace/ComfortWorkspaceSettings';
 
+import SharedLoader from '../components/ui/Loader';
+
 const Loader: React.FC = () => (
-  <div className="flex items-center justify-center min-h-[400px]">
-    <motion.div
-      animate={{ scale: [1, 1.1, 1], rotate: [0, 180, 360] }}
-      transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-      className="w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full"
-    />
-  </div>
+  <SharedLoader size="lg" message="Loading reader workspace..." />
 );
 
 const listingService = {
@@ -220,6 +216,47 @@ const ListingReader: React.FC = () => {
   const [currentPageId, setCurrentPageId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [isFullScreen, setIsFullScreen] = useState(false);
+
+  useEffect(() => {
+    // Notify top-level App.tsx to hide global Navbar and Sidebar
+    window.dispatchEvent(new CustomEvent('immersive-mode-change', { detail: { active: isFullScreen } }));
+
+    if (isFullScreen) {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch((err) => {
+          console.warn(`Fullscreen request failed: ${err.message}`);
+        });
+      }
+    } else {
+      if (document.fullscreenElement) {
+        document.exitFullscreen().catch((err) => {
+          console.warn(`Fullscreen exit failed: ${err.message}`);
+        });
+      }
+    }
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isFullScreen) {
+        setIsFullScreen(false);
+      }
+    };
+
+    const handleFullscreenChange = () => {
+      if (!document.fullscreenElement && isFullScreen) {
+        setIsFullScreen(false);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+      // Ensure we restore layout when leaving page
+      window.dispatchEvent(new CustomEvent('immersive-mode-change', { detail: { active: false } }));
+    };
+  }, [isFullScreen]);
   const [fontSize, setFontSize] = useState<number>(18);
   const [lineHeight, setLineHeight] = useState<number>(1.6);
   const [maxWidth, setMaxWidth] = useState<string>('max-w-5xl');
@@ -545,7 +582,7 @@ const ListingReader: React.FC = () => {
       {/* Main Content */}
       <div className="flex-grow flex overflow-hidden relative">
         <AnimatePresence initial={false}>
-          {isSidebarOpen && (
+          {isSidebarOpen && !isFullScreen && (
             <motion.div 
               initial={{ width: 0, opacity: 0 }}
               animate={{ width: 'auto', opacity: 1 }}
@@ -578,11 +615,23 @@ const ListingReader: React.FC = () => {
 
         <button 
           onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-          className={`absolute left-4 top-4 z-40 p-2 rounded-lg border shadow-sm transition-all duration-300 ${cardClasses[theme]} ${!isSidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+          className={`absolute left-4 top-4 z-40 p-2 rounded-lg border shadow-sm transition-all duration-300 ${cardClasses[theme]} ${!isSidebarOpen && !isFullScreen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
           title={isSidebarOpen ? "Close Sidebar" : "Open Sidebar"}
         >
           {isSidebarOpen ? <PanelLeftClose size={20} /> : <PanelLeftOpen size={20} />}
         </button>
+
+        {isFullScreen && (
+          <button
+            type="button"
+            onClick={() => setIsFullScreen(false)}
+            className="fixed top-6 right-6 z-50 px-4 py-2 bg-slate-900/80 dark:bg-black/70 hover:bg-rose-600 hover:text-white text-slate-200 rounded-xl text-xs font-black uppercase tracking-wider shadow-lg flex items-center gap-1.5 transition-all duration-300 transform hover:scale-105 active:scale-95 cursor-pointer backdrop-blur-md border border-slate-700/50"
+            title="Exit Immersive Mode (Esc)"
+          >
+            <Minimize2 size={13} />
+            <span>Exit Immersive</span>
+          </button>
+        )}
         
         <div className={`flex-grow overflow-y-auto flex flex-col items-center transition-colors duration-500 ${themeClasses[theme]}`}>
            {currentPage ? (

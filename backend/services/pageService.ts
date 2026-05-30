@@ -42,41 +42,69 @@ export class PageService {
     const docRef = await addDoc(collection(db, "pages"), newPage);
     const createdPage = { id: docRef.id, ...newPage };
 
-    // Update parent listing's pages array
-    const listingRef = doc(db, "listings", data.listingId);
-    const listingSnap = await getDoc(listingRef);
-    if (listingSnap.exists()) {
-      const listingData = listingSnap.data();
-      const pages = listingData.pages || [];
-      if (!pages.includes(docRef.id)) {
-        await updateDoc(listingRef, {
-          pages: [...pages, docRef.id],
-          updatedAt: new Date().toISOString()
-        });
+    // Update parent listing's pages array inside both possible collections
+    const updateParentPages = async (collectionName: string) => {
+      const parentRef = doc(db, collectionName, data.listingId);
+      const parentSnap = await getDoc(parentRef);
+      if (parentSnap.exists()) {
+        const parentData = parentSnap.data();
+        const pages = parentData.pages || [];
+        if (!pages.includes(docRef.id)) {
+          await updateDoc(parentRef, {
+            pages: [...pages, docRef.id],
+            updatedAt: new Date().toISOString()
+          });
+        }
+        // console.log(`[DEBUG] create Page: Updated parent in ${collectionName} with new page ${docRef.id}`);
+        return true;
       }
-    }
+      return false;
+    };
+
+    const updatedWorkspaceProject = await updateParentPages("workspaceHubProjects");
+    const updatedLegacyListing = await updateParentPages("listings");
+    // console.log(`[DEBUG] create Page: update parents finished. workspaceHubProjects: ${updatedWorkspaceProject}, listings: ${updatedLegacyListing}`);
 
     return createdPage;
   }
 
   static async getByWorkspace(workspaceId: string) {
+    // console.log(`[DEBUG] getByWorkspace: workspaceId = ${workspaceId}`);
+    // Fetch project IDs from workspaceHubProjects
+    const projectsRef = collection(db, "workspaceHubProjects");
+    const qProjects = query(projectsRef, where("workspaceId", "==", workspaceId));
+    const projectsSnap = await getDocs(qProjects);
+    const projectIds = projectsSnap.docs.map(d => d.id);
+    // console.log(`[DEBUG] getByWorkspace: Found ${projectIds.length} projects in workspaceHubProjects:`, projectIds);
+
+    // Fetch listing IDs from legacy listings
     const listingsRef = collection(db, "listings");
     const qListings = query(listingsRef, where("workspaceId", "==", workspaceId));
     const listingsSnap = await getDocs(qListings);
-    const listingIds = listingsSnap.docs.map(d => d.id);
-    
-    if (listingIds.length === 0) return [];
-    
+    const legacyListingIds = listingsSnap.docs.map(d => d.id);
+    // console.log(`[DEBUG] getByWorkspace: Found ${legacyListingIds.length} legacy listings in listings:`, legacyListingIds);
+
+    const allListingIds = Array.from(new Set([...projectIds, ...legacyListingIds]));
+    // console.log(`[DEBUG] getByWorkspace: Union listingIds =`, allListingIds);
+
+    if (allListingIds.length === 0) {
+      // console.log(`[DEBUG] getByWorkspace: No projects or listings found, returning empty array.`);
+      return [];
+    }
+
     const pagesRef = collection(db, "pages");
     const matchedPages: any[] = [];
-    
-    for (let i = 0; i < listingIds.length; i += 30) {
-      const chunk = listingIds.slice(i, i + 30);
+
+    for (let i = 0; i < allListingIds.length; i += 30) {
+      const chunk = allListingIds.slice(i, i + 30);
       const qPages = query(pagesRef, where("listingId", "in", chunk));
       const pagesSnap = await getDocs(qPages);
-      matchedPages.push(...pagesSnap.docs.map(doc => ({ id: doc.id, ...doc.data() as any })));
+      const chunkPages = pagesSnap.docs.map(doc => ({ id: doc.id, ...doc.data() as any }));
+      // console.log(`[DEBUG] getByWorkspace chunk: Found ${chunkPages.length} pages`);
+      matchedPages.push(...chunkPages);
     }
-    
+
+    // console.log(`[DEBUG] getByWorkspace total pages loaded: ${matchedPages.length}`);
     return matchedPages;
   }
 
@@ -137,17 +165,25 @@ export class PageService {
       // Delete page
       await deleteDoc(docRef);
       
-      // Update parent listing's pages array
-      const listingRef = doc(db, "listings", listingId);
-      const listingSnap = await getDoc(listingRef);
-      if (listingSnap.exists()) {
-        const listingData = listingSnap.data();
-        const pages = (listingData.pages || []).filter((pId: string) => pId !== id);
-        await updateDoc(listingRef, {
-          pages,
-          updatedAt: new Date().toISOString()
-        });
-      }
+      // Update parent listing's pages array in both collections
+      const removePageFromParent = async (collectionName: string) => {
+        const parentRef = doc(db, collectionName, listingId);
+        const parentSnap = await getDoc(parentRef);
+        if (parentSnap.exists()) {
+          const parentData = parentSnap.data();
+          const pages = (parentData.pages || []).filter((pId: string) => pId !== id);
+          await updateDoc(parentRef, {
+            pages,
+            updatedAt: new Date().toISOString()
+          });
+          // console.log(`[DEBUG] delete Page: Removed page ${id} from parent in ${collectionName}`);
+          return true;
+        }
+        return false;
+      };
+
+      await removePageFromParent("workspaceHubProjects");
+      await removePageFromParent("listings");
     } else {
       await deleteDoc(docRef);
     }
@@ -156,23 +192,40 @@ export class PageService {
   }
 
   static async getAll(userId: string) {
+    // console.log(`[DEBUG] getAll Pages for user: ${userId}`);
+    const projectsRef = collection(db, "workspaceHubProjects");
+    const qProjects = query(projectsRef, where("owner", "==", userId));
+    const projectsSnap = await getDocs(qProjects);
+    const projectIds = projectsSnap.docs.map(d => d.id);
+    // console.log(`[DEBUG] getAll Pages: Found ${projectIds.length} projects in workspaceHubProjects`);
+
     const listingsRef = collection(db, "listings");
     const qListings = query(listingsRef, where("owner", "==", userId));
     const listingsSnap = await getDocs(qListings);
-    const listingIds = listingsSnap.docs.map(d => d.id);
-    
-    if (listingIds.length === 0) return [];
-    
+    const legacyListingIds = listingsSnap.docs.map(d => d.id);
+    // console.log(`[DEBUG] getAll Pages: Found ${legacyListingIds.length} legacy listings`);
+
+    const allListingIds = Array.from(new Set([...projectIds, ...legacyListingIds]));
+    // console.log(`[DEBUG] getAll Pages: Union listingIds =`, allListingIds);
+
+    if (allListingIds.length === 0) {
+      // console.log(`[DEBUG] getAll Pages: No projects or listings found, returning empty array.`);
+      return [];
+    }
+
     const pagesRef = collection(db, "pages");
     const matchedPages: any[] = [];
-    
-    for (let i = 0; i < listingIds.length; i += 30) {
-      const chunk = listingIds.slice(i, i + 30);
+
+    for (let i = 0; i < allListingIds.length; i += 30) {
+      const chunk = allListingIds.slice(i, i + 30);
       const qPages = query(pagesRef, where("listingId", "in", chunk));
       const pagesSnap = await getDocs(qPages);
-      matchedPages.push(...pagesSnap.docs.map(doc => ({ id: doc.id, ...doc.data() as any })));
+      const chunkPages = pagesSnap.docs.map(doc => ({ id: doc.id, ...doc.data() as any }));
+      // console.log(`[DEBUG] getAll Pages chunk: Found ${chunkPages.length} pages`);
+      matchedPages.push(...chunkPages);
     }
-    
+
+    // console.log(`[DEBUG] getAll Pages total pages loaded: ${matchedPages.length}`);
     return matchedPages;
   }
 }

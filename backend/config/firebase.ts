@@ -286,7 +286,19 @@ export async function testFirestoreConnection() {
 }
 
 async function runBackgroundMigration() {
-  const collectionsToSeed = ["users", "workspaces", "listings", "pages", "doc_pages", "bookmarks", "favorites"];
+  const collectionsToSeed = [
+    "users", 
+    "workspaces", 
+    "listings", 
+    "pages", 
+    "doc_pages", 
+    "bookmarks", 
+    "favorites",
+    "workspaceHubWorkspaces",
+    "workspaceHubProjects",
+    "documentNexusWorkspaces",
+    "documentNexusDocuments"
+  ];
   for (const colName of collectionsToSeed) {
     try {
       const colRef = adminFirestoreInstance.collection(colName);

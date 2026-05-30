@@ -18,14 +18,10 @@ const workspaceService = {
   delete: (id: string) => api.delete(`/workspace/${id}`),
 };
 
+import SharedLoader from '../components/ui/Loader';
+
 const Loader: React.FC = () => (
-  <div className="flex items-center justify-center min-h-[400px]">
-    <motion.div
-      animate={{ scale: [1, 1.1, 1], rotate: [0, 180, 360] }}
-      transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-      className="w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full"
-    />
-  </div>
+  <SharedLoader size="lg" message="Loading your SaaS dashboard..." />
 );
 
 const StatCard: React.FC<{ icon: React.ReactNode; label: string; value: string; color: string; isGlass?: boolean; onClick?: () => void }> = ({ icon, label, value, color, isGlass, onClick }) => (
