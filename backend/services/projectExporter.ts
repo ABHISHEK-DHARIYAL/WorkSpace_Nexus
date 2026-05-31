@@ -47,11 +47,11 @@ export class ProjectExporter {
       // Document pages for Nexus format
       const pagesQuery = query(
         collection(db, "doc_pages"), 
-        where("projectId", "==", projectId), 
-        orderBy("pageNumber", "asc")
+        where("projectId", "==", projectId)
       );
       const pagesSnap = await getDocs(pagesQuery);
       pages = pagesSnap.docs.map(p => ({ id: p.id, ...p.data() as any }));
+      pages.sort((a, b) => (a.pageNumber || 0) - (b.pageNumber || 0));
 
       // Fallback: if no specific doc_pages found, retrieve unassigned doc_pages as done in the frontend
       if (pages.length === 0) {
@@ -65,11 +65,11 @@ export class ProjectExporter {
       // Document Nexus index structure
       const indicesQuery = query(
         collection(db, "doc_indices"), 
-        where("projectId", "==", projectId), 
-        orderBy("position", "asc")
+        where("projectId", "==", projectId)
       );
       const indicesSnap = await getDocs(indicesQuery);
       indices = indicesSnap.docs.map(i => ({ id: i.id, ...i.data() as any }));
+      indices.sort((a, b) => (a.position || 0) - (b.position || 0));
 
       // Fallback: if no specific doc_indices found, retrieve unassigned doc_indices as done in the frontend
       if (indices.length === 0) {

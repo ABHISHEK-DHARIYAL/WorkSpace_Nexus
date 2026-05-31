@@ -16,11 +16,11 @@ export class DocumentNexusDocumentService {
   static async getAllByUser(userId: string) {
     const q = query(
       collection(db, "documentNexusDocuments"), 
-      where("owner", "==", userId),
-      orderBy("updatedAt", "desc")
+      where("owner", "==", userId)
     );
     const snapshot = await getDocs(q);
     const documents = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() as any }));
+    documents.sort((a, b) => new Date(b.updatedAt || 0).getTime() - new Date(a.updatedAt || 0).getTime());
 
     // Auto-healing: fetch missing page counts if necessary using "doc_pages"
     const enrichedDocuments = await Promise.all(documents.map(async (docData) => {
@@ -60,11 +60,11 @@ export class DocumentNexusDocumentService {
     } else {
       const q = query(
         collection(db, "documentNexusDocuments"), 
-        where("workspaceId", "==", workspaceId),
-        orderBy("updatedAt", "desc")
+        where("workspaceId", "==", workspaceId)
       );
       const snapshot = await getDocs(q);
       documents = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() as any }));
+      documents.sort((a, b) => new Date(b.updatedAt || 0).getTime() - new Date(a.updatedAt || 0).getTime());
     }
 
     // Auto-healing: fetch missing page counts if necessary using "doc_pages"

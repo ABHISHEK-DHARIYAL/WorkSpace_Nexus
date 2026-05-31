@@ -329,13 +329,15 @@ export class PublicExplorerService {
     }
 
     if (listing.addedToNexus === true) {
-      const pagesQuery = query(collection(db, "doc_pages"), where("projectId", "==", id), orderBy("pageNumber", "asc"));
+      const pagesQuery = query(collection(db, "doc_pages"), where("projectId", "==", id));
       const pagesSnap = await getDocs(pagesQuery);
       const pages = pagesSnap.docs.map(p => ({ id: p.id, ...p.data() as any }));
+      pages.sort((a, b) => (a.pageNumber || 0) - (b.pageNumber || 0));
 
-      const indicesQuery = query(collection(db, "doc_indices"), where("projectId", "==", id), orderBy("position", "asc"));
+      const indicesQuery = query(collection(db, "doc_indices"), where("projectId", "==", id));
       const indicesSnap = await getDocs(indicesQuery);
       const indices = indicesSnap.docs.map(i => ({ id: i.id, ...i.data() as any }));
+      indices.sort((a, b) => (a.position || 0) - (b.position || 0));
 
       listing.pagesDetails = pages;
       listing.indicesDetails = indices;

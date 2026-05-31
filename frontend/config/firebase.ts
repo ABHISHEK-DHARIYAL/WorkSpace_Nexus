@@ -39,6 +39,8 @@ export const APP_URL = getAppUrl();
 // ==========================================
 // 2. Firebase Config Resolution & Validation
 // ==========================================
+import appletConfig from '../../backend/firebase-applet-config.json';
+
 export interface FirebaseValidationResult {
   isValid: boolean;
   errors: string[];
@@ -48,18 +50,16 @@ export interface FirebaseValidationResult {
 export const validateAndResolveFirebaseConfig = (): FirebaseValidationResult => {
   const errors: string[] = [];
   
-  // Prefer VITE_ environment variables (standard Vercel/Vite pattern)
-  const envConfig = {
-    apiKey: import.meta.env.VITE_FIREBASE_API_KEY || '',
-    authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || '',
-    projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || '',
-    storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || '',
-    messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || '',
-    appId: import.meta.env.VITE_FIREBASE_APP_ID || '',
-    measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || '',
+  // Prefer VITE_ environment variables, fall back to loaded firebase-applet-config.json for premium workspace integration
+  const finalConfig = {
+    apiKey: import.meta.env.VITE_FIREBASE_API_KEY || appletConfig.apiKey || '',
+    authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || appletConfig.authDomain || '',
+    projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || appletConfig.projectId || '',
+    storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || appletConfig.storageBucket || '',
+    messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || appletConfig.messagingSenderId || '',
+    appId: import.meta.env.VITE_FIREBASE_APP_ID || appletConfig.appId || '',
+    measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || appletConfig.measurementId || '',
   };
-
-  const finalConfig = envConfig;
 
   // Validate the final config
   const requiredKeys: (keyof typeof finalConfig)[] = [
@@ -104,7 +104,7 @@ export const db = app
       localCache: persistentLocalCache({
         tabManager: persistentMultipleTabManager()
       })
-    }, import.meta.env.VITE_FIREBASE_DATABASE_ID || undefined)
+    }, import.meta.env.VITE_FIREBASE_DATABASE_ID || appletConfig.firestoreDatabaseId || undefined)
   : null;
 export const storage = app ? getStorage(app) : null;
 

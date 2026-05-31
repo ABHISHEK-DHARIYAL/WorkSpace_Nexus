@@ -17,11 +17,11 @@ export class ListingService {
   static async getAllByUser(userId: string) {
     const q = query(
       collection(db, "workspaceHubProjects"), 
-      where("owner", "==", userId),
-      orderBy("updatedAt", "desc")
+      where("owner", "==", userId)
     );
     const snapshot = await getDocs(q);
     const listings = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() as any }));
+    listings.sort((a, b) => new Date(b.updatedAt || 0).getTime() - new Date(a.updatedAt || 0).getTime());
 
     // Auto-healing: fetch missing page counts if necessary
     const enrichedListings = await Promise.all(listings.map(async (l) => {
@@ -63,11 +63,11 @@ export class ListingService {
     } else {
       const q = query(
         collection(db, "workspaceHubProjects"), 
-        where("workspaceId", "==", workspaceId),
-        orderBy("updatedAt", "desc")
+        where("workspaceId", "==", workspaceId)
       );
       const snapshot = await getDocs(q);
       listings = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() as any }));
+      listings.sort((a, b) => new Date(b.updatedAt || 0).getTime() - new Date(a.updatedAt || 0).getTime());
     }
 
     // Auto-healing: fetch missing page counts if necessary

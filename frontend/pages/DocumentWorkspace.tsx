@@ -2015,7 +2015,7 @@ const DocumentWorkspace: React.FC = () => {
 
         {/* VIEW 3: INTERACTIVE DOCUMENT NEXUS (DOCUMENT WORKSPACE) */}
         {currentMainTab === 'document-canvas' && (
-          <div className={`${isFullScreen ? 'fixed inset-0 z-50 h-screen w-screen' : 'h-[calc(100vh-120px)]'} flex flex-col overflow-hidden animate-in fade-in duration-300 ${getWorkspaceBackdropClasses()}`}>
+          <div className={`${isFullScreen ? 'fixed inset-0 z-50 h-screen max-h-screen w-screen overflow-y-auto overflow-x-hidden' : 'h-[calc(100vh-120px)] overflow-hidden'} flex flex-col animate-in fade-in duration-300 ${getWorkspaceBackdropClasses()}`}>
             {/* Search overlay inside document workspace */}
             <AnimatePresence>
               {showSearch && (
@@ -2041,7 +2041,7 @@ const DocumentWorkspace: React.FC = () => {
               )}
             </AnimatePresence>
 
-            <div className="flex flex-grow overflow-hidden">
+            <div className={`flex flex-grow ${isFullScreen ? 'overflow-visible h-auto' : 'overflow-hidden'}`}>
               {/* Left Outline/Index structure sidebar panel */}
               {!isFullScreen && (
                 <DocumentSidebar
@@ -2106,7 +2106,7 @@ const DocumentWorkspace: React.FC = () => {
                 )}
 
                 {/* Page view sequential documents area */}
-                <div className={`flex-grow overflow-y-auto custom-scrollbar ${isFullScreen ? 'p-2 sm:p-6 md:p-10 lg:p-12' : 'p-4 md:p-8'}`}>
+                <div className={`${isFullScreen ? 'overflow-visible h-auto' : 'flex-grow overflow-y-auto custom-scrollbar'} ${isFullScreen ? 'p-2 sm:p-6 md:p-10 lg:p-12' : 'p-4 md:p-8'}`}>
                   <div className={`mx-auto pb-32 space-y-6 ${isFullScreen ? 'max-w-[92%] xl:max-w-[88%] w-full' : 'max-w-4xl'}`}>
                     {/* Brand New Dedicated Writing Features Toolbar Div */}
                     <DocumentCanvasToolbar

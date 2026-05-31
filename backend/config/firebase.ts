@@ -47,7 +47,7 @@ if (isVercelEnv) {
 const memoryCache: Record<string, Record<string, any>> = {};
 
 // Thread-safe / Sync-safe helper to read collection JSON with recovery fallback
-function readCollection(colName: string): Record<string, any> {
+export function readCollection(colName: string): Record<string, any> {
   // Always prefer loaded memory caching for instantaneous performance or fallback integrity
   if (memoryCache[colName]) {
     return memoryCache[colName];
@@ -105,7 +105,7 @@ function readCollection(colName: string): Record<string, any> {
 }
 
 // Thread-safe / Sync-safe helper to write collection JSON atomically with rollbacks
-function writeCollection(colName: string, data: Record<string, any>) {
+export function writeCollection(colName: string, data: Record<string, any>) {
   // Always update in-memory cache to guarantee immediately visible changes
   memoryCache[colName] = data;
 
@@ -211,8 +211,17 @@ if (shouldInitAdminSdk) {
     if (apps.length > 0) {
       adminApp = apps[0]!;
     } else {
-      const privateKey = process.env.FIREBASE_PRIVATE_KEY
-        ? process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n')
+      let privateKeyRaw = process.env.FIREBASE_PRIVATE_KEY;
+      if (privateKeyRaw) {
+        if (privateKeyRaw.startsWith('"') && privateKeyRaw.endsWith('"')) {
+          privateKeyRaw = privateKeyRaw.slice(1, -1);
+        }
+        if (privateKeyRaw.startsWith("'") && privateKeyRaw.endsWith("'")) {
+          privateKeyRaw = privateKeyRaw.slice(1, -1);
+        }
+      }
+      const privateKey = privateKeyRaw
+        ? privateKeyRaw.replace(/\\n/g, '\n').trim()
         : undefined;
       const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
 
@@ -247,39 +256,60 @@ export async function testFirestoreConnection() {
     console.log("[Database Service] Backend mode: local persistent JSON database (Active & Fully Operational).");
     return;
   }
-  try {
-    // A quick, lightweight read on a non-existent database key to test credentials and access permissions.
-    // Wrap with a strict 2-second timeout to prevent serverless execution hanging on unconfigured Firestore connections.
-    // To absolutely prevent unhandled promise rejections if the check times out but eventually fails/rejects in the background,
-    // we convert BOTH the Firestore check and the timeout check into non-rejecting promises that resolve with a status object.
-    const promiseGet = adminFirestoreInstance.collection("_startup_check_").limit(1).get();
-    const safePromiseGet = promiseGet.then(
-      (val) => ({ status: "success" as const, val }),
-      (err: any) => {
-        console.log("[Database Service] Background Firestore promise settled/rejected (preventing unhandled crash):", err.message);
-        return { status: "error" as const, err };
+
+  const tryConnection = async (dbInstance: any, nameLabel: string): Promise<boolean> => {
+    try {
+      const promiseGet = dbInstance.collection("_startup_check_").limit(1).get();
+      const safePromiseGet = promiseGet.then(
+        (val) => ({ status: "success" as const, val }),
+        (err: any) => {
+          console.log(`[Database Service] Background Firestore (${nameLabel}) promise settled/rejected (preventing unhandled crash):`, err.message);
+          return { status: "error" as const, err };
+        }
+      );
+      const promiseTimeout = new Promise<{ status: "timeout"; err: Error }>((resolve) => 
+        setTimeout(() => resolve({ status: "timeout" as const, err: new Error("Firestore connection check timed out") }), 2000)
+      );
+      const result = await Promise.race([safePromiseGet, promiseTimeout]);
+
+      if (result.status === "success") {
+        console.log(`[Database Service] Firestore (${nameLabel}) connection test: SUCCESS. Live cloud database is fully accessible!`);
+        return true;
+      } else {
+        console.log(`[Database Service] Firestore (${nameLabel}) connection test resolved without success (${result.status}):`, result.err?.message || "No error details available");
+        return false;
       }
-    );
-    const promiseTimeout = new Promise<{ status: "timeout"; err: Error }>((resolve) => 
-      setTimeout(() => resolve({ status: "timeout" as const, err: new Error("Firestore connection check timed out") }), 2000)
-    );
-    const result = await Promise.race([safePromiseGet, promiseTimeout]);
-
-    if (result.status === "success") {
-      console.log("[Database Service] Firestore connection test: SUCCESS. Live cloud database is fully accessible!");
-      isFirestoreWorking = true;
-
-      // Automatically migrate local JSON backup data to live Cloud Firestore in the background
-      runBackgroundMigration().catch(migrateErr => {
-        console.error("[Database Service] Live Firestore background migration error:", migrateErr);
-      });
-    } else {
-      console.log(`[Database Service] Firestore connection test resolved without success (${result.status}):`, result.err?.message || "No error details available");
-      console.log("[Database Service] Backend mode: local persistent JSON database (Active & Fully Operational).");
-      isFirestoreWorking = false;
+    } catch (err: any) {
+      console.log(`[Database Service] Firestore (${nameLabel}) connection test experienced direct error:`, err.message);
+      return false;
     }
-  } catch (err: any) {
-    // Standardize backend storage mode gracefully as a secure, high-performance local persistence store
+  };
+
+  const customDbId = appletConfig.firestoreDatabaseId || "(none)";
+  let connected = await tryConnection(adminFirestoreInstance, `config: ${customDbId}`);
+
+  if (!connected && appletConfig.firestoreDatabaseId) {
+    console.log("[Database Service] Firestore custom database connection failed. Attempting fallback to (default) database...");
+    try {
+      const fallbackDb = getAdminFirestore(adminApp);
+      connected = await tryConnection(fallbackDb, "(default)");
+      if (connected) {
+        adminFirestoreInstance = fallbackDb;
+        db = fallbackDb;
+        console.log("[Database Service] Successfully re-routed Firestore service to (default) database!");
+      }
+    } catch (fallbackInitErr: any) {
+      console.error("[Database Service] Could not initialize or resolve (default) fallback database:", fallbackInitErr.message);
+    }
+  }
+
+  if (connected) {
+    isFirestoreWorking = true;
+    db = adminFirestoreInstance;
+    runBackgroundMigration().catch(migrateErr => {
+      console.error("[Database Service] Live Firestore background migration error:", migrateErr);
+    });
+  } else {
     console.log("[Database Service] Backend mode: local persistent JSON database (Active & Fully Operational).");
     isFirestoreWorking = false;
   }
@@ -297,7 +327,14 @@ async function runBackgroundMigration() {
     "workspaceHubWorkspaces",
     "workspaceHubProjects",
     "documentNexusWorkspaces",
-    "documentNexusDocuments"
+    "documentNexusDocuments",
+    "highlights",
+    "annotations",
+    "doc_indices",
+    "follows",
+    "admin_audit_logs",
+    "page_versions",
+    "drafts"
   ];
   for (const colName of collectionsToSeed) {
     try {
@@ -322,7 +359,7 @@ async function runBackgroundMigration() {
   }
 }
 
-export const db = adminFirestoreInstance || { type: "firestore-local-db" };
+export let db = adminFirestoreInstance || { type: "firestore-local-db" };
 
 // Helper to wrap Firestore Admin snapshot to look like client API for exists()
 function wrapAdminSnapshot(snap: any) {
@@ -417,9 +454,104 @@ export function doc(...args: any[]) {
   return { type: "doc", col: "", id: "" };
 }
 
+export enum OperationType {
+  CREATE = "create",
+  UPDATE = "update",
+  DELETE = "delete",
+  LIST = "list",
+  GET = "get",
+  WRITE = "write",
+}
+
+export interface FirestoreErrorInfo {
+  error: string;
+  operationType: OperationType;
+  path: string | null;
+  authInfo: {
+    userId?: string | null;
+    email?: string | null;
+    emailVerified?: boolean | null;
+    isAnonymous?: boolean | null;
+    tenantId?: string | null;
+    providerInfo?: {
+      providerId?: string | null;
+      email?: string | null;
+    }[];
+  };
+}
+
+export function handleFirestoreError(error: any, operationType: OperationType, path: string | null) {
+  const isPermissionDenied = error && (
+    error.code === 7 || 
+    error.code === "permission-denied" || 
+    (error.message && error.message.toLowerCase().includes("permission"))
+  );
+  
+  if (isPermissionDenied) {
+    const errInfo: FirestoreErrorInfo = {
+      error: error instanceof Error ? error.message : String(error),
+      operationType,
+      path,
+      authInfo: {
+        userId: "system-admin-role",
+        email: "admin@workspace.com",
+        emailVerified: true,
+        isAnonymous: false,
+        tenantId: null,
+        providerInfo: []
+      }
+    };
+    console.error("Firestore Permission Error Context: ", JSON.stringify(errInfo));
+    throw new Error(JSON.stringify(errInfo));
+  }
+  
+  throw error;
+}
+
+export async function runWithRetry<T>(
+  operation: () => Promise<T>, 
+  operationType: OperationType, 
+  path: string | null,
+  retries = 3, 
+  delay = 1000
+): Promise<T> {
+  let lastErr: any = null;
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      return await operation();
+    } catch (err: any) {
+      lastErr = err;
+      const isPermissionDenied = err && (
+        err.code === 7 || 
+        err.code === "permission-denied" || 
+        (err.message && err.message.toLowerCase().includes("permission"))
+      );
+      
+      if (isPermissionDenied) {
+        handleFirestoreError(err, operationType, path);
+      }
+      
+      console.warn(`[Database Service] Firestore operation ${operationType} on "${path}" failed (attempt ${attempt}/${retries}): ${err.message || err}. Retrying in ${delay * attempt}ms...`);
+      if (attempt < retries) {
+        await new Promise(resolve => setTimeout(resolve, delay * attempt));
+      }
+    }
+  }
+  
+  console.error(`[Database Service] Firestore operation ${operationType} on "${path}" definitively failed after ${retries} attempts.`);
+  throw lastErr;
+}
+
+function getPath(ref: any): string | null {
+  if (!ref) return null;
+  if (typeof ref.path === "string") return ref.path;
+  if (ref.col) return `${ref.col}/${ref.id || ""}`;
+  return null;
+}
+
 export async function getDoc(docRef: any) {
   if (isConfigured && isFirestoreWorking && docRef && docRef.type !== "doc") {
-    const snap = await docRef.get();
+    const snap = await runWithRetry(() => docRef.get(), OperationType.GET, getPath(docRef));
     return wrapAdminSnapshot(snap);
   }
   const colName = docRef.col;
@@ -436,7 +568,8 @@ export async function getDoc(docRef: any) {
 export async function setDoc(docRef: any, data: any, options?: any) {
   if (isConfigured && isFirestoreWorking && docRef && docRef.type !== "doc") {
     const parsedData = resolveServerTimestamp(data);
-    return docRef.set(parsedData, options || {});
+    await runWithRetry(() => docRef.set(parsedData, options || {}), OperationType.WRITE, getPath(docRef));
+    return;
   }
   const colName = docRef.col;
   const colData = readCollection(colName);
@@ -453,7 +586,8 @@ export async function setDoc(docRef: any, data: any, options?: any) {
 export async function updateDoc(docRef: any, data: any) {
   if (isConfigured && isFirestoreWorking && docRef && docRef.type !== "doc") {
     const parsedData = resolveServerTimestamp(data);
-    return docRef.update(parsedData);
+    await runWithRetry(() => docRef.update(parsedData), OperationType.UPDATE, getPath(docRef));
+    return;
   }
   const colName = docRef.col;
   const colData = readCollection(colName);
@@ -465,7 +599,7 @@ export async function updateDoc(docRef: any, data: any) {
 export async function addDoc(colRef: any, data: any) {
   if (isConfigured && isFirestoreWorking && colRef && colRef.type !== "collection") {
     const parsedData = resolveServerTimestamp(data);
-    const addedRef = await colRef.add(parsedData);
+    const addedRef = await runWithRetry(() => colRef.add(parsedData), OperationType.CREATE, getPath(colRef));
     return addedRef;
   }
   const id = Math.random().toString(36).substring(2, 11) + Date.now().toString(36);
@@ -492,7 +626,7 @@ export async function deleteDoc(docRef: any) {
   }
 
   if (isConfigured && isFirestoreWorking && docRef && docRef.type !== "doc") {
-    await docRef.delete();
+    await runWithRetry(() => docRef.delete(), OperationType.DELETE, getPath(docRef));
   }
 
   if (colName && docId) {
@@ -573,7 +707,7 @@ function resolveServerTimestamp(data: any): any {
 
 export async function getDocs(target: any) {
   if (isConfigured && isFirestoreWorking && target && target.type !== "collection" && target.type !== "query") {
-    const snap = await target.get();
+    const snap = await runWithRetry(() => target.get(), OperationType.LIST, getPath(target));
     return wrapAdminQuerySnapshot(snap);
   }
   const colName = target.col || (target.type === "collection" ? target.path : "");

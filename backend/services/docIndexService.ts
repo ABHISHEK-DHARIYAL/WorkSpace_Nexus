@@ -16,11 +16,12 @@ export class DocIndexService {
   static async getByProject(projectId: string) {
     const q = query(
       collection(db, "doc_indices"),
-      where("projectId", "==", projectId),
-      orderBy("position", "asc")
+      where("projectId", "==", projectId)
     );
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const indices = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() as any }));
+    indices.sort((a, b) => (a.position || 0) - (b.position || 0));
+    return indices;
   }
 
   static async getAll() {

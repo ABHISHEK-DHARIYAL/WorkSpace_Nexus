@@ -17,11 +17,11 @@ export class DocumentNexusWorkspaceService {
   static async getAllByUser(userId: string) {
     const q = query(
       collection(db, "documentNexusWorkspaces"), 
-      where("owner", "==", userId),
-      orderBy("updatedAt", "desc")
+      where("owner", "==", userId)
     );
     const snapshot = await getDocs(q);
     let workspaces = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() as any }));
+    workspaces.sort((a, b) => new Date(b.updatedAt || 0).getTime() - new Date(a.updatedAt || 0).getTime());
 
     if (workspaces.length === 0) {
       const defaultId = `nexus-main-${userId.replace(/[^a-zA-Z0-9]/g, '-')}`;

@@ -14,6 +14,7 @@ import { SafeGuard } from './components/ui/SafeGuard';
 import Navbar from './components/ui/Navbar';
 import ProtectedRoute from './components/ui/ProtectedRoute';
 import Sidebar from './components/ui/Sidebar';
+import FirestoreSyncManager from './components/FirestoreSyncManager';
 
 // Pages
 import Home from './pages/Home';
@@ -55,6 +56,7 @@ function AppContent() {
 
   return (
     <div className="min-h-screen bg-[#f8fafc] text-slate-800 dark:bg-[#0f1115] dark:text-slate-200 transition-colors duration-300 font-sans selection:bg-black dark:selection:bg-[#eee1ba] selection:text-white dark:selection:text-black">
+      <FirestoreSyncManager />
       {!isImmersive && <Navbar />}
       <div className={`flex ${isImmersive ? 'pt-0' : 'pt-14 sm:pt-16'}`}>
         {showSidebar && !isImmersive && <Sidebar />}

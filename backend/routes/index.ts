@@ -16,6 +16,7 @@ import workspaceHubExportRoutes from "./workspaceHubExportRoutes";
 import documentNexusExportRoutes from "./documentNexusExportRoutes";
 import documentNexusWorkspaceRoutes from "./documentNexusWorkspaceRoutes";
 import documentNexusDocumentRoutes from "./documentNexusDocumentRoutes";
+import syncRoutes from "./syncRoutes";
 import { sendSuccess } from "../utils/response";
 import { isFirestoreWorking } from "../config/firebase";
 
@@ -30,6 +31,7 @@ router.get("/health", (req, res) => {
 });
 
 router.use("/auth", authRoutes);
+router.use("/sync", syncRoutes);
 router.use("/public", publicRoutes);
 router.use("/content/page", docPageRoutes);
 router.use("/content", contentRoutes);

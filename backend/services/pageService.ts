@@ -16,11 +16,12 @@ export class PageService {
   static async getByListing(listingId: string) {
     const q = query(
       collection(db, "pages"), 
-      where("listingId", "==", listingId),
-      orderBy("pageNumber", "asc")
+      where("listingId", "==", listingId)
     );
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const pages = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() as any }));
+    pages.sort((a, b) => (a.pageNumber || 0) - (b.pageNumber || 0));
+    return pages;
   }
 
   static async getById(id: string) {

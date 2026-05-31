@@ -16,11 +16,12 @@ export class AnnotationService {
   static async getByPage(pageId: string) {
     const q = query(
       collection(db, "annotations"),
-      where("pageId", "==", pageId),
-      orderBy("createdAt", "asc")
+      where("pageId", "==", pageId)
     );
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const annotations = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() as any }));
+    annotations.sort((a, b) => new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime());
+    return annotations;
   }
 
   static async create(data: any) {
