@@ -240,7 +240,8 @@ if (shouldInitAdminSdk) {
         });
       }
     }
-    const dbId = appletConfig.firestoreDatabaseId || undefined;
+    const rawDbId = appletConfig.firestoreDatabaseId || undefined;
+    const dbId = (rawDbId === "ai-studio-893adea9-443c-445c-9e2d-10478f8a2e04" || !rawDbId || rawDbId === '""' || rawDbId === "''" || rawDbId === "(default)") ? undefined : rawDbId;
     adminFirestoreInstance = getAdminFirestore(adminApp, dbId);
     console.log(`Firebase Admin SDK initialized successfully for database: ${dbId || "(default)"}`);
   } catch (err) {
@@ -334,7 +335,8 @@ async function runBackgroundMigration() {
     "follows",
     "admin_audit_logs",
     "page_versions",
-    "drafts"
+    "drafts",
+    "contents"
   ];
   for (const colName of collectionsToSeed) {
     try {

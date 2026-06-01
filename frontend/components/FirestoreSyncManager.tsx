@@ -1,8 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import api from "../services/api/client";
-import { db } from "@/config/firebase";
-import { doc, getDoc, setDoc } from "firebase/firestore";
 import { Cloud, CloudCheck, CloudLightning, Loader2 } from "lucide-react";
 import { triggerNotification } from "../context/NotificationContext";
 
@@ -16,12 +14,6 @@ export default function FirestoreSyncManager() {
   const isFirstCheckCompleteRef = useRef<boolean>(false);
 
   useEffect(() => {
-    if (!db) {
-      setSyncStatus("unconfigured");
-      console.warn("[Firestore Sync] db is not initialized. Synchronization operates offline on local storage fallback.");
-      return;
-    }
-
     if (!user || !user.email) {
       setSyncStatus("idle");
       isFirstCheckCompleteRef.current = false;
@@ -30,7 +22,6 @@ export default function FirestoreSyncManager() {
     }
 
     const emailKey = user.email.trim().toLowerCase();
-    const docRef = doc(db, "user_backups", emailKey);
 
     // Main sync handler
     const runSynchronizationSequence = async () => {
@@ -57,12 +48,11 @@ export default function FirestoreSyncManager() {
           
           let cloudSnapshot: any = null;
           try {
-            const docSnap = await getDoc(docRef);
-            if (docSnap.exists()) {
-              cloudSnapshot = docSnap.data();
-            }
+            console.log("[Firestore Sync Trace Client] Retrieving backup dynamically from server-side admin Firestore...");
+            const backupRes = await api.get("/sync/cloud-backup");
+            cloudSnapshot = backupRes.data?.data || null;
           } catch (snapshotErr) {
-            console.warn("[Firestore Sync] Failed to retrieve cloud backup snapshot:", snapshotErr);
+            console.warn("[Firestore Sync] Failed to retrieve cloud backup snapshot via Admin SDK proxy:", snapshotErr);
           }
 
           if (cloudSnapshot && typeof cloudSnapshot === "object") {
@@ -108,11 +98,8 @@ export default function FirestoreSyncManager() {
         if (currentDataHash !== lastSyncHashRef.current) {
           // Store if we have actual items to preserve (prevent backing up clean slate over existing backup)
           if (hasLocalWorkspaces) {
-            console.log("[Firestore Sync] Modifications detected. Saving secure encrypted snapshot to Firestore...");
-            await setDoc(docRef, {
-              ...backendData,
-              lastSyncedAt: new Date().toISOString()
-            }, { merge: true });
+            console.log("[Firestore Sync] Modifications detected. Saving secure snapshot via Admin SDK proxy...");
+            await api.post("/sync/cloud-backup", backendData);
             
             lastSyncHashRef.current = currentDataHash;
             setLastSynced(new Date().toLocaleTimeString());

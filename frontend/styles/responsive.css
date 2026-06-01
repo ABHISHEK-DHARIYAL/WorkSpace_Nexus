@@ -1017,15 +1017,19 @@ div#root:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > main:nth-of-
 }
 
 /* 4. Reading and Writing Mode Responsive Adjustments across specific device viewports */
-@media (max-width: 1023px) {
-  /* On tablets and smaller screens, the sidebar transitions seamlessly into an accessible floating drawer/sliding-panel overlay! */
+@media (max-width: 767px) {
+  /* On mobile screens, the sidebar transitions seamlessly into an accessible floating drawer/sliding-panel overlay! */
   .nexus-responsive-aside {
     position: absolute !important;
     left: 0 !important;
     top: 0 !important;
     bottom: 0 !important;
+    z-index: 50 !important; /* Extremely high z-index to sit on top of content and toolbars */
     background-color: var(--aside-bg, #ffffff) !important;
-    box-shadow: 10px 0 30px -5px rgba(0, 0, 0, 0.12) !important;
+    box-shadow: 10px 0 30px -5px rgba(0, 0, 0, 0.15) !important;
+    width: 280px !important; /* Custom drawer width on mobile */
+    max-width: 85vw !important; /* Off-canvas drawer feel */
+    min-width: clamp(240px, var(--scale-sidebar-w), 280px) !important;
   }
   
   .dark .nexus-responsive-aside {
@@ -1033,15 +1037,18 @@ div#root:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > main:nth-of-
     box-shadow: 10px 0 30px -5px rgba(0, 0, 0, 0.5) !important;
   }
 
-  /* When collapsed on mobile/tablet, translate totally out of the screen */
+  /* When collapsed on mobile, translate totally out of the screen */
   .nexus-responsive-aside.collapsed-aside {
     transform: translateX(-100%) !important;
     width: 0 !important;
+    min-width: 0 !important;
+    max-width: 0 !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
   }
   
-  /* Ensure the sidebar matches the tablet structure size bounds */
+  /* Ensure the sidebar transitions nicely of matching sizing constraints when active */
   .nexus-responsive-aside:not(.collapsed-aside) {
-    width: var(--scale-sidebar-w) !important;
     transform: translateX(0) !important;
     opacity: 1 !important;
     pointer-events: auto !important;
@@ -1362,6 +1369,81 @@ div#root:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > main:nth-of-
   max-width: 100% !important;
   width: 100% !important;
   padding-top: clamp(16px, 3.5vw, 32px) !important;
+}
+
+/* ==========================================================
+   🌐 DOCUMENT NEXUS TOP NAVIGATION TABS RESPONSIVENESS
+   ========================================================== */
+
+@media (max-width: 1023px) {
+  /* Let the inner flex container occupy full width on tablets/mobile */
+  div#root:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > main:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) {
+    display: flex !important;
+    width: 100% !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    gap: 8px !important;
+  }
+
+  /* Make the button row occupy the full row width and align elements perfectly */
+  div#root:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > main:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) {
+    display: flex !important;
+    flex-grow: 1 !important;
+    width: 100% !important;
+    margin: 0 !important;
+    gap: 6px !important; /* Proper small spacing */
+    justify-content: space-between !important;
+  }
+
+  /* Target each individual tab button inside the switcher container */
+  div#root:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > main:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > button {
+    flex: 1 1 0% !important; /* Force equal proportional width */
+    max-width: 33.33% !important; /* Perfect third fraction */
+    min-width: 0 !important; /* Allow proper responsive shrinking */
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    
+    /* Responsive custom typography adjustments */
+    padding-left: clamp(4px, 1.2vw, 10px) !important;
+    padding-right: clamp(4px, 1.2vw, 10px) !important;
+    padding-top: 6px !important;
+    padding-bottom: 6px !important;
+    font-size: clamp(9px, 1.35vw, 11px) !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.02em !important;
+  }
+
+  /* Support scaling icons down proportionally on smaller workspace views */
+  div#root:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > main:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > button svg {
+    flex-shrink: 0 !important;
+    width: clamp(10px, 1.5vw, 12px) !important;
+    height: clamp(10px, 1.5vw, 12px) !important;
+  }
+}
+
+@media (max-width: 639px) {
+  /* Extra mobile optimization to guarantee absolute fit on narrow devices */
+  div#root:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > main:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) {
+    gap: 4px !important;
+  }
+
+  div#root:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > main:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > button {
+    padding-left: 2px !important;
+    padding-right: 2px !important;
+    font-size: clamp(8px, 2.5vw, 9.5px) !important;
+    letter-spacing: -0.03em !important;
+    border-radius: 8px !important; /* Sleek mini border-radius on micro screens */
+  }
+
+  div#root:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > main:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > button svg {
+    width: 9px !important;
+    height: 9px !important;
+    margin-right: 1px !important;
+  }
 }
 
 

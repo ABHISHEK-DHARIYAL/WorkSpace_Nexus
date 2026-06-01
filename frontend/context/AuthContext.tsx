@@ -55,7 +55,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       // Save/update user profile in Firestore
       try {
-        const isSA = email.toLowerCase() === "admin@workspace.com" || email.toLowerCase() === "hshit7534@gmail.com" || email.toLowerCase() === "rajveer@gmail.com";
+        const isSA = email.toLowerCase() === "admin@workspace.com" || email.toLowerCase() === "hshit7534@gmail.com" || email.toLowerCase() === "rajveer@gmail.com" || email.toLowerCase() === "rajveerhelloworld@gmail.com";
         const profileData: any = {
           uid: fbUser.uid,
           name: fbUser.displayName || email.split('@')[0],
@@ -83,7 +83,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Call Direct login(token, userData) with Firebase ID Token instead of making backend /api/auth calls
     try {
       const token = await fbUser.getIdToken();
-      const isSA = email.toLowerCase() === "admin@workspace.com" || email.toLowerCase() === "hshit7534@gmail.com" || email.toLowerCase() === "rajveer@gmail.com";
+      const isSA = email.toLowerCase() === "admin@workspace.com" || email.toLowerCase() === "hshit7534@gmail.com" || email.toLowerCase() === "rajveer@gmail.com" || email.toLowerCase() === "rajveerhelloworld@gmail.com";
       const finalUser = {
         uid: fbUser.uid,
         email: email,

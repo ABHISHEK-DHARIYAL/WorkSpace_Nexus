@@ -378,11 +378,19 @@ const DocumentNexusReader: React.FC = () => {
       </header>
 
       {/* Main Container Layout */}
-      <div id="nexus-reader-layout-split" className="flex-grow flex overflow-hidden">
+      <div id="nexus-reader-layout-split" className="flex-grow flex relative overflow-hidden">
         
         {/* Left Sidebar Custom Navigation View */}
         {!isFullScreen && !isSidebarCollapsed && (
-          <aside className={`nexus-responsive-aside border-r shadow-xs select-none ${themeClasses.aside}`}>
+          <>
+            {/* Click-to-dismiss mobile outline sidebar backdrop */}
+            <button
+              type="button"
+              onClick={() => setIsSidebarCollapsed(true)}
+              className="md:hidden fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-40 transition-opacity cursor-pointer border-none outline-none p-0 m-0"
+              title="Close outline drawer overlay"
+            />
+            <aside className={`nexus-responsive-aside border-r shadow-xs select-none ${themeClasses.aside}`}>
             
             {/* Realtime filter row */}
             <div className={`px-4 py-2 border-b flex items-center justify-between gap-1.5 ${themeClasses.searchRow}`}>
@@ -581,6 +589,7 @@ const DocumentNexusReader: React.FC = () => {
             </div>
 
           </aside>
+          </>
         )}
 
         {/* Leftmost Sidebar Expanded/Collapsed trigger rail */}

@@ -112,12 +112,18 @@ export const contentService = {
     
     const pathForDocs = 'contents';
     try {
-      const q = query(collection(db, pathForDocs), orderBy("createdAt", "desc"));
+      const q = query(collection(db, pathForDocs));
       const snapshot = await getDocs(q);
       const items = snapshot.docs.map(docSnap => ({
         id: docSnap.id,
         ...docSnap.data()
       }));
+      // Sort in memory by createdAt desc
+      items.sort((a: any, b: any) => {
+        const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        return dateB - dateA;
+      });
       // Auto seed live collection if it's empty to prevent blank repository index screen
       if (items.length === 0) {
         // Only seed if current user is signed in as admin@workspace.com
@@ -142,6 +148,11 @@ export const contentService = {
             id: docSnap.id,
             ...docSnap.data()
           }));
+          seededItems.sort((a: any, b: any) => {
+            const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+            const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+            return dateB - dateA;
+          });
           return { data: seededItems };
         } else {
           // If not admin, return fallback seeds directly so the guest user can see them

@@ -18,7 +18,12 @@ const Signup = () => {
 
   React.useEffect(() => {
     if (user) {
-      navigate('/dashboard');
+      const lastUrl = localStorage.getItem('last_private_url');
+      if (lastUrl && lastUrl !== '/login' && lastUrl !== '/signup') {
+        navigate(lastUrl);
+      } else {
+        navigate('/dashboard');
+      }
     }
   }, [user, navigate]);
 
@@ -28,7 +33,12 @@ const Signup = () => {
     try {
       await signupWithEmail(email, password);
       showToast('Account successfully created! Welcome onboard.', 'success', 'Account Created', 4000);
-      navigate('/dashboard');
+      const lastUrl = localStorage.getItem('last_private_url');
+      if (lastUrl && lastUrl !== '/login' && lastUrl !== '/signup') {
+        navigate(lastUrl);
+      } else {
+        navigate('/dashboard');
+      }
     } catch (err: any) {
       console.error(err);
       const errMsg = err?.message || 'Signup failed. Please try again.';
@@ -43,7 +53,12 @@ const Signup = () => {
     try {
       await loginWithGoogle();
       showToast('Successfully signed in with Google!', 'success', 'Welcome', 3000);
-      navigate('/dashboard');
+      const lastUrl = localStorage.getItem('last_private_url');
+      if (lastUrl && lastUrl !== '/login' && lastUrl !== '/signup') {
+        navigate(lastUrl);
+      } else {
+        navigate('/dashboard');
+      }
     } catch (err: any) {
       console.error(err);
       const errMsg = err?.message || 'Failed to sign in with Google. Please try again.';

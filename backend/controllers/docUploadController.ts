@@ -11,7 +11,15 @@ export class DocUploadController {
       }
 
       const { buffer, originalname, mimetype } = req.file;
-      const result = await DocParserService.parse(buffer, originalname, mimetype, req.user.email);
+      const workspaceId = req.body.workspaceId;
+      const addedToNexus = req.body.addedToNexus === "true" || req.body.addedToNexus === true;
+
+      console.log(`[Upload Controller] Received file upload: ${originalname}, workspaceId: ${workspaceId}, addedToNexus: ${addedToNexus}`);
+
+      const result = await DocParserService.parse(buffer, originalname, mimetype, req.user.email, {
+        workspaceId,
+        addedToNexus
+      });
 
       sendSuccess(res, result, 201);
     } catch (error: any) {

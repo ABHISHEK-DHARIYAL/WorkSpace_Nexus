@@ -1,5 +1,6 @@
 import express from "express";
 import path from "path";
+import fs from "fs";
 import cors from "cors";
 import morgan from "morgan";
 import routes from "./routes";
@@ -68,10 +69,23 @@ export async function createApp() {
     app.use(vite.middlewares);
   } else {
     const distPath = path.resolve(process.cwd(), "dist");
-    app.use(express.static(distPath));
-    app.get("*", (req, res) => {
-      res.sendFile(path.resolve(distPath, "index.html"));
-    });
+    const indexPath = path.resolve(distPath, "index.html");
+    if (fs.existsSync(indexPath)) {
+      app.use(express.static(distPath));
+      app.get("*", (req, res) => {
+        res.sendFile(indexPath);
+      });
+    } else {
+      console.warn(`[Warning] Production build index.html not found at ${indexPath}. Falling back dynamically to Vite middleware for active developer session.`);
+      const { createServer: createViteServer } = await import("vite");
+      const vite = await createViteServer({
+        root: path.resolve(process.cwd(), "frontend"),
+        configFile: path.resolve(process.cwd(), "frontend/vite.config.ts"),
+        server: { middlewareMode: true },
+        appType: "spa",
+      });
+      app.use(vite.middlewares);
+    }
   }
 
   // Global error handler

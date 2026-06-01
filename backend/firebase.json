@@ -3,10 +3,6 @@
     {
       "database": "(default)",
       "rules": "firestore.rules"
-    },
-    {
-      "database": "ai-studio-893adea9-443c-445c-9e2d-10478f8a2e04",
-      "rules": "firestore.rules"
     }
   ]
 }

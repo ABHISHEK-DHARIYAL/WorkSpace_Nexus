@@ -282,7 +282,10 @@ const DocumentWorkspace: React.FC = () => {
   const workspaceIdParam = searchParams.get('workspaceId');
 
   // Navigation / Tab states
-  const [currentMainTab, setCurrentMainTab] = useState<'workspaces' | 'project-hub' | 'document-canvas'>('workspaces');
+  const [currentMainTab, setCurrentMainTab] = useState<'workspaces' | 'project-hub' | 'document-canvas'>(() => {
+    const saved = localStorage.getItem('doc_workspace:currentMainTab');
+    return (saved as any) || 'workspaces';
+  });
   
   // Workspace Hub State
   const [workspaces, setWorkspaces] = useState<any[]>([]);
@@ -298,7 +301,10 @@ const DocumentWorkspace: React.FC = () => {
   const [renameWorkspaceDesc, setRenameWorkspaceDesc] = useState('');
 
   // Workspace Project Hub Panel State
-  const [projectTab, setProjectTab] = useState<'overview' | 'projects' | 'global-search'>('overview');
+  const [projectTab, setProjectTab] = useState<'overview' | 'projects' | 'global-search'>(() => {
+    const saved = localStorage.getItem('doc_workspace:projectTab');
+    return (saved as any) || 'overview';
+  });
   const [projects, setProjects] = useState<any[]>([]);
   const [selectedProject, setSelectedProject] = useState<any>(null);
   const [projectSearch, setProjectSearch] = useState('');
@@ -317,11 +323,17 @@ const DocumentWorkspace: React.FC = () => {
   // Document Pages / Index state
   const [pages, setPages] = useState<any[]>([]);
   const [indices, setIndices] = useState<any[]>([]);
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [currentIndex, setCurrentIndex] = useState<number>(() => {
+    const saved = localStorage.getItem('doc_workspace:currentIndex');
+    return saved ? parseInt(saved, 10) : 0;
+  });
   const [viewingPageIds, setViewingPageIds] = useState<string[]>([]);
   const [showIndexModal, setShowIndexModal] = useState(false);
   const [isReaderMode, setIsReaderMode] = useState(false);
-  const [readerTheme, setReaderTheme] = useState<'slate' | 'vanilla' | 'midnight'>('slate');
+  const [readerTheme, setReaderTheme] = useState<'slate' | 'vanilla' | 'midnight'>(() => {
+    const saved = localStorage.getItem('doc_workspace:readerTheme');
+    return (saved as any) || 'slate';
+  });
   const [editingTitle, setEditingTitle] = useState(false);
   const [tempTitle, setTempTitle] = useState('');
   const [editingPageId, setEditingPageId] = useState<string | null>(null);
@@ -330,8 +342,48 @@ const DocumentWorkspace: React.FC = () => {
   const [pageSearch, setPageSearch] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [showSearch, setShowSearch] = useState(false);
-  const [activeTab, setActiveTab] = useState<'pages' | 'index'>('pages');
+  const [activeTab, setActiveTab] = useState<'pages' | 'index'>(() => {
+    const saved = localStorage.getItem('doc_workspace:activeTab');
+    return (saved as any) || 'pages';
+  });
   const [isFullScreen, setIsFullScreen] = useState(false);
+
+  // Dynamic persistent state recorders for Document Workspace
+  useEffect(() => {
+    localStorage.setItem('doc_workspace:currentMainTab', currentMainTab);
+  }, [currentMainTab]);
+
+  useEffect(() => {
+    if (selectedWorkspace) {
+      localStorage.setItem('doc_workspace:selectedWorkspaceId', selectedWorkspace.id);
+    } else {
+      localStorage.removeItem('doc_workspace:selectedWorkspaceId');
+    }
+  }, [selectedWorkspace]);
+
+  useEffect(() => {
+    if (selectedProject) {
+      localStorage.setItem('doc_workspace:selectedProjectId', selectedProject.id);
+    } else {
+      localStorage.removeItem('doc_workspace:selectedProjectId');
+    }
+  }, [selectedProject]);
+
+  useEffect(() => {
+    localStorage.setItem('doc_workspace:projectTab', projectTab);
+  }, [projectTab]);
+
+  useEffect(() => {
+    localStorage.setItem('doc_workspace:activeTab', activeTab);
+  }, [activeTab]);
+
+  useEffect(() => {
+    localStorage.setItem('doc_workspace:currentIndex', String(currentIndex));
+  }, [currentIndex]);
+
+  useEffect(() => {
+    localStorage.setItem('doc_workspace:readerTheme', readerTheme);
+  }, [readerTheme]);
 
   useEffect(() => {
     // Notify top-level App.tsx to hide global Navbar and Sidebar
@@ -373,7 +425,13 @@ const DocumentWorkspace: React.FC = () => {
       window.dispatchEvent(new CustomEvent('immersive-mode-change', { detail: { active: false } }));
     };
   }, [isFullScreen]);
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
+    return localStorage.getItem('doc_workspace:isSidebarCollapsed') === 'true';
+  });
+
+  useEffect(() => {
+    localStorage.setItem('doc_workspace:isSidebarCollapsed', String(isSidebarCollapsed));
+  }, [isSidebarCollapsed]);
 
   // Project Settings (Visibility & Tags) States for Document Workspace
   const [selectedProjectForSettings, setSelectedProjectForSettings] = useState<any | null>(null);
@@ -442,7 +500,18 @@ const DocumentWorkspace: React.FC = () => {
       const workspaceArray = Array.isArray(wRes.data) ? wRes.data : [];
       setWorkspaces(workspaceArray);
       let allProjects = lRes.data || [];
-      setPages(Array.isArray(pRes.data) ? pRes.data : []);
+      
+      // Auto-restore draft/unsaved outlines on reload
+      const rawPages = Array.isArray(pRes.data) ? pRes.data : [];
+      const mergedPages = rawPages.map((p: any) => {
+        const draft = localStorage.getItem(`doc_workspace:unsaved_content:${p.id}`);
+        if (draft) {
+          return { ...p, content: draft };
+        }
+        return p;
+      });
+      setPages(mergedPages);
+
       setIndices(Array.isArray(iRes.data) ? iRes.data : []);
       setAllHighlights(Array.isArray(hRes.data) ? hRes.data : []);
       if (bRes && Array.isArray(bRes.data)) {
@@ -451,9 +520,18 @@ const DocumentWorkspace: React.FC = () => {
         setBookmarkProjects([]);
       }
 
+      // Check URL params first, then fall back to last saved workspace and project IDs to preserve context
+      const savedWsId = localStorage.getItem('doc_workspace:selectedWorkspaceId');
+      const savedProjId = localStorage.getItem('doc_workspace:selectedProjectId');
+
       let activeWorkspace = workspaceArray[0] || null;
       if (workspaceIdParam) {
         const foundWs = workspaceArray.find((ws: any) => ws.id === workspaceIdParam);
+        if (foundWs) {
+          activeWorkspace = foundWs;
+        }
+      } else if (savedWsId) {
+        const foundWs = workspaceArray.find((ws: any) => ws.id === savedWsId);
         if (foundWs) {
           activeWorkspace = foundWs;
         }
@@ -462,22 +540,25 @@ const DocumentWorkspace: React.FC = () => {
       let activeProject = null;
       if (projectIdParam) {
         activeProject = allProjects.find((p: any) => p.id === projectIdParam);
-        if (activeProject) {
-          // If the project exists but is not added to the Nexus, automatically link it!
-          if (!activeProject.addedToNexus) {
-            try {
-              await listingService.update(activeProject.id, { addedToNexus: true });
-              activeProject.addedToNexus = true;
-              allProjects = allProjects.map((p: any) => p.id === activeProject.id ? { ...p, addedToNexus: true } : p);
-            } catch (err) {
-              console.error("Auto-adding project to nexus failed:", err);
-            }
+      } else if (savedProjId) {
+        activeProject = allProjects.find((p: any) => p.id === savedProjId);
+      }
+
+      if (activeProject) {
+        // If the project exists but is not added to the Nexus, automatically link it!
+        if (!activeProject.addedToNexus) {
+          try {
+            await listingService.update(activeProject.id, { addedToNexus: true });
+            activeProject.addedToNexus = true;
+            allProjects = allProjects.map((p: any) => p.id === activeProject.id ? { ...p, addedToNexus: true } : p);
+          } catch (err) {
+            console.error("Auto-adding project to nexus failed:", err);
           }
-          // Also set the correct workspace in which this project resides
-          const projWorkspace = workspaceArray.find((ws: any) => ws.id === activeProject.workspaceId);
-          if (projWorkspace) {
-            activeWorkspace = projWorkspace;
-          }
+        }
+        // Also set the correct workspace in which this project resides
+        const projWorkspace = workspaceArray.find((ws: any) => ws.id === activeProject.workspaceId);
+        if (projWorkspace) {
+          activeWorkspace = projWorkspace;
         }
       }
 
@@ -489,7 +570,17 @@ const DocumentWorkspace: React.FC = () => {
 
       if (activeProject) {
         setSelectedProject(activeProject);
-        setCurrentMainTab('document-canvas');
+        // Only override to canvas tab if loaded from specific URL params, else respect the stored currentMainTab state
+        if (projectIdParam) {
+          setCurrentMainTab('document-canvas');
+        } else {
+          const savedTab = localStorage.getItem('doc_workspace:currentMainTab');
+          if (savedTab) {
+            setCurrentMainTab(savedTab as any);
+          } else {
+            setCurrentMainTab('document-canvas');
+          }
+        }
       } else {
         const defaultWsId = activeWorkspace?.id || 'main';
         const initialProject = allProjects.find((p: any) => p.workspaceId === defaultWsId && p.addedToNexus === true);
@@ -497,6 +588,10 @@ const DocumentWorkspace: React.FC = () => {
           setSelectedProject(initialProject);
         } else {
           setSelectedProject(null);
+        }
+        const savedTab = localStorage.getItem('doc_workspace:currentMainTab');
+        if (savedTab) {
+          setCurrentMainTab(savedTab as any);
         }
       }
     } catch (err) {
@@ -761,7 +856,7 @@ const DocumentWorkspace: React.FC = () => {
     }
   };
 
-  // Mammoth parser background simulator
+  // Real background parser integration with backend /docs/upload endpoint
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     if (acceptedFiles.length === 0) return;
     setUploading(true);
@@ -774,48 +869,111 @@ const DocumentWorkspace: React.FC = () => {
 
     try {
       const file = acceptedFiles[0];
-      log(`Received document: ${file.name}`);
-      log(`Detecting file buffer signature and starting raw convert processes...`);
-      log(`Mammoth parsed HTML constructor loaded.`);
+      log(`Received document file: ${file.name}`);
+      log(`Detecting file buffer signature and starting upload to parser constructor...`);
 
-      // Simulated conversion cycles resembling real Mammouth & PDF-parse background engines
-      await new Promise(r => setTimeout(r, 800));
-      log(`Transforming .docx structural elements...`);
-      await new Promise(r => setTimeout(r, 600));
-      log(`Extracting formatting styles & CSS responsive custom classes...`);
-      await new Promise(r => setTimeout(r, 700));
-      log(`Successfully registered document indices context.`);
+      // Keep visual transition logs
+      await new Promise(r => setTimeout(r, 400));
+      log(`Uploading file content stream safely to Firestore database...`);
 
-      // Create new Project inside selected workspace
       const defaultWsId = selectedWorkspace?.id || 'main';
-      const response = await listingService.create({
-        title: file.name.replace(/\.[^/.]+$/, ""),
-        description: `Imported from ${file.name} context.`,
-        workspaceId: defaultWsId,
-        addedToNexus: true
-      });
-      const newListing = response.data;
-      setProjects([newListing, ...projects]);
-      setSelectedProject(newListing);
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('addedToNexus', 'true');
+      formData.append('workspaceId', defaultWsId);
 
-      // Create a sequential entry page inside the project context
-      const samplePage = await docPageService.create({
-        title: `Imported Document Contents`,
-        content: `<h2>Parsed Content From ${file.name}</h2><p>Organize and review your notes sequentially within the document outline workspace.</p><table class="table-responsive"><thead><tr><th>Document Engine</th><th>Conversion Status</th></tr></thead><tbody><tr><td>Mammoth Core</td><td><span class="selectedCell">Success</span></td></tr></tbody></table>`,
-        pageNumber: 1
+      // Invalidate frontend offline api caching
+      try {
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key && key.startsWith('api_cache:')) {
+            localStorage.removeItem(key);
+            i--;
+          }
+        }
+      } catch (cacheErr) {
+        console.error("Cache invalidation prior to upload failed:", cacheErr);
+      }
+
+      const response = await api.post('/docs/upload', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
       });
 
-      setPages([samplePage, ...pages]);
-      log(`Injected page successfully into Firestore Database.`);
-      log(`Index Outline generation complete.`);
-      setCurrentIndex(0);
+      const serverResult = response.data;
+      if (serverResult && serverResult.listing) {
+        const { listing, pages: parsedPages } = serverResult;
+
+        log(`Successfully parsed file elements: "${file.name}"`);
+        log(`Created new Document listing ID: "${listing.id}"`);
+        log(`Injected ${(parsedPages || []).length} pages into Document Outline workspace.`);
+
+        // In-memory states update immediately to be ultra-reactive
+        setProjects(prev => {
+          const exists = prev.some(p => p.id === listing.id);
+          return exists ? prev.map(p => p.id === listing.id ? listing : p) : [listing, ...prev];
+        });
+
+        const freshReqPages = parsedPages || [];
+        setPages(prev => {
+          const filteredPrev = prev.filter(p => !freshReqPages.some(fp => fp.id === p.id));
+          return [...freshReqPages, ...filteredPrev];
+        });
+
+        setSelectedProject(listing);
+        setCurrentIndex(0);
+        setCurrentMainTab('document-canvas');
+
+        // Retrieve newly registered document index outlines
+        log(`Retrieving newly registered document index outlines...`);
+        const updatedIdxRes = await docIndexService.getAll();
+        setIndices(Array.isArray(updatedIdxRes.data) ? updatedIdxRes.data : []);
+
+        // Fully sync ecosystem lists in the background (workspaces, projects, pages, indices)
+        try {
+          const [wRes, lRes, pRes, iRes] = await Promise.all([
+            workspaceService.getAll(),
+            listingService.getAll(),
+            docPageService.getAll(),
+            docIndexService.getAll()
+          ]);
+
+          if (wRes?.data) setWorkspaces(Array.isArray(wRes.data) ? wRes.data : []);
+          
+          const allProjects = lRes.data || [];
+          setProjects(allProjects);
+
+          const rawPages = Array.isArray(pRes.data) ? pRes.data : [];
+          const mergedPages = rawPages.map((p: any) => {
+            const draft = localStorage.getItem(`doc_workspace:unsaved_content:${p.id}`);
+            return draft ? { ...p, content: draft } : p;
+          });
+          setPages(mergedPages);
+
+          setIndices(Array.isArray(iRes.data) ? iRes.data : []);
+
+          const freshListing = allProjects.find((p: any) => p.id === listing.id) || listing;
+          setSelectedProject(freshListing);
+          setCurrentIndex(0);
+        } catch (syncErr) {
+          console.error("Background Firestore sync failed (retaining in-memory fallback):", syncErr);
+        }
+
+        log(`Document persistent index outline generation complete.`);
+        triggerNotification(`Document "${file.name}" uploaded, parsed, and saved successfully!`, 'success', 'File Upload Completed');
+      } else {
+        throw new Error("Unable to parse listing or pages from service reply.");
+      }
       
-    } catch (err) {
-      log(`ERROR: Parsing file container failed.`);
+    } catch (err: any) {
+      console.error("Document Nexus Upload Failed:", err);
+      log(`ERROR: Parsing document container failed. ${err.response?.data?.message || err.message || err}`);
+      triggerNotification(err.response?.data?.message || err.message || 'Failed to upload and parse document', 'error', 'Upload Failed');
     } finally {
       setUploading(false);
     }
-  }, [selectedWorkspace, projects, pages]);
+  }, [selectedWorkspace, setProjects, setSelectedProject, setPages, setIndices, setCurrentIndex, setCurrentMainTab, setWorkspaces]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -1069,11 +1227,16 @@ const DocumentWorkspace: React.FC = () => {
   };
 
   const handlePageUpdate = async (id: string, content: string) => {
+    // Save draft immediately to localStorage for crash proofing in case of immediate refresh
+    localStorage.setItem(`doc_workspace:unsaved_content:${id}`, content);
+
     setPages(pages.map(p => p.id === id ? { ...p, content } : p));
     if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
     saveTimeoutRef.current = setTimeout(async () => {
       try {
         await docPageService.update(id, { content });
+        // Clean draft upon successful backend synchronization
+        localStorage.removeItem(`doc_workspace:unsaved_content:${id}`);
       } catch (err) {
         console.error('Firestore save failed', err);
       }
@@ -1774,23 +1937,7 @@ const DocumentWorkspace: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Real-time background logs visualizer panel representing Mammoth and PDF-parse */}
-                  {showParserConsole && (
-                    <div className="bg-slate-900 border border-slate-800 rounded-3xl p-4 shadow-2xl relative">
-                      <div className="flex justify-between items-center mb-4 border-b border-slate-800 pb-2">
-                        <span className="text-[9px] font-mono font-black text-rose-500 uppercase tracking-widest animate-pulse flex items-center gap-1.5">
-                          <Terminal size={12} /> Live Converter Parser Logger
-                        </span>
-                        <button onClick={() => setShowParserConsole(false)} className="text-slate-500 hover:text-white"><X size={12} /></button>
-                      </div>
-                      <div className="max-h-48 overflow-y-auto space-y-1 font-mono text-[10px] text-emerald-400 custom-scrollbar">
-                        {parserLogs.map((log, lIdx) => (
-                          <div key={`log-${lIdx}`} className="leading-normal">{log}</div>
-                        ))}
-                        {uploading && <div className="text-slate-400 animate-pulse">Parser compiling metadata loops...</div>}
-                      </div>
-                    </div>
-                  )}
+                  {/* Real-time background logs visualizer panel representing Mammoth and PDF-parse has been removed from the visible UI as requested */}
                 </div>
               </div>
             )}
@@ -2041,10 +2188,20 @@ const DocumentWorkspace: React.FC = () => {
               )}
             </AnimatePresence>
 
-            <div className={`flex flex-grow ${isFullScreen ? 'overflow-visible h-auto' : 'overflow-hidden'}`}>
+            <div className={`flex flex-grow relative ${isFullScreen ? 'overflow-visible h-auto' : 'overflow-hidden'}`}>
               {/* Left Outline/Index structure sidebar panel */}
               {!isFullScreen && (
-                <DocumentSidebar
+                <>
+                  {/* Click-to-dismiss mobile outline sidebar backdrop */}
+                  {!isSidebarCollapsed && (
+                    <button
+                      type="button"
+                      onClick={() => setIsSidebarCollapsed(true)}
+                      className="md:hidden fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-40 transition-opacity cursor-pointer border-none outline-none p-0 m-0"
+                      title="Close outline drawer overlay"
+                    />
+                  )}
+                  <DocumentSidebar
                   pages={filteredPages}
                   indices={filteredIndices}
                   currentPageId={filteredPages[currentIndex]?.id}
@@ -2089,6 +2246,7 @@ const DocumentWorkspace: React.FC = () => {
                   isSidebarCollapsed={isSidebarCollapsed}
                   setIsSidebarCollapsed={setIsSidebarCollapsed}
                 />
+                </>
               )}
               {/* Main canvas sequential content reader & editor view */}
               <main className={`flex-grow flex flex-col relative z-10 transition-colors duration-300 ${getWorkspaceBackdropClasses()}`}>

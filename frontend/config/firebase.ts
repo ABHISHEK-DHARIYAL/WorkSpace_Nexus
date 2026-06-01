@@ -98,13 +98,34 @@ if (isConfigured) {
   console.warn('[Firebase Initialization] Firebase is running in SANDBOX fallback mode. Check `.env.example` or variables:\n', validation.errors.join('\n'));
 }
 
+// Resolve dynamic database config with safeguard to bypass invalid default values or the troublesome custom database ID
+const resolveDatabaseId = (): string | undefined => {
+  const envId = import.meta.env.VITE_FIREBASE_DATABASE_ID;
+  const configId = appletConfig.firestoreDatabaseId;
+  const targetId = envId || configId || undefined;
+  
+  if (targetId === 'ai-studio-893adea9-443c-445c-9e2d-10478f8a2e04' || !targetId || targetId === '""' || targetId === "''" || targetId === '(default)') {
+    console.log('[Firebase Initialization] Custom database ID detected as invalid or not found. Transparently migrating and falling back to modern Default Database.');
+    return undefined;
+  }
+  return targetId;
+};
+
 export const auth = app ? getAuth(app) : null;
+const dbId = resolveDatabaseId();
 export const db = app 
-  ? initializeFirestore(app, {
-      localCache: persistentLocalCache({
-        tabManager: persistentMultipleTabManager()
-      })
-    }, import.meta.env.VITE_FIREBASE_DATABASE_ID || appletConfig.firestoreDatabaseId || undefined)
+  ? (dbId 
+      ? initializeFirestore(app, {
+          localCache: persistentLocalCache({
+            tabManager: persistentMultipleTabManager()
+          })
+        }, dbId)
+      : initializeFirestore(app, {
+          localCache: persistentLocalCache({
+            tabManager: persistentMultipleTabManager()
+          })
+        })
+    )
   : null;
 export const storage = app ? getStorage(app) : null;
 

@@ -49,6 +49,40 @@ function AppContent() {
     };
   }, []);
 
+  // Save the current authenticated private URL for persistent path restoration across refreshes
+  React.useEffect(() => {
+    const publicPaths = ['/', '/login', '/signup'];
+    const isPublic = publicPaths.includes(location.pathname) || location.pathname.startsWith('/content/');
+    if (!isPublic && user) {
+      localStorage.setItem('last_private_url', location.pathname + location.search + location.hash);
+    }
+  }, [location, user]);
+
+  // Restore scroll positions across route transitions and page refreshes
+  React.useEffect(() => {
+    const key = `scroll_pos:${location.pathname}${location.search}`;
+    const savedScrollPos = localStorage.getItem(key);
+    
+    // Smooth/instant restoration of previous scroll state post render frame
+    const timer = setTimeout(() => {
+      if (savedScrollPos) {
+        window.scrollTo({ top: parseInt(savedScrollPos, 10), behavior: 'auto' });
+      } else {
+        window.scrollTo({ top: 0, behavior: 'auto' });
+      }
+    }, 150);
+
+    const handleScroll = () => {
+      localStorage.setItem(key, String(window.scrollY));
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [location.pathname, location.search]);
+
   const publicPaths = ['/', '/login', '/signup'];
   const isPublic = publicPaths.includes(location.pathname) || location.pathname.startsWith('/content/');
 

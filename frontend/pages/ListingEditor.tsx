@@ -139,8 +139,18 @@ const ListingEditor: React.FC = () => {
         pageService.getByListing(id!)
       ]);
       const pagesArray = Array.isArray(pagesRes.data) ? pagesRes.data : [];
+      
+      // Auto-restore unsaved drafts from localStorage on page refresh
+      const mergedPages = pagesArray.map((p: any) => {
+        const draft = localStorage.getItem(`listing_editor:unsaved_content:${p.id}`);
+        if (draft) {
+          return { ...p, content: draft };
+        }
+        return p;
+      });
+
       setListing(listingRes.data);
-      setPages(pagesArray);
+      setPages(mergedPages);
       if (pagesArray.length > 0) {
         setCurrentPageId(pagesArray[0].id);
       }
@@ -199,6 +209,9 @@ const ListingEditor: React.FC = () => {
   const handlePageUpdate = async (content: string) => {
     if (!currentPageId) return;
     
+    // Save draft immediately to localStorage for crash proofing in case of immediate refresh
+    localStorage.setItem(`listing_editor:unsaved_content:${currentPageId}`, content);
+
     // Optimistic UI update for content
     const updatedPages = pages.map(p => 
       p.id === currentPageId ? { ...p, content } : p
@@ -216,6 +229,8 @@ const ListingEditor: React.FC = () => {
       try {
         await pageService.update(idToSave, { content });
         setLastSaved(new Date());
+        // Clean draft upon successful backend synchronization
+        localStorage.removeItem(`listing_editor:unsaved_content:${idToSave}`);
       } catch (err) {
         console.error('Auto-save failed', err);
       } finally {

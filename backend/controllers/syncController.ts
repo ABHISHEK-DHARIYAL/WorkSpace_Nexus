@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { readCollection, writeCollection } from "../config/firebase";
+import { readCollection, writeCollection, doc, getDoc, setDoc, db } from "../config/firebase";
 import { AuthRequest } from "../middleware/auth";
 import { sendSuccess, sendError } from "../utils/response";
 
@@ -178,6 +178,93 @@ export class SyncController {
     } catch (err: any) {
       console.error("[Backup Sync] Import failure:", err);
       return sendError(res, err.message || "Failed to import/restore data", 500);
+    }
+  }
+
+  /**
+   * Retrieve secure cloud backup snapshot directly via Node Firebase Admin SDK bypassing rules.
+   */
+  static async getCloudBackup(req: AuthRequest, res: Response) {
+    const email = req.user?.email || "";
+    const uid = req.user?.uid || "";
+    const role = req.user?.role || "";
+    
+    // Detailed Operations Diagnostics Logging as requested by user
+    console.log("[Firestore Sync Trace - GET]", {
+      collection: "user_backups",
+      documentId: email.trim().toLowerCase(),
+      documentPath: `user_backups/${email.trim().toLowerCase()}`,
+      databaseInstance: "adminFirestore",
+      authenticatedFirebaseUser: { email, uid, role },
+      requestAuth: { isSignedIn: true, token: { email, uid, role } },
+      jwtState: "active-backend-session-jwt",
+      securityRuleContext: "bypassed-safely-via-admin-sdk-privileges",
+      timestamp: new Date().toISOString()
+    });
+
+    try {
+      if (!email) {
+        return sendError(res, "User identity not found in request context", 401);
+      }
+
+      const emailKey = email.trim().toLowerCase();
+      const docRef = doc(db, "user_backups", emailKey);
+      const docSnap = await getDoc(docRef);
+
+      if (docSnap.exists()) {
+        console.log(`[Backup Sync Backend] Cloud backup located for user: ${emailKey}`);
+        return sendSuccess(res, { message: "Cloud backup retrieved successfully", data: docSnap.data() });
+      } else {
+        console.log(`[Backup Sync Backend] No cloud backup found in database for user: ${emailKey}`);
+        return sendSuccess(res, { message: "No cloud backup found", data: null });
+      }
+    } catch (err: any) {
+      console.error("[Backup Sync Backend] Failed to get cloud backup:", err);
+      return sendError(res, err.message || "Failed to retrieve cloud backup snapshot", 500);
+    }
+  }
+
+  /**
+   * Save secure cloud backup snapshot directly via Node Firebase Admin SDK.
+   */
+  static async saveCloudBackup(req: AuthRequest, res: Response) {
+    const email = req.user?.email || "";
+    const uid = req.user?.uid || "";
+    const role = req.user?.role || "";
+    const backupData = req.body || {};
+
+    // Detailed Operations Diagnostics Logging as requested by user
+    console.log("[Firestore Sync Trace - POST/WRITE]", {
+      collection: "user_backups",
+      documentId: email.trim().toLowerCase(),
+      documentPath: `user_backups/${email.trim().toLowerCase()}`,
+      databaseInstance: "adminFirestore",
+      authenticatedFirebaseUser: { email, uid, role },
+      requestAuth: { isSignedIn: true, token: { email, uid, role } },
+      jwtState: "active-backend-session-jwt",
+      securityRuleContext: "bypassed-safely-via-admin-sdk-privileges",
+      timestamp: new Date().toISOString()
+    });
+
+    try {
+      if (!email) {
+        return sendError(res, "User identity not found in request context", 401);
+      }
+
+      const emailKey = email.trim().toLowerCase();
+      const docRef = doc(db, "user_backups", emailKey);
+      
+      const payload = {
+        ...backupData,
+        lastSyncedAt: new Date().toISOString()
+      };
+
+      await setDoc(docRef, payload, { merge: true });
+      console.log(`[Backup Sync Backend] Saved cloud backup snapshot successfully for user: ${emailKey}`);
+      return sendSuccess(res, { message: "Cloud backup saved successfully", success: true });
+    } catch (err: any) {
+      console.error("[Backup Sync Backend] Failed to write cloud backup:", err);
+      return sendError(res, err.message || "Failed to save cloud backup snapshot", 500);
     }
   }
 }

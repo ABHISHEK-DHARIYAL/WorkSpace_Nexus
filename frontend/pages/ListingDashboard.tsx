@@ -111,9 +111,10 @@ const SidebarItem: React.FC<SidebarItemProps> = ({ icon, label, active, onClick,
 interface DocUploadProps {
   onSuccess?: (listing: any) => void;
   onCancel?: () => void;
+  workspaceId?: string;
 }
 
-const DocUpload: React.FC<DocUploadProps> = ({ onSuccess, onCancel }) => {
+const DocUpload: React.FC<DocUploadProps> = ({ onSuccess, onCancel, workspaceId }) => {
   const [file, setFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -147,8 +148,20 @@ const DocUpload: React.FC<DocUploadProps> = ({ onSuccess, onCancel }) => {
 
     const formData = new FormData();
     formData.append('file', file);
+    if (workspaceId) {
+      formData.append('workspaceId', workspaceId);
+    }
 
     try {
+      // Invalidate frontend offline api caching
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith('api_cache:')) {
+          localStorage.removeItem(key);
+          i--;
+        }
+      }
+
       const response = await api.post('/docs/upload', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
@@ -422,12 +435,49 @@ const ListingDashboard: React.FC = () => {
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [pageSearchTerm, setPageSearchTerm] = useState('');
-  const [currentView, setCurrentView] = useState<WorkspaceView>('overview');
-  const [projectsViewMode, setProjectsViewMode] = useState<'grid' | 'list'>('grid');
-  const [isNavCollapsed, setIsNavCollapsed] = useState(false);
-  const [isStatusCollapsed, setIsStatusCollapsed] = useState(false);
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [currentView, setCurrentView] = useState<WorkspaceView>(() => {
+    const saved = workspaceId ? localStorage.getItem(`listing_dashboard:currentView:${workspaceId}`) : null;
+    return (saved as WorkspaceView) || 'overview';
+  });
+  const [projectsViewMode, setProjectsViewMode] = useState<'grid' | 'list'>(() => {
+    const saved = workspaceId ? localStorage.getItem(`listing_dashboard:projectsViewMode:${workspaceId}`) : null;
+    return (saved as 'grid' | 'list') || 'grid';
+  });
+  const [isNavCollapsed, setIsNavCollapsed] = useState(() => {
+    return localStorage.getItem('listing_dashboard:isNavCollapsed') === 'true';
+  });
+  const [isStatusCollapsed, setIsStatusCollapsed] = useState(() => {
+    return localStorage.getItem('listing_dashboard:isStatusCollapsed') === 'true';
+  });
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
+    return localStorage.getItem('listing_dashboard:isSidebarCollapsed') === 'true';
+  });
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+
+  // Persistence hooks to record list views across refreshes
+  useEffect(() => {
+    if (workspaceId) {
+      localStorage.setItem(`listing_dashboard:currentView:${workspaceId}`, currentView);
+    }
+  }, [currentView, workspaceId]);
+
+  useEffect(() => {
+    if (workspaceId) {
+      localStorage.setItem(`listing_dashboard:projectsViewMode:${workspaceId}`, projectsViewMode);
+    }
+  }, [projectsViewMode, workspaceId]);
+
+  useEffect(() => {
+    localStorage.setItem('listing_dashboard:isNavCollapsed', String(isNavCollapsed));
+  }, [isNavCollapsed]);
+
+  useEffect(() => {
+    localStorage.setItem('listing_dashboard:isStatusCollapsed', String(isStatusCollapsed));
+  }, [isStatusCollapsed]);
+
+  useEffect(() => {
+    localStorage.setItem('listing_dashboard:isSidebarCollapsed', String(isSidebarCollapsed));
+  }, [isSidebarCollapsed]);
   
   // New Listing State
   const [newTitle, setNewTitle] = useState('');
@@ -1708,6 +1758,7 @@ const ListingDashboard: React.FC = () => {
             />
             <div className="relative z-10 w-full max-w-xl">
               <DocUpload 
+                workspaceId={workspaceId}
                 onSuccess={(newListing) => {
                   fetchData();
                   setShowUploadModal(false);

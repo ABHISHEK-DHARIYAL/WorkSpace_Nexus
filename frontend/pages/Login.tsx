@@ -18,7 +18,12 @@ const Login = () => {
 
   React.useEffect(() => {
     if (user) {
-      navigate('/dashboard');
+      const lastUrl = localStorage.getItem('last_private_url');
+      if (lastUrl && lastUrl !== '/login' && lastUrl !== '/signup') {
+        navigate(lastUrl);
+      } else {
+        navigate('/dashboard');
+      }
     }
   }, [user, navigate]);
 
@@ -37,7 +42,12 @@ const Login = () => {
     try {
       await loginWithEmail(email, password);
       showToast('Successfully signed in!', 'success', 'Welcome Back', 3000);
-      navigate('/dashboard');
+      const lastUrl = localStorage.getItem('last_private_url');
+      if (lastUrl && lastUrl !== '/login' && lastUrl !== '/signup') {
+        navigate(lastUrl);
+      } else {
+        navigate('/dashboard');
+      }
     } catch (err: any) {
       console.error(err);
       const errMsg = err?.message || 'Login failed. Please check your credentials.';
@@ -52,7 +62,12 @@ const Login = () => {
     try {
       await loginWithGoogle();
       showToast('Successfully signed in with Google!', 'success', 'Welcome', 3000);
-      navigate('/dashboard');
+      const lastUrl = localStorage.getItem('last_private_url');
+      if (lastUrl && lastUrl !== '/login' && lastUrl !== '/signup') {
+        navigate(lastUrl);
+      } else {
+        navigate('/dashboard');
+      }
     } catch (err: any) {
       console.error(err);
       const errMsg = err?.message || 'Failed to sign in with Google. Please try again.';
