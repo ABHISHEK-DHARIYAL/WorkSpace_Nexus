@@ -30,5 +30,5 @@ export const publicService = {
     api.patch(`/public/moderate/${id}`, { action, reason }),
   
   adminDeleteContent: (id: string, reason?: string) => 
-    api.delete(`/admin/public-content/${id}`, { data: { reason } })
+    api.delete(`/public/admin-delete/${id}`, { data: { reason } })
 };

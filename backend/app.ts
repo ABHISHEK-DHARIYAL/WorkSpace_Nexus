@@ -6,6 +6,7 @@ import morgan from "morgan";
 import routes from "./routes";
 import { ENV } from "./config/env";
 import { testFirestoreConnection } from "./config/firebase";
+import { validateAllRoutes } from "./utils/routeValidator";
 
 export async function createApp() {
   // Test Firestore connection on startup to dynamically verify permission/quota and handle fallback
@@ -96,6 +97,9 @@ export async function createApp() {
       error: ENV.NODE_ENV === "development" ? err : {}
     });
   });
+
+  // Startup Route Verification
+  validateAllRoutes(app);
 
   return app;
 }

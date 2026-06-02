@@ -19,6 +19,9 @@ import documentNexusDocumentRoutes from "./documentNexusDocumentRoutes";
 import syncRoutes from "./syncRoutes";
 import { sendSuccess } from "../utils/response";
 import { isFirestoreWorking } from "../config/firebase";
+import { PublicController } from "../controllers/publicController";
+import { authenticate } from "../middleware/auth";
+import { checkDb } from "../middleware/checkDb";
 
 const router = Router();
 
@@ -29,6 +32,8 @@ router.get("/health", (req, res) => {
     timestamp: new Date().toISOString() 
   });
 });
+
+router.delete("/admin/public-content/:id", authenticate, checkDb, PublicController.deletePublicContent);
 
 router.use("/auth", authRoutes);
 router.use("/sync", syncRoutes);
