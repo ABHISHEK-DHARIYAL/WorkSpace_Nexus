@@ -60,7 +60,8 @@ export class AuthService {
       "jane.doe@example.com",
       "rajveerhelloworld@gmail.com",
       "rajveer@gmail.com",
-      "hshit7534@gmail.com"
+      "hshit7534@gmail.com",
+      "heroofthevil311@gmail.com"
     ].includes(cleanEmail);
 
     // Dynamic sandbox resilient login fallback

@@ -5,7 +5,7 @@ import cors from "cors";
 import morgan from "morgan";
 import routes from "./routes";
 import { ENV } from "./config/env";
-import { testFirestoreConnection } from "./config/firebase";
+import { testFirestoreConnection, isFirestoreWorking } from "./config/firebase";
 import { validateAllRoutes } from "./utils/routeValidator";
 
 export async function createApp() {
@@ -54,30 +54,27 @@ export async function createApp() {
   });
 
   // Vite / Static Serving
-  if (ENV.WITHOUT_VITE) {
-    app.get("*", (req, res) => {
-      res.send(`DocCMS API Backend is running separately on port ${ENV.PORT}. Access the frontend dynamically for full workflow.`);
-    });
-  } else if (ENV.NODE_ENV !== "production" && !process.env.VERCEL && !process.env.NOW_BUILDER) {
-    console.log("Setting up Vite middleware...");
-    const { createServer: createViteServer } = await import("vite");
-    const vite = await createViteServer({
-      root: path.resolve(process.cwd(), "frontend"),
-      configFile: path.resolve(process.cwd(), "frontend/vite.config.ts"),
-      server: { middlewareMode: true },
-      appType: "spa",
-    });
-    app.use(vite.middlewares);
-  } else {
-    const distPath = path.resolve(process.cwd(), "dist");
-    const indexPath = path.resolve(distPath, "index.html");
-    if (fs.existsSync(indexPath)) {
-      app.use(express.static(distPath));
-      app.get("*", (req, res) => {
-        res.sendFile(indexPath);
+  if (ENV.NODE_ENV === "production" || ENV.WITHOUT_VITE) {
+    // Pure API Mode in production / on Render, or when WITHOUT_VITE is active:
+    // No Vite imports, no fallback to Vite, no index.html dependencies
+    app.get("/", (req, res) => {
+      res.json({
+        message: "Workspace Nexus API is healthy and running.",
+        status: "ok",
+        isFirestoreWorking,
+        timestamp: new Date().toISOString()
       });
-    } else {
-      console.warn(`[Warning] Production build index.html not found at ${indexPath}. Falling back dynamically to Vite middleware for active developer session.`);
+    });
+
+    app.get("*", (req, res) => {
+      res.status(404).json({
+        message: `Not found: ${req.method} ${req.url}. This is a pure API server. Frontend is hosted separately.`,
+      });
+    });
+  } else {
+    // Development Mode ONLY (NOT production, NOT Render)
+    console.log("Setting up Vite middleware for active developer session...");
+    try {
       const { createServer: createViteServer } = await import("vite");
       const vite = await createViteServer({
         root: path.resolve(process.cwd(), "frontend"),
@@ -86,6 +83,11 @@ export async function createApp() {
         appType: "spa",
       });
       app.use(vite.middlewares);
+    } catch (err: any) {
+      console.error("Failed to load Vite developer middleware:", err);
+      app.get("*", (req, res) => {
+        res.status(500).send("Vite developer middleware failed to load. Please make sure devDependencies are installed.");
+      });
     }
   }
 
