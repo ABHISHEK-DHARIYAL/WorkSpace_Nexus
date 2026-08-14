@@ -137,7 +137,7 @@ export default function FirestoreSyncManager() {
       <div className="flex items-center gap-2 px-3 py-1.5 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md rounded-full shadow-lg border border-slate-100 dark:border-slate-800 text-xs text-slate-500 dark:text-slate-400 font-medium transition-all duration-300 animate-fade-in">
         {syncStatus === "syncing" && (
           <>
-            <Loader2 className="w-3.5 h-3.5 text-indigo-500 animate-spin" />
+            <Loader2 className="w-3.5 h-3.5 text-[#eee1ba] animate-spin" />
             <span>Syncing Cloud...</span>
           </>
         )}
@@ -150,8 +150,8 @@ export default function FirestoreSyncManager() {
         {syncStatus === "synced" && (
           <>
             <div className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#eee1ba] opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-[#eee1ba]"></span>
             </div>
             <span>Cloud Saved {lastSynced && `at ${lastSynced}`}</span>
           </>

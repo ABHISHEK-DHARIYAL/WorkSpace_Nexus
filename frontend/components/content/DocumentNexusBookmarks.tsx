@@ -55,7 +55,7 @@ export function DocumentNexusBookmarks({ bookmarks, onRemove, hideEmptyState }: 
     <div className="space-y-4">
       <div className="flex items-center justify-between mb-2">
         <h3 className="text-sm font-black uppercase tracking-wider text-slate-850 dark:text-slate-200 flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></span>
+          <span className="w-2 h-2 rounded-full bg-[#eee1ba] animate-pulse"></span>
           Document Nexus Saved Content & Stars ({bookmarks.length})
         </h3>
         <span className="text-[10px] font-mono text-slate-400 uppercase tracking-widest font-semibold font-bold">Public Bookmarks List</span>

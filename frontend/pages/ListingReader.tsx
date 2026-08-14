@@ -18,7 +18,6 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import api from '../services/api/client';
 import { 
   ChevronLeft, Search, Maximize2, Minimize2, Edit2, Type, Moon, Sun, Coffee, Highlighter, 
   Plus, Minus, AlignLeft, StretchHorizontal, ChevronDown, PanelLeftClose, PanelLeftOpen, 
@@ -28,27 +27,14 @@ import { motion, AnimatePresence } from 'motion/react';
 import Reader from '../components/reader/Reader';
 import { annotationService } from '../services/annotationService';
 import { ComfortWorkspaceSettings } from '../components/workspace/ComfortWorkspaceSettings';
+import { listingService } from '../services/api/listing';
+import { pageService } from '../services/api/page';
 
 import SharedLoader from '../components/ui/Loader';
 
 const Loader: React.FC = () => (
   <SharedLoader size="lg" message="Loading reader workspace..." />
 );
-
-const listingService = {
-  getAll: () => api.get("/listing"),
-  getById: (id: string) => api.get(`/listing/${id}`),
-  create: (data: any) => api.post("/listing", data),
-  update: (id: string, data: any) => api.put(`/listing/${id}`, data),
-  delete: (id: string) => api.delete(`/listing/${id}`),
-};
-
-const pageService = {
-  getByListing: (listingId: string) => api.get(`/page/${listingId}`),
-  create: (data: any) => api.post("/page", data),
-  update: (id: string, data: any) => api.put(`/page/${id}`, data),
-  delete: (id: string) => api.delete(`/page/${id}`),
-};
 
 const highlightHTML = (html: string, search: string) => {
   if (!search) return html;
@@ -82,7 +68,7 @@ const IndexSidebar: React.FC<any> = ({ pages, index = [], currentPageId, onPageS
             : 'bg-white border-slate-200 shadow-[0_1px_3px_0_rgba(0,0,0,0.02)]'
       }`}>
         <div className="flex items-center gap-3">
-          <div className={`p-2 rounded-lg ${theme === 'sepia' ? 'bg-[#5b4636]/10 text-[#5b4636]' : 'bg-indigo-500/10 text-indigo-500'}`}>
+          <div className={`p-2 rounded-lg ${theme === 'sepia' ? 'bg-[#5b4636]/10 text-[#5b4636]' : 'bg-[#eee1ba]/10 text-[#eee1ba]'}`}>
              <ChevronDown size={18} />
           </div>
           <span className={`font-black uppercase tracking-widest text-[10px] ${
@@ -103,7 +89,7 @@ const IndexSidebar: React.FC<any> = ({ pages, index = [], currentPageId, onPageS
               onClick={() => setActiveSubTab('pages')}
               className={`w-1/2 py-2 px-3 rounded-lg font-black text-[10px] uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 cursor-pointer text-center select-none ${
                 activeSubTab === 'pages'
-                  ? 'bg-indigo-600 text-white shadow-sm'
+                  ? 'bg-black text-white shadow-sm'
                   : theme === 'dark'
                     ? 'text-slate-500 hover:text-white'
                     : theme === 'sepia'
@@ -118,7 +104,7 @@ const IndexSidebar: React.FC<any> = ({ pages, index = [], currentPageId, onPageS
               onClick={() => setActiveSubTab('index')}
               className={`w-1/2 py-2 px-3 rounded-lg font-black text-[10px] uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 cursor-pointer text-center select-none ${
                 activeSubTab === 'index'
-                  ? 'bg-indigo-600 text-white shadow-sm'
+                  ? 'bg-black text-white shadow-sm'
                   : theme === 'dark'
                     ? 'text-slate-500 hover:text-white'
                     : theme === 'sepia'
@@ -140,7 +126,7 @@ const IndexSidebar: React.FC<any> = ({ pages, index = [], currentPageId, onPageS
                 ? 'bg-white/5 text-white placeholder:text-slate-600 focus:bg-white/10' 
                 : theme === 'sepia'
                   ? 'bg-[#f4ecd8] text-[#5b4636] placeholder:text-[#5b4636]/30 border border-[#eee1ba] focus:bg-white'
-                  : 'bg-slate-50 border border-slate-200 focus:bg-white focus:ring-1 focus:ring-indigo-500'
+                  : 'bg-slate-50 border border-slate-200 focus:bg-white focus:ring-1 focus:ring-[#eee1ba]'
             }`}
             placeholder="Quick search..." 
             value={searchTerm} 
@@ -162,10 +148,10 @@ const IndexSidebar: React.FC<any> = ({ pages, index = [], currentPageId, onPageS
               onClick={() => onPageSelect(id, item.anchorId)}
               className={`px-4 py-3 rounded-xl cursor-pointer text-xs font-bold transition-all flex items-center justify-between group ${
                 isActive 
-                  ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-900/20' 
+                  ? 'bg-black text-white shadow-lg shadow-black/20' 
                   : theme === 'dark' 
                     ? 'text-slate-500 hover:bg-white/5 hover:text-white' 
-                    : 'text-slate-600 hover:bg-white hover:shadow-sm hover:text-indigo-600'
+                    : 'text-slate-600 hover:bg-white hover:shadow-sm hover:text-black'
               }`}
               style={!isPage ? { paddingLeft: `${(item.level * 12) + 16}px` } : {}}
             >
@@ -603,7 +589,7 @@ const ListingReader: React.FC = () => {
                 className={`absolute right-2 top-2 z-50 p-1.5 rounded-md border transition-all shadow-sm ${
                   theme === 'sepia' 
                     ? 'bg-[#fdf6e3] border-[#eee1ba] text-[#5b4636]/40 hover:text-[#5b4636]' 
-                    : 'bg-white border-slate-200 text-slate-400 hover:text-indigo-600'
+                    : 'bg-white border-slate-200 text-slate-400 hover:text-black'
                 } opacity-0 group-hover/sidebar:opacity-100`}
                 title="Close Index"
               >

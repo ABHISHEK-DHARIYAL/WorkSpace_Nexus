@@ -10,13 +10,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useNotifications } from '../context/NotificationContext';
-
-const workspaceService = {
-  getAll: () => api.get("/workspace"),
-  create: (data: any) => api.post("/workspace", data),
-  update: (id: string, data: any) => api.put(`/workspace/${id}`, data),
-  delete: (id: string) => api.delete(`/workspace/${id}`),
-};
+import { workspaceService } from '../services/api/workspace';
 
 import SharedLoader from '../components/ui/Loader';
 
@@ -32,22 +26,22 @@ const StatCard: React.FC<{ icon: React.ReactNode; label: string; value: string; 
     transition={{ duration: 0.2 }}
     onClick={onClick}
     className={`p-6 sm:p-7 rounded-[26px] flex items-center gap-5 sm:gap-6 transition-all select-none active:scale-[0.98] ${
-      onClick ? 'cursor-pointer hover:shadow-2xl hover:shadow-indigo-500/15' : 'cursor-default'
+      onClick ? 'cursor-pointer hover:shadow-2xl hover:shadow-[#eee1ba]/15' : 'cursor-default'
     } group h-full ${
       isGlass 
-        ? 'bg-slate-900/40 border border-slate-800/60 dark:border-[#2d323f]/50 text-white backdrop-blur-2xl hover:bg-slate-900/80 hover:border-indigo-500/50 shadow-2xl shadow-slate-950/35' 
+        ? 'bg-slate-900/40 border border-slate-800/60 dark:border-[#2d323f]/50 text-white backdrop-blur-2xl hover:bg-slate-900/80 hover:border-[#eee1ba]/50 shadow-2xl shadow-slate-950/35' 
         : 'bg-white border border-slate-100 shadow-lg hover:shadow-2xl hover:shadow-slate-200/20 dark:bg-[#15181e] dark:border-[#2d323f] dark:hover:shadow-none'
     }`}
   >
-    <div className={`p-4 rounded-2xl transition-all ${isGlass ? 'bg-indigo-500/10 text-indigo-300 group-hover:bg-indigo-600 group-hover:text-white group-hover:shadow-xl group-hover:shadow-indigo-500/40' : color} group-hover:scale-110 shadow-sm ${isGlass ? 'border border-indigo-500/20' : ''}`}>
+    <div className={`p-4 rounded-2xl transition-all ${isGlass ? 'bg-[#eee1ba]/10 text-[#eee1ba]/40 group-hover:bg-black group-hover:text-white group-hover:shadow-xl group-hover:shadow-[#eee1ba]/40' : color} group-hover:scale-110 shadow-sm ${isGlass ? 'border border-[#eee1ba]/20' : ''}`}>
       {icon}
     </div>
     <div className="flex-grow min-w-0">
-      <p className={`text-[10px] sm:text-xs font-black uppercase tracking-[0.25em] mb-1.5 leading-none transition-colors ${isGlass ? 'text-indigo-200/80 group-hover:text-indigo-100' : 'text-slate-400 dark:text-slate-400'}`}>{label}</p>
+      <p className={`text-[10px] sm:text-xs font-black uppercase tracking-[0.25em] mb-1.5 leading-none transition-colors ${isGlass ? 'text-[#eee1ba]/80 group-hover:text-[#eee1ba]/15' : 'text-slate-400 dark:text-slate-400'}`}>{label}</p>
       <div className="flex items-center gap-2">
-        <p className={`text-2xl sm:text-3xl font-black tabular-nums tracking-tight ${isGlass ? 'bg-gradient-to-r from-white via-slate-100 to-indigo-100 bg-clip-text text-transparent' : 'text-slate-900 dark:text-white'}`}>{value}</p>
+        <p className={`text-2xl sm:text-3xl font-black tabular-nums tracking-tight ${isGlass ? 'bg-gradient-to-r from-white via-slate-100 to-[#eee1ba]/15 bg-clip-text text-transparent' : 'text-slate-900 dark:text-white'}`}>{value}</p>
         {onClick && (
-          <ArrowUpRight size={16} className={`opacity-0 group-hover:opacity-100 transition-all translate-y-0.5 ${isGlass ? 'text-indigo-400' : 'text-slate-400 dark:text-slate-500'}`} />
+          <ArrowUpRight size={16} className={`opacity-0 group-hover:opacity-100 transition-all translate-y-0.5 ${isGlass ? 'text-[#eee1ba]' : 'text-slate-400 dark:text-slate-500'}`} />
         )}
       </div>
     </div>
@@ -67,13 +61,13 @@ const WorkspaceCard: React.FC<{
     >
       <div className="p-8">
         <div className="flex justify-between items-start mb-6">
-          <div className="p-4 bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 rounded-2xl group-hover:bg-indigo-600 dark:group-hover:bg-[#eee1ba] group-hover:text-white dark:group-hover:text-black transition-all shadow-sm">
+          <div className="p-4 bg-[#eee1ba]/10 dark:bg-black/40 text-black dark:text-[#eee1ba] rounded-2xl group-hover:bg-black dark:group-hover:bg-[#eee1ba] group-hover:text-white dark:group-hover:text-black transition-all shadow-sm">
             <Briefcase size={28} />
           </div>
           <div className="flex gap-2">
             <button 
               onClick={() => onRename(workspace.id, workspace.name)}
-              className="p-2 text-slate-400 dark:text-slate-500 hover:text-indigo-600 dark:hover:text-[#eee1ba] hover:bg-indigo-50 dark:hover:bg-[#1f242e] rounded-lg transition-all"
+              className="p-2 text-slate-400 dark:text-slate-500 hover:text-black dark:hover:text-[#eee1ba] hover:bg-[#eee1ba]/10 dark:hover:bg-[#1f242e] rounded-lg transition-all"
             >
               <Edit3 size={18} />
             </button>
@@ -87,7 +81,7 @@ const WorkspaceCard: React.FC<{
         </div>
 
         <Link to={`/workspace/${workspace.id}`} className="block group/title">
-          <h3 className="text-2xl font-black text-slate-900 dark:text-white mb-2 truncate group-hover/title:text-indigo-600 dark:group-hover/title:text-[#eee1ba] transition-colors">
+          <h3 className="text-2xl font-black text-slate-900 dark:text-white mb-2 truncate group-hover/title:text-black dark:group-hover/title:text-[#eee1ba] transition-colors">
             {workspace.name}
           </h3>
           <p className="text-slate-500 dark:text-slate-400 text-sm line-clamp-2 min-h-[2.5rem] font-medium leading-relaxed mb-6">
@@ -345,20 +339,20 @@ const WorkspaceDashboard: React.FC = () => {
         {/* Glowing Hero Banner */}
         <div className="relative overflow-hidden rounded-[32px] bg-gradient-to-br from-slate-950 via-slate-900 to-[#121620] px-8 py-12 md:px-14 md:py-16 text-white shadow-2xl border border-slate-800/60">
           <div className="absolute inset-0 bg-[linear-gradient(to_right,#1f293708_1px,transparent_1px),linear-gradient(to_bottom,#1f293708_1px,transparent_1px)] bg-[size:3rem_3rem]" />
-          <div className="absolute top-0 right-0 -mr-28 -mt-28 w-[500px] h-[500px] bg-indigo-500/10 rounded-full blur-[100px] animate-pulse" style={{ animationDuration: '10s' }} />
+          <div className="absolute top-0 right-0 -mr-28 -mt-28 w-[500px] h-[500px] bg-[#eee1ba]/10 rounded-full blur-[100px] animate-pulse" style={{ animationDuration: '10s' }} />
           <div className="absolute bottom-0 left-0 -ml-28 -mb-28 w-[350px] h-[350px] bg-sky-500/10 rounded-full blur-[90px] animate-pulse" style={{ animationDuration: '8s' }} />
           
           <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-10">
             <div className="max-w-xl">
               <div className="flex items-center gap-3.5 mb-5">
-                <div className="p-3 bg-indigo-650 rounded-xl shadow-lg shadow-indigo-900/30">
+                <div className="p-3 bg-[#eee1ba] rounded-xl shadow-lg shadow-black/30">
                   <Briefcase size={28} className="text-white" />
                 </div>
                 <div>
                   <h1 className="text-2xl md:text-4xl font-black tracking-tight text-white leading-none">
                     Your Workspaces
                   </h1>
-                  <p className="text-indigo-400 font-bold uppercase tracking-[0.2em] text-[9px] mt-1.5 flex items-center gap-1.5">
+                  <p className="text-[#eee1ba] font-bold uppercase tracking-[0.2em] text-[9px] mt-1.5 flex items-center gap-1.5">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block animate-pulse" />
                     Personal Document Ecosystem
                   </p>
@@ -370,7 +364,7 @@ const WorkspaceDashboard: React.FC = () => {
               <div className="flex flex-wrap gap-4">
                 <button 
                   onClick={() => setShowCreateModal(true)}
-                  className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3.5 rounded-lg text-[10px] font-black uppercase tracking-wider shadow-lg shadow-indigo-500/15 transition-all active:scale-95 cursor-pointer"
+                  className="inline-flex items-center gap-2 bg-black hover:bg-[#eee1ba] text-white hover:text-black px-6 py-3.5 rounded-lg text-[10px] font-black uppercase tracking-wider shadow-lg shadow-[#eee1ba]/15 transition-all active:scale-95 cursor-pointer"
                 >
                   <FolderPlus size={14} />
                   <span>Create Workspace</span>
@@ -397,7 +391,7 @@ const WorkspaceDashboard: React.FC = () => {
 
             {/* Simplified & Good Looking Minimalist HUD Panel */}
             <div className="bg-white/[0.02] border border-white/10 p-6 rounded-[24px] backdrop-blur-xl w-full lg:w-[420px] shrink-0 shadow-2xl relative overflow-hidden group hover:border-white/20 transition-all duration-300">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl pointer-events-none" />
+              <div className="absolute top-0 right-0 w-32 h-32 bg-[#eee1ba]/10 rounded-full blur-2xl pointer-events-none" />
               
               {/* Stats Column Grid */}
               <div className="grid grid-cols-2 gap-6 relative z-10">
@@ -437,7 +431,7 @@ const WorkspaceDashboard: React.FC = () => {
               <input 
                 type="text" 
                 placeholder="Search workspaces..." 
-                className="w-full pl-16 pr-6 py-5 bg-white dark:bg-[#1f242e] border border-slate-200 dark:border-[#2d323f] rounded-3xl focus:ring-4 focus:ring-indigo-500/10 outline-none shadow-sm transition-all text-slate-900 dark:text-white text-lg font-medium placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                className="w-full pl-16 pr-6 py-5 bg-white dark:bg-[#1f242e] border border-slate-200 dark:border-[#2d323f] rounded-3xl focus:ring-4 focus:ring-[#eee1ba]/10 outline-none shadow-sm transition-all text-slate-900 dark:text-white text-lg font-medium placeholder:text-slate-400 dark:placeholder:text-slate-500"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -478,7 +472,7 @@ const WorkspaceDashboard: React.FC = () => {
                 <p className="text-slate-500 dark:text-slate-400 text-lg mb-12 max-w-md mx-auto font-medium">Create a workspace to start organizing your documentation projects effectively.</p>
                 <button 
                   onClick={() => setShowCreateModal(true)}
-                  className="px-12 py-5 bg-indigo-600 dark:bg-[#eee1ba] text-white dark:text-black font-black uppercase tracking-widest rounded-2xl hover:bg-slate-900 dark:hover:bg-white transition-all shadow-md"
+                  className="px-12 py-5 bg-black dark:bg-[#eee1ba] text-white dark:text-black font-black uppercase tracking-widest rounded-2xl hover:bg-slate-900 dark:hover:bg-white transition-all shadow-md"
                 >
                   Start New Workspace
                 </button>
@@ -497,12 +491,12 @@ const WorkspaceDashboard: React.FC = () => {
                 {/* New Workspace Helper Card */}
                 <button 
                   onClick={() => setShowCreateModal(true)}
-                  className="group flex flex-col items-center justify-center p-8 bg-slate-50 dark:bg-[#15181e]/40 border-4 border-dashed border-slate-100 dark:border-[#2d323f] rounded-[40px] hover:bg-indigo-50 dark:hover:bg-indigo-950/20 hover:border-indigo-200 dark:hover:border-indigo-500/50 transition-all min-h-[350px]"
+                  className="group flex flex-col items-center justify-center p-8 bg-slate-50 dark:bg-[#15181e]/40 border-4 border-dashed border-slate-100 dark:border-[#2d323f] rounded-[40px] hover:bg-[#eee1ba]/10 dark:hover:bg-black/20 hover:border-[#eee1ba]/25 dark:hover:border-[#eee1ba]/50 transition-all min-h-[350px]"
                 >
-                   <div className="p-6 bg-white dark:bg-[#1f242e] rounded-3xl shadow-xl text-slate-300 dark:text-slate-500 group-hover:text-indigo-600 dark:group-hover:text-[#eee1ba] group-hover:scale-110 transition-all mb-6">
+                   <div className="p-6 bg-white dark:bg-[#1f242e] rounded-3xl shadow-xl text-slate-300 dark:text-slate-500 group-hover:text-black dark:group-hover:text-[#eee1ba] group-hover:scale-110 transition-all mb-6">
                      <Plus size={48} />
                    </div>
-                   <span className="text-xl font-black text-slate-400 dark:text-slate-400 group-hover:text-indigo-900 dark:group-hover:text-white uppercase tracking-widest transition-colors">Add Workspace</span>
+                   <span className="text-xl font-black text-slate-400 dark:text-slate-400 group-hover:text-black dark:group-hover:text-white uppercase tracking-widest transition-colors">Add Workspace</span>
                 </button>
               </div>
             ) : (
@@ -513,12 +507,12 @@ const WorkspaceDashboard: React.FC = () => {
                     <div key={`list-mobile-ws-${ws.id}`} className="p-6 flex flex-col gap-4">
                       <div className="flex items-start justify-between gap-4">
                         <div className="flex items-center gap-3">
-                          <div className="p-2.5 bg-indigo-50 dark:bg-indigo-950/45 text-indigo-600 dark:text-indigo-400 rounded-xl">
+                          <div className="p-2.5 bg-[#eee1ba]/10 dark:bg-black/45 text-black dark:text-[#eee1ba] rounded-xl">
                             <Briefcase size={18} />
                           </div>
                           <div>
                             <span 
-                              className="font-black text-slate-900 dark:text-white hover:text-indigo-600 dark:hover:text-[#eee1ba] cursor-pointer transition-colors block text-base"
+                              className="font-black text-slate-900 dark:text-white hover:text-black dark:hover:text-[#eee1ba] cursor-pointer transition-colors block text-base"
                               onClick={() => navigate(`/workspace/${ws.id}`)}
                             >
                               {ws.name}
@@ -534,7 +528,7 @@ const WorkspaceDashboard: React.FC = () => {
                         <div className="flex items-center gap-1">
                           <button 
                             onClick={() => handleRename(ws.id, ws.name)}
-                            className="p-2 hover:bg-slate-50 dark:hover:bg-[#1f242e] text-slate-400 dark:text-slate-500 hover:text-indigo-600 dark:hover:text-[#eee1ba] rounded-lg transition-all"
+                            className="p-2 hover:bg-slate-50 dark:hover:bg-[#1f242e] text-slate-400 dark:text-slate-500 hover:text-black dark:hover:text-[#eee1ba] rounded-lg transition-all"
                             title="Rename"
                           >
                             <Edit3 size={16} />
@@ -588,12 +582,12 @@ const WorkspaceDashboard: React.FC = () => {
                         <tr key={`list-ws-${ws.id}`} className="hover:bg-slate-50/50 dark:hover:bg-[#1f242e] transition-colors group">
                           <td className="px-8 py-5">
                             <div className="flex items-center gap-4">
-                              <div className="p-2.5 bg-indigo-50 dark:bg-indigo-950/45 text-indigo-600 dark:text-indigo-400 rounded-xl group-hover:bg-indigo-600 dark:group-hover:bg-indigo-500 group-hover:text-white dark:group-hover:text-white transition-all shadow-sm">
+                              <div className="p-2.5 bg-[#eee1ba]/10 dark:bg-black/45 text-black dark:text-[#eee1ba] rounded-xl group-hover:bg-black dark:group-hover:bg-[#eee1ba] group-hover:text-white dark:group-hover:text-white transition-all shadow-sm">
                                 <Briefcase size={18} />
                               </div>
                               <div>
                                 <span 
-                                  className="font-black text-slate-900 dark:text-white hover:text-indigo-600 dark:hover:text-[#eee1ba] cursor-pointer transition-colors block text-base"
+                                  className="font-black text-slate-900 dark:text-white hover:text-black dark:hover:text-[#eee1ba] cursor-pointer transition-colors block text-base"
                                   onClick={() => navigate(`/workspace/${ws.id}`)}
                                 >
                                   {ws.name}
@@ -619,7 +613,7 @@ const WorkspaceDashboard: React.FC = () => {
                               </Link>
                               <button 
                                 onClick={() => handleRename(ws.id, ws.name)}
-                                className="p-2 hover:bg-indigo-50 dark:hover:bg-[#1f242e] text-slate-400 dark:text-slate-500 hover:text-indigo-600 dark:hover:text-[#eee1ba] rounded-lg transition-all"
+                                className="p-2 hover:bg-[#eee1ba]/10 dark:hover:bg-[#1f242e] text-slate-400 dark:text-slate-500 hover:text-black dark:hover:text-[#eee1ba] rounded-lg transition-all"
                                 title="Rename"
                               >
                                 <Edit3 size={16} />
@@ -681,7 +675,7 @@ const WorkspaceDashboard: React.FC = () => {
                       type="text" 
                       required
                       placeholder="e.g. Computer Science, Personal Goals"
-                      className="w-full px-6 py-5 bg-white dark:bg-[#1a1f29] border border-slate-300 dark:border-[#2d323f] rounded-2xl focus:ring-4 focus:ring-indigo-500/10 outline-none text-xl font-bold text-black dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                      className="w-full px-6 py-5 bg-white dark:bg-[#1a1f29] border border-slate-300 dark:border-[#2d323f] rounded-2xl focus:ring-4 focus:ring-[#eee1ba]/10 outline-none text-xl font-bold text-black dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500"
                       value={newName}
                       onChange={(e) => setNewName(e.target.value)}
                     />
@@ -690,7 +684,7 @@ const WorkspaceDashboard: React.FC = () => {
                     <label className="block text-xs font-black text-slate-400 dark:text-slate-400 uppercase tracking-[0.2em] mb-3">Purpose / Bio</label>
                     <textarea 
                       placeholder="What is the focus of this workspace?"
-                      className="w-full px-6 py-5 bg-white dark:bg-[#1a1f29] border border-slate-300 dark:border-[#2d323f] rounded-2xl focus:ring-4 focus:ring-indigo-500/10 outline-none min-h-[120px] text-lg font-medium text-black dark:text-white resize-none placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                      className="w-full px-6 py-5 bg-white dark:bg-[#1a1f29] border border-slate-300 dark:border-[#2d323f] rounded-2xl focus:ring-4 focus:ring-[#eee1ba]/10 outline-none min-h-[120px] text-lg font-medium text-black dark:text-white resize-none placeholder:text-slate-400 dark:placeholder:text-slate-500"
                       value={newDesc}
                       onChange={(e) => setNewDesc(e.target.value)}
                     />
@@ -814,7 +808,7 @@ const WorkspaceDashboard: React.FC = () => {
                       type="text" 
                       required
                       placeholder="e.g. Computer Science, Personal Goals"
-                      className="w-full px-6 py-5 bg-white dark:bg-[#1a1f29] border border-slate-300 dark:border-[#2d323f] rounded-2xl focus:ring-4 focus:ring-indigo-500/10 outline-none text-xl font-bold text-black dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                      className="w-full px-6 py-5 bg-white dark:bg-[#1a1f29] border border-slate-300 dark:border-[#2d323f] rounded-2xl focus:ring-4 focus:ring-[#eee1ba]/10 outline-none text-xl font-bold text-black dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500"
                       value={renameWorkspaceName}
                       onChange={(e) => setRenameWorkspaceName(e.target.value)}
                     />
@@ -823,7 +817,7 @@ const WorkspaceDashboard: React.FC = () => {
                     <label className="block text-xs font-black text-slate-400 dark:text-slate-400 uppercase tracking-[0.2em] mb-3">Purpose / Bio</label>
                     <textarea 
                       placeholder="What is the focus of this workspace?"
-                      className="w-full px-6 py-5 bg-white dark:bg-[#1a1f29] border border-slate-300 dark:border-[#2d323f] rounded-2xl focus:ring-4 focus:ring-indigo-500/10 outline-none min-h-[120px] text-lg font-medium text-black dark:text-white resize-none placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                      className="w-full px-6 py-5 bg-white dark:bg-[#1a1f29] border border-slate-300 dark:border-[#2d323f] rounded-2xl focus:ring-4 focus:ring-[#eee1ba]/10 outline-none min-h-[120px] text-lg font-medium text-black dark:text-white resize-none placeholder:text-slate-400 dark:placeholder:text-slate-500"
                       value={renameWorkspaceDesc}
                       onChange={(e) => setRenameWorkspaceDesc(e.target.value)}
                     />
@@ -863,8 +857,8 @@ const WorkspaceDashboard: React.FC = () => {
             <div className="flex items-center justify-between border-b border-slate-100 dark:border-[#2d323f]/60 pb-2">
               <span className="text-xs font-black uppercase tracking-widest text-[#5b4636] dark:text-[#eee1ba] flex items-center space-x-2">
                 <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#eee1ba] opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-[#eee1ba]"></span>
                 </span>
                 <span>Exporting Projects</span>
               </span>
@@ -874,14 +868,14 @@ const WorkspaceDashboard: React.FC = () => {
             </div>
 
             <div className="flex items-center space-x-3">
-              <div className="p-3 bg-indigo-50 dark:bg-indigo-950/30 rounded-xl">
-                <Loader2 className="w-5 h-5 text-indigo-600 dark:text-indigo-400 animate-spin" />
+              <div className="p-3 bg-[#eee1ba]/10 dark:bg-black/30 rounded-xl">
+                <Loader2 className="w-5 h-5 text-black dark:text-[#eee1ba] animate-spin" />
               </div>
               <div className="min-w-0 flex-1">
                 <p className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">
                   {downloadState.projectName || "Retrieving project repository..."}
                 </p>
-                <p className="text-[10px] font-extrabold text-indigo-500 dark:text-indigo-400 uppercase tracking-wider mt-0.5 animate-pulse">
+                <p className="text-[10px] font-extrabold text-[#eee1ba] dark:text-[#eee1ba] uppercase tracking-wider mt-0.5 animate-pulse">
                   {downloadState.step === 'preparing' && "Preparing ZIP..."}
                   {downloadState.step === 'compressing' && "Compressing Files..."}
                   {downloadState.step === 'downloading' && "Downloading..."}
@@ -891,7 +885,7 @@ const WorkspaceDashboard: React.FC = () => {
 
             <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-1.5 overflow-hidden">
               <motion.div
-                className="bg-indigo-600 h-full rounded-full"
+                className="bg-black h-full rounded-full"
                 animate={{
                   width: downloadState.step === 'preparing' ? "33%" :
                          downloadState.step === 'compressing' ? "66%" : "100%"

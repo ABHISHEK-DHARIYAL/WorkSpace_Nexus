@@ -12,7 +12,9 @@ import {
   Plus, 
   Sparkles,
   Highlighter,
-  Eraser
+  Eraser,
+  ChevronUp,
+  ChevronDown
 } from 'lucide-react';
 
 interface Project {
@@ -107,7 +109,7 @@ export const DocumentTopToolbar: React.FC<DocumentTopToolbarProps> = ({
           )}
           
           <h1 
-            className={`text-base font-black transition-colors truncate ${filteredPages[currentIndex] ? 'cursor-pointer hover:text-indigo-600 dark:hover:text-indigo-400' : 'cursor-default'} ${readerTheme === 'midnight' ? 'text-white' : 'text-slate-900'}`}
+            className={`text-base font-black transition-colors truncate ${filteredPages[currentIndex] ? 'cursor-pointer hover:text-black dark:hover:text-[#eee1ba]' : 'cursor-default'} ${readerTheme === 'midnight' ? 'text-white' : 'text-slate-900'}`}
             onClick={() => { 
               if (filteredPages[currentIndex]) {
                 setTempTitle(filteredPages[currentIndex].title || ''); 
@@ -119,7 +121,7 @@ export const DocumentTopToolbar: React.FC<DocumentTopToolbarProps> = ({
               <input 
                 autoFocus
                 type="text"
-                className="border-b-2 border-indigo-600 dark:border-indigo-400 bg-transparent outline-none"
+                className="border-b-2 border-black dark:border-[#eee1ba] bg-transparent outline-none"
                 value={tempTitle}
                 onChange={(e) => setTempTitle(e.target.value)}
                 onBlur={() => handleTitleUpdate(filteredPages[currentIndex]?.id || '')}
@@ -176,7 +178,7 @@ export const DocumentTopToolbar: React.FC<DocumentTopToolbarProps> = ({
             }}
             className={`py-1 px-2 rounded-lg font-black text-[9px] uppercase tracking-wider transition-all flex items-center justify-center gap-1 cursor-pointer ${
               activeTab === 'pages'
-                ? 'bg-indigo-600 text-white shadow-sm'
+                ? 'bg-black text-white shadow-sm'
                 : 'text-slate-600 dark:text-slate-350 hover:text-slate-900 dark:hover:text-white'
             }`}
             title="Pages Division view: separate pages"
@@ -191,7 +193,7 @@ export const DocumentTopToolbar: React.FC<DocumentTopToolbarProps> = ({
             }}
             className={`py-1 px-2 rounded-lg font-black text-[9px] uppercase tracking-wider transition-all flex items-center justify-center gap-1 cursor-pointer ${
               activeTab === 'index'
-                ? 'bg-indigo-600 text-white shadow-sm'
+                ? 'bg-black text-white shadow-sm'
                 : 'text-slate-600 dark:text-slate-350 hover:text-slate-900 dark:hover:text-white'
             }`}
             title="Index-Based view: full sequential index flow"
@@ -207,7 +209,7 @@ export const DocumentTopToolbar: React.FC<DocumentTopToolbarProps> = ({
             onClick={() => setIsReaderMode(false)}
             className={`py-1 px-2 rounded-lg font-black text-[9px] uppercase tracking-wider transition-all flex items-center justify-center gap-1 cursor-pointer ${
               !isReaderMode
-                ? 'bg-indigo-600 text-white shadow-sm'
+                ? 'bg-black text-white shadow-sm'
                 : 'text-slate-600 dark:text-slate-350 hover:text-slate-900 dark:hover:text-white'
             }`}
             title="Switch to Document Writing Mode"
@@ -219,7 +221,7 @@ export const DocumentTopToolbar: React.FC<DocumentTopToolbarProps> = ({
             onClick={() => setIsReaderMode(true)}
             className={`py-1 px-2 rounded-lg font-black text-[9px] uppercase tracking-wider transition-all flex items-center justify-center gap-1 cursor-pointer ${
               isReaderMode
-                ? 'bg-indigo-600 text-white shadow-sm'
+                ? 'bg-black text-white shadow-sm'
                 : 'text-slate-600 dark:text-slate-350 hover:text-slate-900 dark:hover:text-white'
             }`}
             title="Switch to Document Reading Mode"
@@ -247,7 +249,7 @@ export const DocumentTopToolbar: React.FC<DocumentTopToolbarProps> = ({
               onClick={() => handleToggleVisibility(selectedProject.id, 'public')}
               className={`py-1 px-2 rounded-lg font-black text-[9px] uppercase tracking-wider transition-all flex items-center justify-center gap-1 cursor-pointer ${
                 selectedProject.visibility === 'public'
-                  ? 'bg-indigo-600 text-white shadow-sm'
+                  ? 'bg-black text-white shadow-sm'
                   : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
               title="Publish document to public content portal"
@@ -261,7 +263,7 @@ export const DocumentTopToolbar: React.FC<DocumentTopToolbarProps> = ({
           <>
             <button
               onClick={handleSeedSampleWorkspace}
-              className="px-2.5 py-1.5 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white rounded-lg text-[9px] font-black uppercase tracking-wider flex items-center gap-1 transition-all shadow-sm shrink-0"
+              className="px-2.5 py-1.5 bg-gradient-to-r from-violet-600 to-black hover:from-violet-700 hover:to-black text-white rounded-lg text-[9px] font-black uppercase tracking-wider flex items-center gap-1 transition-all shadow-sm shrink-0"
               title="Seed Workspace guides"
             >
               <Sparkles size={10} className="text-amber-300 animate-pulse" />
@@ -316,6 +318,7 @@ export const DocumentCanvasToolbar: React.FC<DocumentCanvasToolbarProps> = ({
   setIsSidebarCollapsed,
 }) => {
   const [activeHighlightColor, setActiveHighlightColor] = useState('#FFFF00');
+  const [toolbarMinimized, setToolbarMinimized] = useState(false);
 
   const toolbarClasses = useMemo(() => {
     if (readerTheme === 'slate') return {
@@ -324,7 +327,7 @@ export const DocumentCanvasToolbar: React.FC<DocumentCanvasToolbarProps> = ({
       segment: 'bg-slate-100 border-slate-205',
       inactiveBtn: 'text-slate-500 hover:text-slate-900',
       actionBtn: 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-700',
-      iconBox: 'bg-indigo-50 text-indigo-600',
+      iconBox: 'bg-[#eee1ba]/10 text-black',
     };
     if (readerTheme === 'vanilla') return {
       main: 'bg-[#fcfaf2]/95 border-[#ecdcb4] text-[#5b4636] shadow-xl',
@@ -341,12 +344,12 @@ export const DocumentCanvasToolbar: React.FC<DocumentCanvasToolbarProps> = ({
       segment: 'bg-[#0f1116] border-[#222938]',
       inactiveBtn: 'text-slate-400 hover:text-white',
       actionBtn: 'bg-[#1e2635] hover:bg-[#273247] border-[#222938] text-slate-300',
-      iconBox: 'bg-[#1f2535] text-indigo-400',
+      iconBox: 'bg-[#1f2535] text-[#eee1ba]',
     };
   }, [readerTheme]);
 
   return (
-    <div id="document-canvas-toolbar" className={`sticky top-0 z-30 backdrop-blur-md rounded-3xl border p-5 flex flex-col xl:flex-row items-center justify-between gap-4 animate-in fade-in duration-300 ${toolbarClasses.main}`}>
+    <div id="document-canvas-toolbar" className={`sticky top-0 z-30 backdrop-blur-md rounded-3xl border flex flex-col xl:flex-row items-center justify-between gap-4 animate-in fade-in duration-300 transition-all ${toolbarMinimized ? 'p-3' : 'p-5'} ${toolbarClasses.main}`}>
       {/* Left Block: Logo, Info & Project Access Status */}
       <div className="flex items-center gap-3 w-full xl:w-auto">
         <button
@@ -355,17 +358,19 @@ export const DocumentCanvasToolbar: React.FC<DocumentCanvasToolbarProps> = ({
           title="Return to Workspace Projects Section"
         >
           <div className={`p-2 rounded-xl transition-transform group-hover:-translate-x-0.5 ${toolbarClasses.iconBox}`}>
-            <ChevronLeft size={13} className="group-hover:text-indigo-600 transition-colors" />
+            <ChevronLeft size={13} className="group-hover:text-black transition-colors" />
           </div>
           <div>
             <div className="flex items-center gap-1.5">
-              <span className={`text-[11px] font-black uppercase tracking-wider ${toolbarClasses.title} transition-all group-hover:text-indigo-600`}>
+              <span className={`text-[11px] font-black uppercase tracking-wider ${toolbarClasses.title} transition-all group-hover:text-black`}>
                 {selectedProject ? selectedProject.title : 'Back to Projects'}
               </span>
             </div>
-            <p className="text-[9px] text-slate-400 font-bold block leading-none mt-0.5 group-hover:text-indigo-500 transition-colors">
-              Return to Project Section
-            </p>
+            {!toolbarMinimized && (
+              <p className="text-[9px] text-slate-400 font-bold block leading-none mt-0.5 group-hover:text-[#eee1ba] transition-colors">
+                Return to Project Section
+              </p>
+            )}
           </div>
         </button>
 
@@ -388,9 +393,18 @@ export const DocumentCanvasToolbar: React.FC<DocumentCanvasToolbarProps> = ({
             )}
           </button>
         )}
+
+        <button
+          onClick={() => setToolbarMinimized(prev => !prev)}
+          className={`p-1.5 rounded-xl border flex items-center justify-center transition-all active:scale-95 cursor-pointer shrink-0 ${toolbarClasses.actionBtn}`}
+          title={toolbarMinimized ? 'Expand toolbar' : 'Minimize toolbar'}
+        >
+          {toolbarMinimized ? <ChevronDown size={13} /> : <ChevronUp size={13} />}
+        </button>
       </div>
 
       {/* Middle Block: Comfort Eye Themes & Dynamic Actions & Active Highlight controller */}
+      {!toolbarMinimized && (
       <div className="flex flex-wrap items-center gap-2.5 w-full xl:w-auto justify-start xl:justify-center">
         {/* Comfort Themes Switcher */}
         <div className={`flex p-1 rounded-xl border shrink-0 ${toolbarClasses.segment}`}>
@@ -426,7 +440,7 @@ export const DocumentCanvasToolbar: React.FC<DocumentCanvasToolbarProps> = ({
             onClick={() => setActiveTab('pages')}
             className={`p-1 px-2.5 rounded-lg text-[9px] font-black uppercase transition-all flex items-center gap-1 ${
               activeTab === 'pages'
-                ? 'bg-indigo-600 text-white shadow-sm font-bold'
+                ? 'bg-black text-white shadow-sm font-bold'
                 : toolbarClasses.inactiveBtn
             }`}
             title="Split layout into separate Pages Division sheets"
@@ -438,7 +452,7 @@ export const DocumentCanvasToolbar: React.FC<DocumentCanvasToolbarProps> = ({
             onClick={() => setActiveTab('index')}
             className={`p-1 px-2.5 rounded-lg text-[9px] font-black uppercase transition-all flex items-center gap-1 ${
               activeTab === 'index'
-                ? 'bg-indigo-600 text-white shadow-sm font-bold'
+                ? 'bg-black text-white shadow-sm font-bold'
                 : toolbarClasses.inactiveBtn
             }`}
             title="Consolidated sequential Index-Based continuous stream outline"
@@ -455,7 +469,7 @@ export const DocumentCanvasToolbar: React.FC<DocumentCanvasToolbarProps> = ({
             onClick={() => {
               window.dispatchEvent(new CustomEvent('editor-global-highlight', { detail: { color: activeHighlightColor } }));
             }}
-            className="p-1 px-2.5 rounded-lg text-[9px] font-black uppercase transition-all flex items-center gap-1 bg-indigo-600 text-white shadow-sm hover:bg-indigo-700 active:scale-95"
+            className="p-1 px-2.5 rounded-lg text-[9px] font-black uppercase transition-all flex items-center gap-1 bg-black text-white shadow-sm hover:bg-black active:scale-95"
             title="Highlight Selected Page Content"
           >
             <Highlighter size={10} />
@@ -480,7 +494,7 @@ export const DocumentCanvasToolbar: React.FC<DocumentCanvasToolbarProps> = ({
                 }}
                 className={`w-3.5 h-3.5 rounded-full border transition-all ${
                   activeHighlightColor === item.color 
-                    ? 'border-indigo-600 dark:border-indigo-400 scale-120 ring-2 ring-indigo-500/30' 
+                    ? 'border-black dark:border-[#eee1ba] scale-120 ring-2 ring-[#eee1ba]/30' 
                     : 'border-slate-300 dark:border-slate-600 hover:scale-110'
                 }`}
                 style={{ backgroundColor: item.color }}
@@ -518,8 +532,8 @@ export const DocumentCanvasToolbar: React.FC<DocumentCanvasToolbarProps> = ({
               onClick={handleSeedSampleWorkspace}
               className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 transition-all border ${
                 readerTheme === 'midnight'
-                  ? 'bg-indigo-950/40 hover:bg-indigo-900/50 text-indigo-300 border-indigo-900/35'
-                  : 'bg-indigo-50 hover:bg-indigo-100 text-indigo-600 border-indigo-100'
+                  ? 'bg-black/40 hover:bg-black/50 text-[#eee1ba]/40 border-black/35'
+                  : 'bg-[#eee1ba]/10 hover:bg-[#eee1ba]/15 text-black border-[#eee1ba]/15'
               }`}
               title="Seed starter outlines guide and API spec guide"
             >
@@ -538,15 +552,16 @@ export const DocumentCanvasToolbar: React.FC<DocumentCanvasToolbarProps> = ({
           <span>Index</span>
         </button>
       </div>
+      )}
 
       {/* Right Block: Switch Mode & Fullscreen Controls */}
       <div className="flex items-center gap-2 w-full xl:w-auto justify-end">
         {/* Switch Mode button */}
         <button
           onClick={() => setIsReaderMode(!isReaderMode)}
-          className={`flex-grow xl:flex-grow-0 py-2.5 px-4 rounded-xl text-[10px] font-black uppercase tracking-[0.08em] transition-all flex items-center justify-center gap-1.5 shadow-sm hover:scale-102 active:scale-98 ${
+          className={`flex-grow xl:flex-grow-0 rounded-xl text-[10px] font-black uppercase tracking-[0.08em] transition-all flex items-center justify-center gap-1.5 shadow-sm hover:scale-102 active:scale-98 ${toolbarMinimized ? 'py-1.5 px-3' : 'py-2.5 px-4'} ${
             isReaderMode
-              ? 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-indigo-600/10'
+              ? 'bg-black text-white hover:bg-black shadow-black/10'
               : 'bg-emerald-600 text-white hover:bg-emerald-700 shadow-emerald-600/10'
           }`}
         >

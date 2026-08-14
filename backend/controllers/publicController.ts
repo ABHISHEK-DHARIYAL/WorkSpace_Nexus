@@ -2,9 +2,8 @@ import { Response } from "express";
 import { AuthRequest } from "../middleware/auth";
 import { PublicExplorerService } from "../services/publicExplorer";
 import { sendSuccess, sendError } from "../utils/response";
-import { ListingService } from "../services/listingService";
-import { PageService } from "../services/pageService";
-import { WorkspaceService } from "../services/workspaceService";
+
+import { workspaceService, listingService, pageService } from "../di/container";
 import { DocPageService } from "../services/docPageService";
 import { DocIndexService } from "../services/docIndexService";
 
@@ -80,7 +79,7 @@ export class PublicController {
       const { visibility, tags } = req.body;
 
       // Verify ownership
-      const project = await ListingService.getById(id);
+      const project = await listingService.getById(id);
       if (!project) return sendError(res, "Project not found", 404);
 
       if (project.owner !== req.user.email && req.user.role !== "admin") {
@@ -101,7 +100,7 @@ export class PublicController {
         updatePayload.tags = tags;
       }
 
-      const updated = await ListingService.update(id, updatePayload);
+      const updated = await listingService.update(id, updatePayload);
       return sendSuccess(res, updated);
     } catch (error: any) {
       console.error("PublicController.updateProjectVisibility error:", error);
@@ -222,19 +221,19 @@ export class PublicController {
   static async copyProjectToNexus(req: AuthRequest, res: Response) {
     try {
       const { id } = req.params;
-      const originalProject = await ListingService.getById(id);
+      const originalProject = await listingService.getById(id);
       if (!originalProject) {
         return sendError(res, "Source project not found", 404);
       }
 
       // Find or create a "Copy Workspace" under current logged-in user
-      const workspaces = await WorkspaceService.getAllByUser(req.user.email);
+      const workspaces = await workspaceService.getAllByUser(req.user.email);
       let targetWorkspace = workspaces.find(w => w.name === "Copy Workspace");
       let workspaceId;
       if (targetWorkspace) {
         workspaceId = targetWorkspace.id;
       } else {
-        const newWs = await WorkspaceService.create({
+        const newWs = await workspaceService.create({
           name: "Copy Workspace",
           description: "Workspace containing copies of public projects."
         }, req.user.email);
@@ -242,7 +241,7 @@ export class PublicController {
       }
 
       // Create a copy under current logged-in user inside the Copy Workspace, of private visibility
-      const newProject = await ListingService.create({
+      const newProject = await listingService.create({
         title: `${originalProject.title} (Copy)`,
         description: originalProject.description || "",
         workspaceId: workspaceId,
@@ -296,11 +295,11 @@ export class PublicController {
         }
       } else {
         // Fetch the pages of Workspace Hub project
-        const originalPages = await PageService.getByListing(id);
+        const originalPages = await pageService.getByListing(id);
 
         // Duplicate pages to pages
         for (const page of originalPages) {
-          await PageService.create({
+          await pageService.create({
             listingId: newProject.id,
             title: page.title,
             content: page.content || "",

@@ -1,50 +1,39 @@
-import { Request, Response } from 'express';
-import { WorkspaceService } from '../services/workspaceService';
+import { Response } from 'express';
+import { AuthRequest } from '../middleware/auth';
+import { workspaceService } from '../di/container';
+import { asyncHandler } from '../utils/asyncHandler';
 
-export const getAllWorkspaces = async (req: Request, res: Response) => {
-  try {
-    const userId = (req as any).user.email;
-    const workspaces = await WorkspaceService.getAllByUser(userId);
-    res.json(workspaces);
-  } catch (err: any) {
-    res.status(500).json({ message: err.message });
-  }
-};
+/**
+ * Pure HTTP boundary: extract request data, call the service, shape the
+ * response. No Firestore calls, no business rules, no try/catch — errors
+ * thrown by the service propagate to the centralized error middleware via
+ * asyncHandler. This is the "receive request -> call service -> return
+ * response" shape the Controller layer should have.
+ */
 
-export const getWorkspaceById = async (req: Request, res: Response) => {
-  try {
-    const workspace = await WorkspaceService.getById(req.params.id);
-    if (!workspace) return res.status(404).json({ message: 'Workspace not found' });
-    res.json(workspace);
-  } catch (err: any) {
-    res.status(500).json({ message: err.message });
-  }
-};
+export const getAllWorkspaces = asyncHandler(async (req: AuthRequest, res: Response) => {
+  const owner = req.user!.email;
+  const workspaces = await workspaceService.getAllByUser(owner);
+  res.json(workspaces);
+});
 
-export const createWorkspace = async (req: Request, res: Response) => {
-  try {
-    const userId = (req as any).user.email;
-    const workspace = await WorkspaceService.create(req.body, userId);
-    res.status(201).json(workspace);
-  } catch (err: any) {
-    res.status(500).json({ message: err.message });
-  }
-};
+export const getWorkspaceById = asyncHandler(async (req: AuthRequest, res: Response) => {
+  const workspace = await workspaceService.getById(req.params.id);
+  res.json(workspace);
+});
 
-export const updateWorkspace = async (req: Request, res: Response) => {
-  try {
-    const workspace = await WorkspaceService.update(req.params.id, req.body);
-    res.json(workspace);
-  } catch (err: any) {
-    res.status(500).json({ message: err.message });
-  }
-};
+export const createWorkspace = asyncHandler(async (req: AuthRequest, res: Response) => {
+  const owner = req.user!.email;
+  const workspace = await workspaceService.create(req.body, owner);
+  res.status(201).json(workspace);
+});
 
-export const deleteWorkspace = async (req: Request, res: Response) => {
-  try {
-    await WorkspaceService.delete(req.params.id);
-    res.json({ message: 'Workspace deleted' });
-  } catch (err: any) {
-    res.status(500).json({ message: err.message });
-  }
-};
+export const updateWorkspace = asyncHandler(async (req: AuthRequest, res: Response) => {
+  const workspace = await workspaceService.update(req.params.id, req.body);
+  res.json(workspace);
+});
+
+export const deleteWorkspace = asyncHandler(async (req: AuthRequest, res: Response) => {
+  await workspaceService.delete(req.params.id);
+  res.json({ message: 'Workspace deleted' });
+});

@@ -48,6 +48,7 @@ const Reader: React.FC<ReaderProps> = ({
   const [showSettings, setShowSettings] = useState(false);
   const [readingMode, setReadingMode] = useState<'standard' | 'guide' | 'focus'>('standard');
   const [showUnderlinePicker, setShowUnderlinePicker] = useState(false);
+  const [toolbarCollapsed, setToolbarCollapsed] = useState(false);
   
   const colors = [
     '#FFFF00', '#00FF00', '#00FFFF', '#FF00FF', '#FF0000', '#FF9900',
@@ -129,7 +130,7 @@ const Reader: React.FC<ReaderProps> = ({
       {/* Progress Bar */}
       <div className="absolute top-0 left-0 w-full h-1 bg-slate-200/20 z-50">
         <motion.div 
-          className="h-full bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.5)]" 
+          className="h-full bg-[#eee1ba] shadow-[0_0_8px_rgba(99,102,241,0.5)]" 
           animate={{ width: `${progress}%` }}
         />
       </div>
@@ -138,19 +139,19 @@ const Reader: React.FC<ReaderProps> = ({
       {readingMode === 'guide' && (
         <>
           <div className="fixed inset-0 bg-black/40 pointer-events-none z-[45]" style={{ clipPath: 'polygon(0% 0%, 0% 100%, 100% 100%, 100% 0%, 0% 0%, 0% 45%, 100% 45%, 100% 55%, 0% 55%, 0% 45%)' }} />
-          <div ref={focusRef} className="fixed left-0 w-full h-[10vh] bg-indigo-500/5 pointer-events-none z-[46] border-y border-indigo-500/20 -translate-y-1/2" />
+          <div ref={focusRef} className="fixed left-0 w-full h-[10vh] bg-[#eee1ba]/5 pointer-events-none z-[46] border-y border-[#eee1ba]/20 -translate-y-1/2" />
         </>
       )}
 
       {/* Focus Line */}
       {focusLine && (
-        <div ref={focusRef} className="fixed left-0 w-full h-1 bg-indigo-500 pointer-events-none z-50 shadow-[0_0_10px_rgba(99,102,241,1)] -translate-y-1/2" />
+        <div ref={focusRef} className="fixed left-0 w-full h-1 bg-[#eee1ba] pointer-events-none z-50 shadow-[0_0_10px_rgba(99,102,241,1)] -translate-y-1/2" />
       )}
 
       {/* Ruler Mode */}
       {rulerMode && (
-        <div ref={rulerRef} className="fixed left-0 w-full h-px bg-indigo-500/40 pointer-events-none z-50 -translate-y-1/2">
-          <div className="absolute right-4 top-2 text-[8px] font-black uppercase tracking-tighter opacity-50 bg-indigo-500 text-white px-1 py-0.5 rounded">Ruler</div>
+        <div ref={rulerRef} className="fixed left-0 w-full h-px bg-[#eee1ba]/40 pointer-events-none z-50 -translate-y-1/2">
+          <div className="absolute right-4 top-2 text-[8px] font-black uppercase tracking-tighter opacity-50 bg-[#eee1ba] text-white px-1 py-0.5 rounded">Ruler</div>
         </div>
       )}
 
@@ -176,6 +177,8 @@ const Reader: React.FC<ReaderProps> = ({
         theme={theme}
         colors={colors}
         underlineStyles={underlineStyles}
+        collapsed={toolbarCollapsed}
+        onToggleCollapsed={() => setToolbarCollapsed(prev => !prev)}
       />
 
       {/* Settings Overlay panel component */}
@@ -212,7 +215,7 @@ const Reader: React.FC<ReaderProps> = ({
         className="flex-grow overflow-y-auto px-8 py-20 flex flex-col items-center custom-scrollbar"
       >
         <motion.div 
-          className={`w-full ${maxWidth} transition-all duration-500 ${rulerMode ? 'border-l-2 border-indigo-500/20 pl-8' : ''}`}
+          className={`w-full ${maxWidth} transition-all duration-500 ${rulerMode ? 'border-l-2 border-[#eee1ba]/20 pl-8' : ''}`}
         >
           <div 
             className={`prose prose-lg max-w-none transition-all duration-300 ${theme === 'dark' ? 'prose-invert' : 'prose-slate'}`}

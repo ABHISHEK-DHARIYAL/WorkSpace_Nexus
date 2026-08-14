@@ -35,7 +35,7 @@ const EditorSidebar: React.FC<EditorSidebarProps> = ({
     <div className="flex flex-col h-full w-full overflow-hidden border-r bg-slate-50 dark:bg-[#11141a] dark:border-slate-800 border-slate-200">
       <div className="p-4 border-b flex justify-between items-center bg-white dark:bg-[#11141a] dark:border-slate-800 text-slate-800 dark:text-slate-200">
         <div className="flex items-center gap-2 font-semibold">
-          <ListIcon size={18} className="text-indigo-600" />
+          <ListIcon size={18} className="text-black" />
           <span>Table of Contents</span>
         </div>
         <div className="flex items-center gap-2">
@@ -52,7 +52,7 @@ const EditorSidebar: React.FC<EditorSidebarProps> = ({
           <button 
             id="editor-add-page-btn"
             onClick={onPageAdd} 
-            className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full text-indigo-600 dark:text-indigo-400 transition-colors flex items-center justify-center"
+            className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full text-black dark:text-[#eee1ba] transition-colors flex items-center justify-center"
           >
             <Plus size={20} />
           </button>
@@ -80,18 +80,18 @@ const EditorSidebar: React.FC<EditorSidebarProps> = ({
               onClick={() => onPageSelect(page.id)}
               className={`group flex items-center gap-2 p-2 rounded-md cursor-pointer transition-colors ${
                 currentPageId === page.id 
-                  ? 'bg-indigo-50 dark:bg-indigo-950/20 text-indigo-700 dark:text-indigo-400 border-l-4 border-indigo-500' 
+                  ? 'bg-[#eee1ba]/10 dark:bg-black/20 text-black dark:text-[#eee1ba] border-l-4 border-[#eee1ba]' 
                   : 'text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800/50'
               }`}
             >
               <GripVertical size={14} className="text-slate-400 opacity-0 group-hover:opacity-100 cursor-grab" />
-              <FileText size={16} className={currentPageId === page.id ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400'} />
+              <FileText size={16} className={currentPageId === page.id ? 'text-black dark:text-[#eee1ba]' : 'text-slate-400'} />
               <div className="flex-grow min-w-0">
                 {editingId === page.id ? (
                   <input 
                     id={`editor-page-rename-input-${page.id}`}
                     autoFocus 
-                    className="w-full text-sm outline-none bg-white dark:bg-slate-900 border border-indigo-200 px-1 py-0.5 rounded text-slate-800 dark:text-white" 
+                    className="w-full text-sm outline-none bg-white dark:bg-slate-900 border border-[#eee1ba]/25 px-1 py-0.5 rounded text-slate-800 dark:text-white" 
                     value={tempTitle} 
                     onChange={(e) => setTempTitle(e.target.value)} 
                     onBlur={() => { 
@@ -111,7 +111,7 @@ const EditorSidebar: React.FC<EditorSidebarProps> = ({
                     setEditingId(page.id); 
                     setTempTitle(page.title); 
                   }}
-                  className="p-1 hover:text-indigo-600 dark:hover:text-indigo-400 text-slate-450"
+                  className="p-1 hover:text-black dark:hover:text-[#eee1ba] text-slate-450"
                   title="Rename page"
                 >
                   <Edit2 size={13} />

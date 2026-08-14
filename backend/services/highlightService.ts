@@ -1,46 +1,40 @@
-import { 
-  collection, 
-  getDocs, 
-  getDoc, 
-  doc, 
-  addDoc, 
-  query, 
-  where,
-  db
-} from "../config/firebase";
+import { IHighlightRepository, HighlightRecord } from '../repositories/IHighlightRepository';
+import { IHighlightService } from './IHighlightService';
 
-export class HighlightService {
-  static async getAll() {
-    const q = collection(db, "highlights");
-    const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+/**
+ * Note: `create`'s validation intentionally throws plain `Error`s (not
+ * typed AppError subclasses), matching the original implementation's
+ * behavior of surfacing missing pageId/listingId as generic 500s rather
+ * than 400s. Preserving behavior, not correcting it, per this pass's scope.
+ */
+export class HighlightServiceImpl implements IHighlightService {
+  constructor(private readonly highlightRepo: IHighlightRepository) {}
+
+  async getAll(): Promise<HighlightRecord[]> {
+    return this.highlightRepo.findAll();
   }
 
-  static async getByPage(pageId: string) {
-    const q = query(collection(db, "highlights"), where("pageId", "==", pageId));
-    const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  async getByPage(pageId: string): Promise<HighlightRecord[]> {
+    return this.highlightRepo.findByPage(pageId);
   }
 
-  static async create(data: any) {
-    if (!data.pageId) throw new Error("Page ID is required for annotation");
-    if (!data.listingId) throw new Error("Listing ID is required for annotation");
+  async create(data: any): Promise<HighlightRecord> {
+    if (!data.pageId) throw new Error('Page ID is required for annotation');
+    if (!data.listingId) throw new Error('Listing ID is required for annotation');
 
-    const newAnnotation = {
+    return this.highlightRepo.create({
       listingId: data.listingId,
       pageId: data.pageId,
-      userId: data.userId || "anonymous",
-      text: data.text || "",
-      color: data.color || "yellow",
-      annotationType: data.annotationType || "highlight",
-      style: data.style || "solid",
+      userId: data.userId || 'anonymous',
+      text: data.text || '',
+      color: data.color || 'yellow',
+      annotationType: data.annotationType || 'highlight',
+      style: data.style || 'solid',
       startOffset: data.startOffset || 0,
       endOffset: data.endOffset || 0,
       selectedRange: data.selectedRange || null,
       createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
-    const docRef = await addDoc(collection(db, "highlights"), newAnnotation);
-    return { id: docRef.id, ...newAnnotation };
+      updatedAt: new Date().toISOString(),
+    });
   }
 }

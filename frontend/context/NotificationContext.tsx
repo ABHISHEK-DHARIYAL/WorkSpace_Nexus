@@ -341,14 +341,14 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
                   ? 'bg-rose-50 dark:bg-rose-950/80 border-rose-200 dark:border-rose-850 text-rose-850 dark:text-rose-200'
                   : toast.type === 'warning'
                   ? 'bg-amber-50 dark:bg-amber-950/80 border-amber-200 dark:border-amber-850 text-amber-850 dark:text-amber-200'
-                  : 'bg-indigo-50 dark:bg-slate-900/90 border-indigo-105 dark:border-slate-800 text-slate-800 dark:text-slate-200'
+                  : 'bg-[#eee1ba]/10 dark:bg-slate-900/90 border-[#eee1ba] dark:border-slate-800 text-slate-800 dark:text-slate-200'
               }`}
           >
             <div className="mt-0.5 shrink-0">
               {toast.type === 'success' && <CheckCircle2 className="h-5 w-5 text-emerald-500" />}
               {toast.type === 'error' && <AlertCircle className="h-5 w-5 text-rose-500" />}
               {toast.type === 'warning' && <AlertTriangle className="h-5 w-5 text-amber-500" />}
-              {toast.type === 'info' && <Info className="h-5 w-5 text-indigo-500" />}
+              {toast.type === 'info' && <Info className="h-5 w-5 text-[#eee1ba]" />}
             </div>
 
             <div className="flex-grow">
@@ -379,7 +379,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
                   ? 'bg-rose-500'
                   : activeModal.type === 'warning'
                   ? 'bg-amber-500'
-                  : 'bg-indigo-650'
+                  : 'bg-[#eee1ba]'
               }`}
             />
 
@@ -393,7 +393,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
                       ? 'bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400'
                       : activeModal.type === 'warning'
                       ? 'bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400'
-                      : 'bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400'
+                      : 'bg-[#eee1ba]/10 dark:bg-black/40 text-black dark:text-[#eee1ba]'
                   }`}
                 >
                   {activeModal.type === 'success' && <CheckCircle2 className="h-6 w-6" />}
@@ -447,7 +447,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
                       ? 'bg-emerald-600 hover:bg-emerald-705 text-white focus:ring-emerald-500'
                       : activeModal.type === 'warning'
                       ? 'bg-amber-600 hover:bg-amber-705 text-white focus:ring-amber-500'
-                      : 'bg-indigo-600 hover:bg-indigo-705 text-white focus:ring-indigo-500'
+                      : 'bg-black hover:bg-[#eee1ba] hover:text-black text-white focus:ring-[#eee1ba]'
                   }`}
                 >
                   {activeModal.confirmLabel || 'OK'}

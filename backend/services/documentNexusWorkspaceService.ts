@@ -12,6 +12,7 @@ import {
   orderBy,
   db
 } from "../config/firebase";
+import { DocumentNexusDocumentService } from "./documentNexusDocumentService";
 
 export class DocumentNexusWorkspaceService {
   static async getAllByUser(userId: string) {
@@ -124,7 +125,29 @@ export class DocumentNexusWorkspaceService {
   }
 
   static async delete(id: string) {
+    // A workspace is the root of a whole tree of documents (each of which
+    // owns pages and indices) — deleting it must not leave those orphaned
+    // in Firestore. Reuse DocumentNexusDocumentService.delete for each
+    // document so the same page/index cascade logic applies here too.
+    const workspaceSnap = await getDoc(doc(db, "documentNexusWorkspaces", id));
+    if (workspaceSnap.exists()) {
+      const owner = (workspaceSnap.data() as any).owner;
+      const isMain = id.startsWith('nexus-main-');
+
+      const documentsQuery = isMain
+        ? query(collection(db, "documentNexusDocuments"), where("owner", "==", owner))
+        : query(collection(db, "documentNexusDocuments"), where("workspaceId", "==", id));
+      const documentsSnapshot = await getDocs(documentsQuery);
+      const documentsInWorkspace = documentsSnapshot.docs.filter((docSnap) => {
+        if (!isMain) return true;
+        const workspaceId = (docSnap.data() as any).workspaceId;
+        return !workspaceId || workspaceId === id || workspaceId === 'main';
+      });
+
+      await Promise.all(documentsInWorkspace.map((docSnap) => DocumentNexusDocumentService.delete(docSnap.id)));
+    }
+
     await deleteDoc(doc(db, "documentNexusWorkspaces", id));
-    return { message: "Document Nexus workspace deleted successfully" };
+    return { message: "Document Nexus workspace and all associated documents deleted successfully" };
   }
 }

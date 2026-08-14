@@ -399,7 +399,7 @@ const MockGoogleAuthModal: React.FC<MockGoogleAuthModalProps> = ({ isOpen, onClo
           </div>
           <h3 className="text-xl font-bold text-slate-950 dark:text-white">Choose a sandbox account</h3>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-            to continue to <span className="font-semibold text-indigo-600 dark:text-indigo-400 animate-pulse">WorkSpace Nexus</span>
+            to continue to <span className="font-semibold text-black dark:text-[#eee1ba] animate-pulse">WorkSpace Nexus</span>
           </p>
         </div>
 
@@ -414,20 +414,20 @@ const MockGoogleAuthModal: React.FC<MockGoogleAuthModalProps> = ({ isOpen, onClo
           <button
             onClick={() => handleSelectAccount('admin@workspace.com', 'Admin')}
             disabled={isSubmitting}
-            className="w-full flex items-center p-3 rounded-xl border border-slate-200 dark:border-indigo-800/80 hover:border-indigo-500 hover:bg-indigo-50/30 dark:hover:bg-indigo-950/10 transition-all text-left bg-indigo-50/10 dark:bg-indigo-950/5 group cursor-pointer"
+            className="w-full flex items-center p-3 rounded-xl border border-slate-200 dark:border-black/80 hover:border-[#eee1ba] hover:bg-[#eee1ba]/30 dark:hover:bg-black/10 transition-all text-left bg-[#eee1ba]/10 dark:bg-black/5 group cursor-pointer"
           >
-            <div className="w-10 h-10 rounded-full bg-indigo-100 text-indigo-600 font-bold flex items-center justify-center text-sm mr-3">
+            <div className="w-10 h-10 rounded-full bg-[#eee1ba]/15 text-black font-bold flex items-center justify-center text-sm mr-3">
               AD
             </div>
             <div className="flex-1">
-              <span className="block font-bold text-sm text-slate-900 dark:text-white group-hover:text-indigo-500 transition-colors">
+              <span className="block font-bold text-sm text-slate-900 dark:text-white group-hover:text-[#eee1ba] transition-colors">
                 Admin (Device Google User)
               </span>
               <span className="block text-xs text-slate-500 dark:text-slate-450 font-mono">
                 admin@workspace.com
               </span>
             </div>
-            <span className="text-[10px] bg-indigo-100 dark:bg-indigo-950/30 text-indigo-800 dark:text-indigo-300 font-bold px-2 py-0.5 rounded-full uppercase">
+            <span className="text-[10px] bg-[#eee1ba]/15 dark:bg-black/30 text-black dark:text-[#eee1ba]/40 font-bold px-2 py-0.5 rounded-full uppercase">
               Google
             </span>
           </button>
@@ -435,7 +435,7 @@ const MockGoogleAuthModal: React.FC<MockGoogleAuthModalProps> = ({ isOpen, onClo
           <button
             onClick={() => handleSelectAccount('hshit7534@gmail.com', 'Hshit')}
             disabled={isSubmitting}
-            className="w-full flex items-center p-3 rounded-xl border border-slate-200 dark:border-indigo-800/80 hover:border-indigo-500 hover:bg-indigo-50/30 dark:hover:bg-indigo-950/10 transition-all text-left bg-indigo-50/10 dark:bg-indigo-950/5 group cursor-pointer"
+            className="w-full flex items-center p-3 rounded-xl border border-slate-200 dark:border-black/80 hover:border-[#eee1ba] hover:bg-[#eee1ba]/30 dark:hover:bg-black/10 transition-all text-left bg-[#eee1ba]/10 dark:bg-black/5 group cursor-pointer"
           >
             <div className="w-10 h-10 rounded-full bg-emerald-100 text-emerald-600 font-bold flex items-center justify-center text-sm mr-3">
               HS
@@ -456,7 +456,7 @@ const MockGoogleAuthModal: React.FC<MockGoogleAuthModalProps> = ({ isOpen, onClo
           <button
             onClick={() => handleSelectAccount('rajveer@gmail.com', 'Rajveer')}
             disabled={isSubmitting}
-            className="w-full flex items-center p-3 rounded-xl border border-slate-200 dark:border-indigo-800/80 hover:border-indigo-500 hover:bg-indigo-50/30 dark:hover:bg-indigo-950/10 transition-all text-left bg-indigo-50/10 dark:bg-indigo-950/5 group cursor-pointer"
+            className="w-full flex items-center p-3 rounded-xl border border-slate-200 dark:border-black/80 hover:border-[#eee1ba] hover:bg-[#eee1ba]/30 dark:hover:bg-black/10 transition-all text-left bg-[#eee1ba]/10 dark:bg-black/5 group cursor-pointer"
           >
             <div className="w-10 h-10 rounded-full bg-teal-100 text-teal-600 font-bold flex items-center justify-center text-sm mr-3">
               RA
@@ -477,7 +477,7 @@ const MockGoogleAuthModal: React.FC<MockGoogleAuthModalProps> = ({ isOpen, onClo
           <button
             onClick={() => handleSelectAccount('rajveerhelloworld@gmail.com', 'Rajveer Helloworld')}
             disabled={isSubmitting}
-            className="w-full flex items-center p-3 rounded-xl border border-slate-200 dark:border-indigo-800/80 hover:border-indigo-500 hover:bg-indigo-50/30 dark:hover:bg-indigo-950/10 transition-all text-left bg-indigo-50/10 dark:bg-indigo-950/5 group cursor-pointer"
+            className="w-full flex items-center p-3 rounded-xl border border-slate-200 dark:border-black/80 hover:border-[#eee1ba] hover:bg-[#eee1ba]/30 dark:hover:bg-black/10 transition-all text-left bg-[#eee1ba]/10 dark:bg-black/5 group cursor-pointer"
           >
             <div className="w-10 h-10 rounded-full bg-violet-100 text-violet-600 font-bold flex items-center justify-center text-sm mr-3">
               RV
@@ -490,7 +490,7 @@ const MockGoogleAuthModal: React.FC<MockGoogleAuthModalProps> = ({ isOpen, onClo
                 rajveerhelloworld@gmail.com
               </span>
             </div>
-            <span className="text-[10px] bg-indigo-150 dark:bg-indigo-950/30 text-indigo-800 dark:text-indigo-300 font-bold px-2 py-0.5 rounded-full uppercase">
+            <span className="text-[10px] bg-[#eee1ba] dark:bg-black/30 text-black dark:text-[#eee1ba]/40 font-bold px-2 py-0.5 rounded-full uppercase">
               Google
             </span>
           </button>
@@ -498,13 +498,13 @@ const MockGoogleAuthModal: React.FC<MockGoogleAuthModalProps> = ({ isOpen, onClo
           <button
             onClick={() => handleSelectAccount('jane.doe@example.com', 'Jane Doe')}
             disabled={isSubmitting}
-            className="w-full flex items-center p-3 rounded-xl border border-slate-100 dark:border-slate-800 hover:border-indigo-500 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all text-left bg-white dark:bg-slate-900 group cursor-pointer"
+            className="w-full flex items-center p-3 rounded-xl border border-slate-100 dark:border-slate-800 hover:border-[#eee1ba] hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all text-left bg-white dark:bg-slate-900 group cursor-pointer"
           >
             <div className="w-10 h-10 rounded-full bg-pink-100 text-pink-600 font-bold flex items-center justify-center text-sm mr-3">
               JD
             </div>
             <div className="flex-1">
-              <span className="block font-bold text-sm text-slate-900 dark:text-white group-hover:text-indigo-600 transition-colors">
+              <span className="block font-bold text-sm text-slate-900 dark:text-white group-hover:text-black transition-colors">
                 Jane Doe (User Role)
               </span>
               <span className="block text-xs text-slate-500 dark:text-slate-450 font-mono">
@@ -530,13 +530,13 @@ const MockGoogleAuthModal: React.FC<MockGoogleAuthModalProps> = ({ isOpen, onClo
               value={customEmail}
               onChange={(e) => setCustomEmail(e.target.value)}
               disabled={isSubmitting}
-              className="flex-grow p-2.5 text-sm border border-slate-200 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-mono"
+              className="flex-grow p-2.5 text-sm border border-slate-200 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-[#eee1ba]/20 focus:border-[#eee1ba] transition-all font-mono"
               required
             />
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm rounded-xl cursor-pointer shadow-sm hover:shadow transition-colors"
+              className="px-4 py-2 bg-black hover:bg-black text-white font-bold text-sm rounded-xl cursor-pointer shadow-sm hover:shadow transition-colors"
             >
               Sign In
             </button>

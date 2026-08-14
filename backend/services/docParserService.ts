@@ -1,6 +1,6 @@
 import mammoth from "mammoth";
-import { PageService } from "./pageService";
-import { ListingService } from "./listingService";
+import { listingService, pageService } from "../di/container";
+
 import { DocumentNexusDocumentService } from "./documentNexusDocumentService";
 import { DocPageService } from "./docPageService";
 import { DocIndexService } from "./docIndexService";
@@ -183,7 +183,7 @@ export class DocParserService {
       } else {
         // Workspace Hub branch
         console.log(`[PDF PERSISTENCE INFO] Creating workspaceHubProjects record with title: "${listingTitle}" under workspace ID: "${workspaceId}"`);
-        const listing = await ListingService.create({
+        const listing = await listingService.create({
           title: listingTitle,
           description: `Imported from ${originalName} (PDF)`,
           workspaceId: workspaceId
@@ -199,7 +199,7 @@ export class DocParserService {
         const createdPages = [];
         for (const page of pages) {
           console.log(`[PDF PERSISTENCE INFO] Saving page ${page.pageNumber}/${pages.length} to "pages" for listingId: "${projectId}"`);
-          const createdPage = await PageService.create({
+          const createdPage = await pageService.create({
             listingId: projectId,
             title: page.title,
             content: page.content,
@@ -214,7 +214,7 @@ export class DocParserService {
         }
 
         console.log(`[PDF PERSISTENCE INFO] Finalizing workspaceHubProjects references with ${createdPages.length} pages.`);
-        const updatedListing = await ListingService.update(projectId, {
+        const updatedListing = await listingService.update(projectId, {
           pages: createdPages.map(p => p.id),
           index: index.map((item: any) => ({
             ...item,
@@ -397,7 +397,7 @@ export class DocParserService {
       } else {
         // Workspace Hub branch
         console.log(`[DOCX PERSISTENCE INFO] Creating workspaceHubProjects record with title: "${listingTitle}" under workspace ID: "${workspaceId}"`);
-        const listing = await ListingService.create({
+        const listing = await listingService.create({
           title: listingTitle,
           description: `Imported from ${originalName}`,
           workspaceId: workspaceId
@@ -413,7 +413,7 @@ export class DocParserService {
         const createdPages = [];
         for (const page of pages) {
           console.log(`[DOCX PERSISTENCE INFO] Saving page ${page.pageNumber}/${pages.length} to "pages" for listingId: "${projectId}"`);
-          const createdPage = await PageService.create({
+          const createdPage = await pageService.create({
             listingId: projectId,
             title: page.title,
             content: page.content,
@@ -428,7 +428,7 @@ export class DocParserService {
         }
 
         console.log(`[DOCX PERSISTENCE INFO] Finalizing workspaceHubProjects references with ${createdPages.length} pages.`);
-        const updatedListing = await ListingService.update(projectId, {
+        const updatedListing = await listingService.update(projectId, {
           pages: createdPages.map(p => p.id),
           index: index.map(item => ({
             ...item,

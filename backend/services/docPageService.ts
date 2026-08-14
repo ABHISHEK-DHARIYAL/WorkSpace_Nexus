@@ -61,7 +61,25 @@ export class DocPageService {
   }
 
   static async delete(id: string) {
+    // A deleted page must not leave a dangling reference in its parent
+    // document's `pages` array — that array is otherwise only ever healed
+    // when empty, so a stale (but non-empty) array full of dead page IDs
+    // would never get corrected on its own.
+    const pageSnap = await getDoc(doc(db, "doc_pages", id));
     await deleteDoc(doc(db, "doc_pages", id));
+
+    if (pageSnap.exists()) {
+      const projectId = (pageSnap.data() as any).projectId;
+      if (projectId) {
+        const projectRef = doc(db, "documentNexusDocuments", projectId);
+        const projectSnap = await getDoc(projectRef);
+        if (projectSnap.exists()) {
+          const pages = ((projectSnap.data() as any).pages || []).filter((pageId: string) => pageId !== id);
+          await updateDoc(projectRef, { pages, updatedAt: new Date().toISOString() });
+        }
+      }
+    }
+
     return { message: "Page deleted successfully" };
   }
 }

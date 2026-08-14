@@ -106,18 +106,18 @@ const DocumentNexusReader: React.FC = () => {
       divider: 'bg-slate-100',
       contentView: 'bg-white',
       itemRow: 'bg-slate-50 border-slate-200/50 hover:bg-slate-100 border-slate-200 text-slate-700 hover:text-slate-900',
-      itemRowActive: 'bg-indigo-600 text-white border-indigo-700 font-bold shadow-md shadow-indigo-600/10',
+      itemRowActive: 'bg-black text-white border-black font-bold shadow-md shadow-black/10',
       itemTitle: 'text-slate-800',
       itemTitleActive: 'text-white',
       itemBadge: 'bg-slate-200 text-slate-600 font-medium',
-      itemBadgeActive: 'bg-indigo-500 text-indigo-50',
+      itemBadgeActive: 'bg-[#eee1ba] text-[#eee1ba]/10',
       textMuted: 'text-slate-500',
       headerToolbar: 'bg-white border-slate-200 text-slate-900 border-b border-slate-200 shadow-sm',
       canvasBg: 'bg-white border-slate-200/80 shadow-md',
       segment: 'bg-slate-100 border-slate-205',
       inactiveBtn: 'text-slate-500 hover:text-slate-900',
       activeBtn: 'bg-white text-slate-900 shadow-xs border-slate-250',
-      brandBox: 'bg-indigo-50 text-indigo-600',
+      brandBox: 'bg-[#eee1ba]/10 text-black',
       cardFooter: 'bg-slate-50/50 border-slate-100 text-slate-400',
       prose: 'prose-emerald prose-indigo',
     };
@@ -131,11 +131,11 @@ const DocumentNexusReader: React.FC = () => {
       divider: 'bg-[#dcceab]',
       contentView: 'bg-[#eae3cb]',
       itemRow: 'bg-[#f4ecd8] border-[#e2dac0] hover:bg-[#fcfaf2] border-[#e0cb9d] text-[#8c745d] hover:text-[#5b4636]',
-      itemRowActive: 'bg-indigo-600 text-white border-indigo-700 font-bold shadow-md shadow-indigo-600/10',
+      itemRowActive: 'bg-black text-white border-black font-bold shadow-md shadow-black/10',
       itemTitle: 'text-[#5b4636]',
       itemTitleActive: 'text-white',
       itemBadge: 'bg-[#e3d8b9] text-[#8c745d] font-medium',
-      itemBadgeActive: 'bg-indigo-500 text-indigo-50',
+      itemBadgeActive: 'bg-[#eee1ba] text-[#eee1ba]/10',
       textMuted: 'text-[#a6957a]',
       headerToolbar: 'bg-[#fcfaf2] border-[#ecdcb4] text-[#5b4636] border-b border-[#ecdcb4]',
       canvasBg: 'bg-[#fdf6e3] text-[#5b4636] border-[#ecdcb4] shadow-md',
@@ -157,18 +157,18 @@ const DocumentNexusReader: React.FC = () => {
       divider: 'bg-[#222938]',
       contentView: 'bg-[#0f1116]',
       itemRow: 'bg-[#151922] border-[#222938] hover:bg-[#1c2230] border-[#273248] text-slate-300 hover:text-white',
-      itemRowActive: 'bg-indigo-600 text-white border-indigo-700 font-bold shadow-md shadow-indigo-600/10',
+      itemRowActive: 'bg-black text-white border-black font-bold shadow-md shadow-black/10',
       itemTitle: 'text-slate-200',
       itemTitleActive: 'text-white',
-      itemBadge: 'bg-[#1e2635] text-indigo-300 font-medium',
-      itemBadgeActive: 'bg-indigo-500 text-indigo-50',
+      itemBadge: 'bg-[#1e2635] text-[#eee1ba]/40 font-medium',
+      itemBadgeActive: 'bg-[#eee1ba] text-[#eee1ba]/10',
       textMuted: 'text-slate-400',
       headerToolbar: 'bg-[#151922] border-[#222938] text-white border-b border-[#222938] shadow-lg',
       canvasBg: 'bg-[#151922] text-slate-100 border-[#222938] shadow-md',
       segment: 'bg-[#0f1116] border-[#222938]',
       inactiveBtn: 'text-slate-400 hover:text-white',
       activeBtn: 'bg-[#1e2635] text-white shadow-xs border-[#222938]',
-      brandBox: 'bg-[#1f2535] text-indigo-400',
+      brandBox: 'bg-[#1f2535] text-[#eee1ba]',
       cardFooter: 'bg-[#1b212f]/60 border-[#222938] text-slate-400',
       prose: 'prose-emerald prose-invert text-white',
     };
@@ -237,7 +237,7 @@ const DocumentNexusReader: React.FC = () => {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-[#0f1115] flex flex-col items-center justify-center pt-20">
         <div className="p-8 text-center max-w-sm rounded-3xl border border-dashed border-slate-200 dark:border-slate-800 bg-white dark:bg-[#15181e] shadow-xl">
-          <BookOpen size={40} className="mx-auto text-indigo-500 animate-pulse mb-4" />
+          <BookOpen size={40} className="mx-auto text-[#eee1ba] animate-pulse mb-4" />
           <h2 className="text-sm font-black text-slate-800 dark:text-slate-100 uppercase tracking-widest">Opening Portal...</h2>
           <p className="text-xs text-slate-400 dark:text-slate-500 mt-1.5 font-medium">Fetching public publication hierarchy elements safely.</p>
         </div>
@@ -268,8 +268,8 @@ const DocumentNexusReader: React.FC = () => {
               onClick={() => setIsSidebarCollapsed(false)}
               className={`p-2 px-3.5 rounded-xl border flex items-center gap-2 transition-all text-xs font-black uppercase tracking-wider cursor-pointer ${
                 readerTheme === 'midnight'
-                  ? 'bg-indigo-950/40 hover:bg-indigo-900 border-indigo-900/50 text-indigo-400' 
-                  : 'bg-indigo-50 hover:bg-indigo-105 border-indigo-200 text-indigo-700'
+                  ? 'bg-black/40 hover:bg-black border-black/50 text-[#eee1ba]' 
+                  : 'bg-[#eee1ba]/10 hover:bg-[#eee1ba] border-[#eee1ba]/25 text-black'
               }`}
               title="Expand Sidebar Outline"
               id="expand-sidebar-outline-btn"
@@ -352,7 +352,7 @@ const DocumentNexusReader: React.FC = () => {
               }}
               className={`py-1 px-3 rounded-lg font-black text-[9.5px] uppercase tracking-wider transition-all flex items-center justify-center gap-1 cursor-pointer ${
                 activeTab === 'pages'
-                  ? 'bg-indigo-600 text-white shadow-xs'
+                  ? 'bg-black text-white shadow-xs'
                   : 'text-slate-650 dark:text-slate-350 hover:text-slate-900'
               }`}
             >
@@ -366,7 +366,7 @@ const DocumentNexusReader: React.FC = () => {
               }}
               className={`py-1 px-3 rounded-lg font-black text-[9.5px] uppercase tracking-wider transition-all flex items-center justify-center gap-1 cursor-pointer ${
                 activeTab === 'index'
-                  ? 'bg-indigo-600 text-white shadow-xs'
+                  ? 'bg-black text-white shadow-xs'
                   : 'text-slate-655 dark:text-slate-350 hover:text-slate-900'
               }`}
             >
@@ -412,7 +412,7 @@ const DocumentNexusReader: React.FC = () => {
                 <input
                   type="text"
                   placeholder={activeTab === 'pages' ? "Search page outlines..." : "Search index paths..."}
-                  className={`w-full border focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/20 rounded-lg py-1.5 pl-9 pr-8 text-[11.5px] outline-none transition-all ${themeClasses.searchInput}`}
+                  className={`w-full border focus:border-[#eee1ba] focus:ring-1 focus:ring-[#eee1ba]/20 rounded-lg py-1.5 pl-9 pr-8 text-[11.5px] outline-none transition-all ${themeClasses.searchInput}`}
                   value={sidebarSearchQuery}
                   onChange={(e) => setSidebarSearchQuery(e.target.value)}
                 />
@@ -438,7 +438,7 @@ const DocumentNexusReader: React.FC = () => {
                     }}
                     className={`w-1/2 py-2 px-3 rounded-lg font-black text-[10px] uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 cursor-pointer text-center select-none ${
                       activeTab === 'pages'
-                        ? 'bg-indigo-600 text-white shadow-xs'
+                        ? 'bg-black text-white shadow-xs'
                         : `${themeClasses.textMuted} hover:text-slate-900`
                     }`}
                   >
@@ -452,7 +452,7 @@ const DocumentNexusReader: React.FC = () => {
                     }}
                     className={`w-1/2 py-2 px-3 rounded-lg font-black text-[10px] uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 cursor-pointer text-center select-none ${
                       activeTab === 'index'
-                        ? 'bg-indigo-600 text-white shadow-xs'
+                        ? 'bg-black text-white shadow-xs'
                         : `${themeClasses.textMuted} hover:text-slate-900`
                     }`}
                   >
@@ -568,10 +568,10 @@ const DocumentNexusReader: React.FC = () => {
                                 </div>
                                 {linkedBreadcrumb && (
                                   <div className={`text-[9.5px] truncate mt-1 font-medium flex items-center gap-1 ${
-                                    isCurrent ? 'text-indigo-100' : 'opacity-80'
+                                    isCurrent ? 'text-[#eee1ba]/15' : 'opacity-80'
                                   }`}>
                                     <span className={`text-[8px] px-1 py-0.5 rounded leading-none font-bold ${
-                                      isCurrent ? 'bg-indigo-500 text-indigo-50' : themeClasses.itemBadge
+                                      isCurrent ? 'bg-[#eee1ba] text-[#eee1ba]/10' : themeClasses.itemBadge
                                     }`}>Path</span>
                                     <span className="truncate">{linkedBreadcrumb}</span>
                                   </div>
@@ -597,7 +597,7 @@ const DocumentNexusReader: React.FC = () => {
           <div className={`w-14 shrink-0 border-r hidden lg:flex flex-col items-center py-4 gap-4 h-full ${themeClasses.aside}`}>
             <button
               onClick={() => setIsSidebarCollapsed(false)}
-              className="p-2 rounded-xl bg-indigo-50 dark:bg-indigo-950 hover:bg-indigo-100 text-indigo-600 font-bold transition-all flex items-center justify-center cursor-pointer"
+              className="p-2 rounded-xl bg-[#eee1ba]/10 dark:bg-black hover:bg-[#eee1ba]/15 text-black font-bold transition-all flex items-center justify-center cursor-pointer"
               title="Expand Navigation Outlines"
             >
               <ChevronRight size={15} />
@@ -609,7 +609,7 @@ const DocumentNexusReader: React.FC = () => {
                 setIsSidebarCollapsed(false);
               }}
               className={`p-2 rounded-xl transition-all ${
-                activeTab === 'pages' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:bg-slate-100 hover:text-slate-800'
+                activeTab === 'pages' ? 'bg-black text-white' : 'text-slate-400 hover:bg-slate-100 hover:text-slate-800'
               }`}
               title="View Pages"
             >
@@ -621,7 +621,7 @@ const DocumentNexusReader: React.FC = () => {
                 setIsSidebarCollapsed(false);
               }}
               className={`p-2 rounded-xl transition-all ${
-                activeTab === 'index' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:bg-slate-100 hover:text-slate-800'
+                activeTab === 'index' ? 'bg-black text-white' : 'text-slate-400 hover:bg-slate-100 hover:text-slate-800'
               }`}
               title="View Combined Index"
             >
@@ -676,7 +676,7 @@ const DocumentNexusReader: React.FC = () => {
               {/* Rendering canvas page pagesToRender sequence */}
               {pagesToRender.length === 0 ? (
                 <div className="text-center py-24 bg-white dark:bg-[#151922] rounded-3xl border border-dashed border-slate-200 dark:border-[#222938] p-8 shadow-md">
-                  <FileText size={32} className="mx-auto text-indigo-400 mb-3" />
+                  <FileText size={32} className="mx-auto text-[#eee1ba] mb-3" />
                   <h3 className="text-sm font-black text-slate-800 dark:text-slate-200 mb-1">Documentation Empty</h3>
                   <p className="text-xs text-slate-400 max-w-xs mx-auto">This public portal has currently no published documentation sequences inside its outline sheets.</p>
                 </div>

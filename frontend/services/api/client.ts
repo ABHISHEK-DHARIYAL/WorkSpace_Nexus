@@ -15,17 +15,7 @@ api.interceptors.request.use((config) => {
 
 const isPublicPath = (pathname: string): boolean => {
   const cleanPath = pathname.split('?')[0].split('#')[0].replace(/\/$/, '') || '/';
-  const publicPaths = ['/', '/login', '/signup', '/public-content'];
-  if (publicPaths.includes(cleanPath)) return true;
-  if (
-    cleanPath.startsWith('/content/') ||
-    cleanPath.startsWith('/nexus/read/') ||
-    cleanPath.startsWith('/nexus/bookmark/read/') ||
-    cleanPath.startsWith('/listing/read/')
-  ) {
-    return true;
-  }
-  return false;
+  return cleanPath === '/' || cleanPath.startsWith('/content/');
 };
 
 api.interceptors.response.use(
@@ -97,9 +87,9 @@ api.interceptors.response.use(
       }
       error.message = friendlyMessage;
 
-      // Soft redirect to login for private pages
-      if (currentPath !== '/login') {
-        window.location.href = '/login';
+      // Soft redirect to home (where the login popup lives) for private pages
+      if (currentPath !== '/') {
+        window.location.href = '/';
       }
     } else {
       // Log other non-401 connection/server errors

@@ -7,6 +7,7 @@ import routes from "./routes";
 import { ENV } from "./config/env";
 import { testFirestoreConnection, isFirestoreWorking } from "./config/firebase";
 import { validateAllRoutes } from "./utils/routeValidator";
+import { errorHandler } from "./middleware/errorHandler";
 
 export async function createApp() {
   // Test Firestore connection on startup to dynamically verify permission/quota and handle fallback
@@ -54,9 +55,13 @@ export async function createApp() {
   });
 
   // Vite / Static Serving
-  if (ENV.NODE_ENV === "production" || ENV.WITHOUT_VITE) {
-    // Pure API Mode in production / on Render, or when WITHOUT_VITE is active:
-    // No Vite imports, no fallback to Vite, no index.html dependencies
+  const viteConfigPath = path.resolve(process.cwd(), "frontend/vite.config.ts");
+  const hasSiblingFrontendProject = fs.existsSync(viteConfigPath);
+
+  if (ENV.NODE_ENV === "production" || ENV.WITHOUT_VITE || !hasSiblingFrontendProject) {
+    // Pure API Mode: in production, on Render, when WITHOUT_VITE is active, or whenever this backend
+    // is deployed standalone without a sibling frontend/ project alongside it (no Vite dev server to attach).
+    // No Vite imports, no fallback to Vite, no index.html dependencies.
     app.get("/", (req, res) => {
       res.json({
         message: "Workspace Nexus API is healthy and running.",
@@ -72,13 +77,13 @@ export async function createApp() {
       });
     });
   } else {
-    // Development Mode ONLY (NOT production, NOT Render)
+    // Local combined developer session ONLY (frontend/ project confirmed present next to backend/)
     console.log("Setting up Vite middleware for active developer session...");
     try {
       const { createServer: createViteServer } = await import("vite");
       const vite = await createViteServer({
         root: path.resolve(process.cwd(), "frontend"),
-        configFile: path.resolve(process.cwd(), "frontend/vite.config.ts"),
+        configFile: viteConfigPath,
         server: { middlewareMode: true },
         appType: "spa",
       });
@@ -92,13 +97,7 @@ export async function createApp() {
   }
 
   // Global error handler
-  app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
-    console.error("Unhandled Error:", err);
-    res.status(err.status || 500).json({
-      message: err.message || "An unexpected error occurred",
-      error: ENV.NODE_ENV === "development" ? err : {}
-    });
-  });
+  app.use(errorHandler);
 
   // Startup Route Verification
   validateAllRoutes(app);

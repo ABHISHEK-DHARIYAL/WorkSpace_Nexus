@@ -248,7 +248,7 @@ export function DocumentNexusView({
     >
       {/* KPI Analytics Block */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
-        <StatCard icon={<Users className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-600 dark:text-[#eee1ba]" />} value={String(totals.users)} label="Active Authors" color="bg-indigo-50 dark:bg-indigo-950/20" />
+        <StatCard icon={<Users className="w-4 h-4 sm:w-5 sm:h-5 text-black dark:text-[#eee1ba]" />} value={String(totals.users)} label="Active Authors" color="bg-[#eee1ba]/10 dark:bg-black/20" />
         <StatCard icon={<Layers className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600 dark:text-[#eee1ba]" />} value={String(totals.workspaces)} label="Public Workspaces" color="bg-emerald-50 dark:bg-emerald-950/20" />
         <StatCard icon={<Briefcase className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-600 dark:text-[#eee1ba]" />} value={String(totals.projects)} label="Public Projects" color="bg-yellow-50 dark:bg-yellow-950/20" />
         <StatCard icon={<FileText className="w-4 h-4 sm:w-5 sm:h-5 text-[#5b4636] dark:text-[#eee1ba]" />} value={String(totals.pages)} label="Published Pages" color="bg-amber-50 dark:bg-amber-950/20" />
@@ -264,7 +264,7 @@ export function DocumentNexusView({
               placeholder="Query titles, tags, owners or key phrases..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-slate-50 dark:bg-[#1c202a] border border-slate-200 dark:border-[#2d323f]/80 rounded-2xl pl-11 pr-4 py-3 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all font-sans"
+              className="w-full bg-slate-50 dark:bg-[#1c202a] border border-slate-200 dark:border-[#2d323f]/80 rounded-2xl pl-11 pr-4 py-3 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#eee1ba] transition-all font-sans"
             />
           </div>
 
@@ -274,7 +274,7 @@ export function DocumentNexusView({
             className={`px-5 py-3 rounded-2xl text-xs font-black uppercase tracking-wider flex items-center justify-center space-x-2 transition-all shrink-0 ${
               downloadState.isLoading
                 ? 'bg-slate-100 text-slate-400 dark:bg-[#1a1e27] dark:text-slate-600 cursor-not-allowed border border-slate-200/50 dark:border-[#2d323f]/50'
-                : 'bg-indigo-600 text-white hover:bg-indigo-505 hover:shadow-md active:scale-95 shadow-sm border border-transparent'
+                : 'bg-black text-white hover:bg-[#eee1ba] hover:text-black hover:shadow-md active:scale-95 shadow-sm border border-transparent'
             }`}
           >
             {downloadState.isLoading ? (
@@ -343,7 +343,7 @@ export function DocumentNexusView({
                   {/* User Summary Header to Match Workspace Hub */}
                   <div className="p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 select-none border-b border-transparent dark:border-[#2d323f]/20 hover:bg-slate-50/50 dark:hover:bg-slate-900/10">
                     <div className="flex items-center space-x-4">
-                      <div className="w-12 h-12 rounded-full bg-[#f4ecd8] dark:bg-[#1d222d] border border-[#eee1ba] dark:border-[#2d323f] text-indigo-700 dark:text-[#eee1ba]/95 font-black text-sm flex items-center justify-center shadow-inner tracking-tighter">
+                      <div className="w-12 h-12 rounded-full bg-[#f4ecd8] dark:bg-[#1d222d] border border-[#eee1ba] dark:border-[#2d323f] text-black dark:text-[#eee1ba]/95 font-black text-sm flex items-center justify-center shadow-inner tracking-tighter">
                         {u.username.substring(0, 2).toUpperCase()}
                       </div>
                       <div>
@@ -352,7 +352,7 @@ export function DocumentNexusView({
                             {u.username}
                           </p>
                           {selfOwn && (
-                            <span className="px-2 py-0.5 bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-[#eee1ba]/95 text-[8px] font-black rounded-full uppercase border border-indigo-500/10">
+                            <span className="px-2 py-0.5 bg-[#eee1ba]/10 dark:bg-black/40 text-black dark:text-[#eee1ba]/95 text-[8px] font-black rounded-full uppercase border border-[#eee1ba]/10">
                               You
                             </span>
                           )}
@@ -480,7 +480,7 @@ export function DocumentNexusView({
                                     <ul className="pt-2 pl-4 border-l border-slate-200 dark:border-[#2d323f] space-y-2.5">
                                       {p.pages.map((pg: any) => (
                                         <li key={pg.id} className="flex items-center justify-between group">
-                                          <Link to={`/listing/read/${pg.id}`} className="flex items-center space-x-2 text-xs font-bold text-indigo-600 dark:text-[#eee1ba] hover:underline">
+                                          <Link to={`/listing/read/${pg.id}`} className="flex items-center space-x-2 text-xs font-bold text-black dark:text-[#eee1ba] hover:underline">
                                             <FileText className="w-3.5 h-3.5" />
                                             <span>{pg.title}</span>
                                           </Link>
@@ -521,10 +521,10 @@ export function DocumentNexusView({
 
                                     <button
                                       onClick={() => handleCopyProject(p.id)}
-                                      className="py-2 px-3 bg-indigo-650 hover:bg-indigo-700 text-[9.5px] font-black uppercase tracking-[0.12em] text-white rounded-xl flex items-center justify-center gap-1.5 border border-indigo-700 transition-all outline-none select-none cursor-pointer"
+                                      className="py-2 px-3 bg-[#eee1ba] hover:bg-black text-[9.5px] font-black uppercase tracking-[0.12em] text-white rounded-xl flex items-center justify-center gap-1.5 border border-black transition-all outline-none select-none cursor-pointer"
                                       title="Copy project content to your local workspace"
                                     >
-                                      <Copy size={11.5} className="text-indigo-200" />
+                                      <Copy size={11.5} className="text-[#eee1ba]/25" />
                                       <span>Copy Content</span>
                                     </button>
 
@@ -602,8 +602,8 @@ export function DocumentNexusView({
             <div className="flex items-center justify-between border-b border-slate-100 dark:border-[#2d323f]/60 pb-2">
               <span className="text-xs font-black uppercase tracking-widest text-[#5b4636] dark:text-[#eee1ba] flex items-center space-x-2">
                 <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#eee1ba] opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-[#eee1ba]"></span>
                 </span>
                 <span>Exporting Projects</span>
               </span>
@@ -613,14 +613,14 @@ export function DocumentNexusView({
             </div>
 
             <div className="flex items-center space-x-3">
-              <div className="p-3 bg-indigo-50 dark:bg-indigo-950/30 rounded-xl">
-                <Loader2 className="w-5 h-5 text-indigo-600 dark:text-indigo-400 animate-spin" />
+              <div className="p-3 bg-[#eee1ba]/10 dark:bg-black/30 rounded-xl">
+                <Loader2 className="w-5 h-5 text-black dark:text-[#eee1ba] animate-spin" />
               </div>
               <div className="min-w-0 flex-1">
                 <p className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">
                   {downloadState.projectName || "Retrieving project repository..."}
                 </p>
-                <p className="text-[10px] font-extrabold text-indigo-500 dark:text-indigo-400 uppercase tracking-wider mt-0.5 animate-pulse">
+                <p className="text-[10px] font-extrabold text-[#eee1ba] dark:text-[#eee1ba] uppercase tracking-wider mt-0.5 animate-pulse">
                   {downloadState.step === 'preparing' && "Preparing ZIP..."}
                   {downloadState.step === 'compressing' && "Compressing Files..."}
                   {downloadState.step === 'downloading' && "Downloading..."}
@@ -630,7 +630,7 @@ export function DocumentNexusView({
 
             <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-1.5 overflow-hidden">
               <motion.div
-                className="bg-indigo-600 h-full rounded-full"
+                className="bg-black h-full rounded-full"
                 animate={{
                   width: downloadState.step === 'preparing' ? "33%" :
                          downloadState.step === 'compressing' ? "66%" : "100%"

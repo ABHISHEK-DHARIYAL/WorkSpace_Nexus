@@ -1,38 +1,24 @@
-import { Request, Response } from "express";
-import { HighlightService } from "../services/highlightService";
-import { sendSuccess, sendError } from "../utils/response";
+import { Response } from "express";
 import { AuthRequest } from "../middleware/auth";
+import { highlightService } from "../di/container";
+import { asyncHandler } from "../utils/asyncHandler";
+import { logger } from "../utils/logger";
 
-export class HighlightController {
-  static async getAll(req: AuthRequest, res: Response) {
-    try {
-      const highlights = await HighlightService.getAll();
-      sendSuccess(res, highlights);
-    } catch (error: any) {
-      sendError(res, error.message);
-    }
-  }
+export const getAllHighlights = asyncHandler(async (req: AuthRequest, res: Response) => {
+  const highlights = await highlightService.getAll();
+  res.json(highlights);
+});
 
-  static async getByPage(req: AuthRequest, res: Response) {
-    try {
-      const highlights = await HighlightService.getByPage(req.params.pageId);
-      sendSuccess(res, highlights);
-    } catch (error: any) {
-      sendError(res, error.message);
-    }
-  }
+export const getHighlightsByPage = asyncHandler(async (req: AuthRequest, res: Response) => {
+  const highlights = await highlightService.getByPage(req.params.pageId);
+  res.json(highlights);
+});
 
-  static async create(req: AuthRequest, res: Response) {
-    try {
-      console.log("HighlightController.create: Received data", req.body);
-      const highlight = await HighlightService.create({
-        ...req.body,
-        userId: req.user?.uid || req.user?.email
-      });
-      sendSuccess(res, highlight, 201);
-    } catch (error: any) {
-      console.error("HighlightController.create Error:", error);
-      sendError(res, error.message);
-    }
-  }
-}
+export const createHighlight = asyncHandler(async (req: AuthRequest, res: Response) => {
+  logger.debug("Creating highlight", { body: req.body });
+  const highlight = await highlightService.create({
+    ...req.body,
+    userId: req.user?.uid || req.user?.email,
+  });
+  res.status(201).json(highlight);
+});

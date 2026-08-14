@@ -2,7 +2,8 @@ import { Response } from "express";
 import { AuthRequest } from "../middleware/auth";
 import { ProjectExporter } from "../services/projectExporter";
 import { ZipService } from "../services/zipService";
-import { ListingService } from "../services/listingService";
+import { listingService } from "../di/container";
+
 import { sendSuccess, sendError } from "../utils/response";
 
 export class ExportController {
@@ -61,7 +62,7 @@ export class ExportController {
       }
 
       // Fetch all projects owned by this user
-      const projects = await ListingService.getAllByUser(email);
+      const projects = await listingService.getAllByUser(email);
       return sendSuccess(res, projects);
     } catch (error: any) {
       console.error("Fetch All Projects for Export Error:", error);

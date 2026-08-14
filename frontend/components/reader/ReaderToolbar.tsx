@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bookmark, PenTool as UnderlineIcon, Eraser, Settings, ChevronLeft, ChevronRight, Pipette } from 'lucide-react';
+import { Bookmark, PenTool as UnderlineIcon, Eraser, Settings, ChevronLeft, ChevronRight, Pipette, ChevronUp, ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
 interface ReaderToolbarProps {
@@ -23,6 +23,8 @@ interface ReaderToolbarProps {
   theme: 'light' | 'sepia' | 'dark';
   colors: string[];
   underlineStyles: any[];
+  collapsed?: boolean;
+  onToggleCollapsed?: () => void;
 }
 
 export const ReaderToolbar: React.FC<ReaderToolbarProps> = ({
@@ -46,15 +48,55 @@ export const ReaderToolbar: React.FC<ReaderToolbarProps> = ({
   theme,
   colors,
   underlineStyles,
+  collapsed = false,
+  onToggleCollapsed,
 }) => {
+  const barBg = theme === 'dark'
+    ? 'border-white/5 bg-[#0f0f0f]/80 backdrop-blur-xl'
+    : theme === 'sepia'
+      ? 'border-[#e8d5a7] bg-[#fdf6e3]/80 backdrop-blur-xl'
+      : 'border-slate-200 bg-white/80 backdrop-blur-xl shadow-sm';
+
+  const CollapseToggle = (
+    <button
+      id="reader-toolbar-collapse-btn"
+      onClick={onToggleCollapsed}
+      className="p-1.5 rounded-lg hover:bg-slate-500/10 opacity-50 hover:opacity-100 transition-all shrink-0"
+      title={collapsed ? 'Expand toolbar' : 'Minimize toolbar'}
+    >
+      {collapsed ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
+    </button>
+  );
+
+  if (collapsed) {
+    return (
+      <motion.div
+        initial={{ opacity: 0.6 }}
+        animate={{ opacity: 1 }}
+        className={`h-10 flex items-center justify-between px-4 sm:px-8 gap-3 border-b transition-colors duration-500 ${barBg}`}
+      >
+        <h1 className="text-xs font-bold truncate max-w-[60%]">{title}</h1>
+        <div className="flex items-center gap-1 shrink-0">
+          <button
+            onClick={() => onPageChange('prev')}
+            className="p-1.5 hover:bg-slate-500/10 rounded-lg text-slate-400 hover:text-[#eee1ba]"
+          >
+            <ChevronLeft size={16} />
+          </button>
+          <button
+            onClick={() => onPageChange('next')}
+            className="p-1.5 hover:bg-slate-500/10 rounded-lg text-slate-400 hover:text-[#eee1ba]"
+          >
+            <ChevronRight size={16} />
+          </button>
+          {CollapseToggle}
+        </div>
+      </motion.div>
+    );
+  }
+
   return (
-    <div className={`min-h-20 py-3 flex flex-wrap items-center justify-between px-4 sm:px-8 gap-3 border-b transition-colors duration-500 ${
-      theme === 'dark' 
-        ? 'border-white/5 bg-[#0f0f0f]/80 backdrop-blur-xl' 
-        : theme === 'sepia' 
-          ? 'border-[#e8d5a7] bg-[#fdf6e3]/80 backdrop-blur-xl' 
-          : 'border-slate-200 bg-white/80 backdrop-blur-xl shadow-sm'
-    }`}>
+    <div className={`min-h-20 py-3 flex flex-wrap items-center justify-between px-4 sm:px-8 gap-3 border-b transition-colors duration-500 ${barBg}`}>
       <div className="flex items-center gap-4 min-w-0">
         <div className="flex flex-col min-w-0">
           <span className="text-[10px] font-black uppercase tracking-widest opacity-40 truncate">
@@ -74,7 +116,7 @@ export const ReaderToolbar: React.FC<ReaderToolbarProps> = ({
         <button 
           id="reader-bookmark-toggle-btn"
           onClick={() => onBookmarkChange?.(!isBookmarked)} 
-          className={`p-2 rounded-lg transition-all ${isBookmarked ? 'bg-indigo-500 text-white shadow-sm shadow-indigo-650/15' : 'hover:bg-slate-500/10 opacity-40 hover:opacity-100'}`}
+          className={`p-2 rounded-lg transition-all ${isBookmarked ? 'bg-[#eee1ba] text-white shadow-sm shadow-[#eee1ba]/15' : 'hover:bg-slate-500/10 opacity-40 hover:opacity-100'}`}
           title="Bookmark current chapter"
         >
           <Bookmark size={18} fill={isBookmarked ? 'currentColor' : 'none'} />
@@ -99,7 +141,7 @@ export const ReaderToolbar: React.FC<ReaderToolbarProps> = ({
                 setShowUnderlinePicker(!showUnderlinePicker); 
                 setShowSettings(false); 
               }}
-              className={`p-2 rounded-lg transition-all ${activeTools.underline ? 'bg-indigo-500 text-white shadow-md ring-2 ring-indigo-500/50' : 'hover:bg-slate-500/10 opacity-70'}`}
+              className={`p-2 rounded-lg transition-all ${activeTools.underline ? 'bg-[#eee1ba] text-white shadow-md ring-2 ring-[#eee1ba]/50' : 'hover:bg-slate-500/10 opacity-70'}`}
               title="Underline Mode"
             >
               <UnderlineIcon size={18} />
@@ -119,7 +161,7 @@ export const ReaderToolbar: React.FC<ReaderToolbarProps> = ({
                       <button 
                         key={style.name} 
                         onClick={() => { onAnnotate?.('underline', undefined, style.value); setShowUnderlinePicker(false); }}
-                        className={`p-2 rounded-lg border border-slate-100 dark:border-white/10 hover:bg-indigo-50 dark:hover:bg-indigo-950 hover:text-indigo-600 transition-all ${activeTools.underline?.style === style.value ? 'bg-indigo-50 border-indigo-200 dark:bg-indigo-950/40' : ''}`}
+                        className={`p-2 rounded-lg border border-slate-100 dark:border-white/10 hover:bg-[#eee1ba]/10 dark:hover:bg-black hover:text-black transition-all ${activeTools.underline?.style === style.value ? 'bg-[#eee1ba]/10 border-[#eee1ba]/25 dark:bg-black/40' : ''}`}
                         title={style.name}
                       >
                         <style.icon size={14} />
@@ -132,7 +174,7 @@ export const ReaderToolbar: React.FC<ReaderToolbarProps> = ({
                       <button 
                         key={color} 
                         onClick={() => { onAnnotate?.('underline', color); setShowUnderlinePicker(false); }}
-                        className={`w-6 h-6 rounded-md border border-slate-200 dark:border-white/10 hover:scale-110 transition-transform ${activeTools.underline?.color === color ? 'ring-2 ring-indigo-500 ring-offset-2' : ''}`}
+                        className={`w-6 h-6 rounded-md border border-slate-200 dark:border-white/10 hover:scale-110 transition-transform ${activeTools.underline?.color === color ? 'ring-2 ring-[#eee1ba] ring-offset-2' : ''}`}
                         style={{ backgroundColor: color }}
                       />
                     ))}
@@ -172,24 +214,27 @@ export const ReaderToolbar: React.FC<ReaderToolbarProps> = ({
         <button 
           id="reader-toggle-settings-btn"
           onClick={() => { setShowSettings(!showSettings); setShowUnderlinePicker(false); }} 
-          className={`p-2 rounded-lg transition-colors ${showSettings ? 'bg-indigo-500 text-white' : 'hover:bg-slate-500/10 opacity-70'}`}
+          className={`p-2 rounded-lg transition-colors ${showSettings ? 'bg-[#eee1ba] text-white' : 'hover:bg-slate-500/10 opacity-70'}`}
         >
           <Settings size={18} />
         </button>
         <button 
           id="reader-prev-chapter-btn"
           onClick={() => onPageChange('prev')} 
-          className="p-2 hover:bg-slate-500/10 rounded-lg text-slate-400 hover:text-indigo-650"
+          className="p-2 hover:bg-slate-500/10 rounded-lg text-slate-400 hover:text-[#eee1ba]"
         >
           <ChevronLeft size={20} />
         </button>
         <button 
           id="reader-next-chapter-btn"
           onClick={() => onPageChange('next')} 
-          className="p-2 hover:bg-slate-500/10 rounded-lg text-slate-400 hover:text-indigo-650"
+          className="p-2 hover:bg-slate-500/10 rounded-lg text-slate-400 hover:text-[#eee1ba]"
         >
           <ChevronRight size={20} />
         </button>
+
+        <div className="w-px h-6 bg-slate-200/20 mx-1" />
+        {CollapseToggle}
       </div>
     </div>
   );

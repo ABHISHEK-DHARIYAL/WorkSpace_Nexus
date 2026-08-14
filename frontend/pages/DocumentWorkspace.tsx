@@ -41,43 +41,10 @@ import { DocumentSidebar } from '../components/workspace/DocumentSidebar';
 import { DocumentTopToolbar, DocumentCanvasToolbar } from '../components/workspace/DocumentWorkspaceToolbars';
 import { publicService } from '../services/api/public';
 import { DocumentNexusProjectsView } from '../components/workspace/DocumentNexusProjectsView';
-
-// Internal/External Services
-const workspaceService = {
-  getAll: () => api.get("/document-nexus/workspace"),
-  create: (data: any) => api.post("/document-nexus/workspace", data),
-  update: (id: string, data: any) => api.put(`/document-nexus/workspace/${id}`, data),
-  delete: (id: string) => api.delete(`/document-nexus/workspace/${id}`),
-};
-
-const listingService = {
-  getAll: () => api.get("/document-nexus/document"),
-  getByWorkspace: (workspaceId: string) => api.get(`/document-nexus/document/workspace/${workspaceId}`),
-  getById: (id: string) => api.get(`/document-nexus/document/${id}`),
-  create: (data: any) => api.post("/document-nexus/document", data),
-  update: (id: string, data: any) => api.put(`/document-nexus/document/${id}`, data),
-  delete: (id: string) => api.delete(`/document-nexus/document/${id}`),
-};
-
-const docPageService = {
-  getAll: () => api.get("/content/page"),
-  getById: (id: string) => api.get(`/content/page/${id}`),
-  create: (data: any) => api.post("/content/page", data),
-  update: (id: string, data: any) => api.put(`/content/page/${id}`, data),
-  delete: (id: string) => api.delete(`/content/page/${id}`),
-};
-
-const docIndexService = {
-  getAll: () => api.get("/index"),
-  getById: (id: string) => api.get(`/index/${id}`),
-  create: (data: any) => api.post("/index", data),
-  update: (id: string, data: any) => api.put(`/index/${id}`, data),
-  delete: (id: string) => api.delete(`/index/${id}`),
-};
-
-const annotationService = {
-  getAll: () => api.get("/highlight"),
-};
+import { documentNexusWorkspaceService as workspaceService, documentNexusListingService as listingService } from '../services/api/documentNexus';
+import { docPageService } from '../services/api/docPage';
+import { docIndexService } from '../services/api/docIndex';
+import { annotationService } from '../services/annotationService';
 
 import SharedLoader from '../components/ui/Loader';
 
@@ -1410,7 +1377,7 @@ const DocumentWorkspace: React.FC = () => {
               </div>
               {selectedWorkspace && (
                 <div className="hidden lg:flex items-center gap-2 text-xs font-black uppercase tracking-wider text-slate-400">
-                  <span className="w-2 h-2 rounded-full bg-indigo-500 inline-block animate-ping" />
+                  <span className="w-2 h-2 rounded-full bg-[#eee1ba] inline-block animate-ping" />
                   <span>Ecosystem Active: {selectedWorkspace.name}</span>
                 </div>
               )}
@@ -1426,20 +1393,20 @@ const DocumentWorkspace: React.FC = () => {
             {/* Glowing Hero Banner */}
             <div className="relative overflow-hidden rounded-[32px] bg-gradient-to-br from-slate-950 via-slate-900 to-[#121620] px-8 py-12 md:px-14 md:py-16 text-white shadow-2xl border border-slate-800/60">
               <div className="absolute inset-0 bg-[linear-gradient(to_right,#1f293708_1px,transparent_1px),linear-gradient(to_bottom,#1f293708_1px,transparent_1px)] bg-[size:3rem_3rem]" />
-              <div className="absolute top-0 right-0 -mr-28 -mt-28 w-[500px] h-[500px] bg-indigo-500/10 rounded-full blur-[100px] animate-pulse" style={{ animationDuration: '10s' }} />
+              <div className="absolute top-0 right-0 -mr-28 -mt-28 w-[500px] h-[500px] bg-[#eee1ba]/10 rounded-full blur-[100px] animate-pulse" style={{ animationDuration: '10s' }} />
               <div className="absolute bottom-0 left-0 -ml-28 -mb-28 w-[350px] h-[350px] bg-sky-500/10 rounded-full blur-[90px] animate-pulse" style={{ animationDuration: '8s' }} />
               
               <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-10">
                 <div className="max-w-xl">
                   <div className="flex items-center gap-3.5 mb-5">
-                    <div className="p-3 bg-indigo-650 rounded-xl shadow-lg shadow-indigo-900/30">
+                    <div className="p-3 bg-[#eee1ba] rounded-xl shadow-lg shadow-black/30">
                       <Briefcase size={28} className="text-white" />
                     </div>
                     <div>
                       <h1 className="text-2xl md:text-4xl font-black tracking-tight text-white leading-none">
                         Your Workspaces
                       </h1>
-                      <p className="text-indigo-455 font-bold uppercase tracking-[0.2em] text-[9px] mt-1.5 flex items-center gap-1.5 text-indigo-400">
+                      <p className="text-[#eee1ba] font-bold uppercase tracking-[0.2em] text-[9px] mt-1.5 flex items-center gap-1.5 text-[#eee1ba]">
                         <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block animate-pulse" />
                         Personal Document Ecosystem
                       </p>
@@ -1451,7 +1418,7 @@ const DocumentWorkspace: React.FC = () => {
                   <div className="flex flex-wrap items-center gap-3">
                     <button 
                       onClick={() => setShowAddWorkspaceModal(true)}
-                      className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3.5 rounded-lg text-[10px] font-black uppercase tracking-wider shadow-lg shadow-indigo-500/15 transition-all active:scale-95 cursor-pointer"
+                      className="inline-flex items-center gap-2 bg-black hover:bg-[#eee1ba] text-white hover:text-black px-6 py-3.5 rounded-lg text-[10px] font-black uppercase tracking-wider shadow-lg shadow-[#eee1ba]/15 transition-all active:scale-95 cursor-pointer"
                     >
                       <FolderPlus size={14} />
                       <span>Create Workspace</span>
@@ -1486,7 +1453,7 @@ const DocumentWorkspace: React.FC = () => {
 
                 {/* Simplified & Good Looking Minimalist HUD Panel */}
                 <div className="bg-white/[0.02] border border-white/10 p-6 rounded-[24px] backdrop-blur-xl w-full lg:w-[420px] shrink-0 shadow-2xl relative overflow-hidden group hover:border-white/20 transition-all duration-300">
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl pointer-events-none" />
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-[#eee1ba]/10 rounded-full blur-2xl pointer-events-none" />
                   
                   {/* Stats Column Grid */}
                   <div className="grid grid-cols-2 gap-6 relative z-10">
@@ -1524,7 +1491,7 @@ const DocumentWorkspace: React.FC = () => {
                 <input 
                   type="text" 
                   placeholder="Real-time search by workspace title..."
-                  className="w-full pl-11 pr-4 py-3 bg-slate-50 text-slate-900 rounded-xl border border-slate-200 outline-none focus:ring-2 focus:ring-indigo-500/20 text-sm font-semibold"
+                  className="w-full pl-11 pr-4 py-3 bg-slate-50 text-slate-900 rounded-xl border border-slate-200 outline-none focus:ring-2 focus:ring-[#eee1ba]/20 text-sm font-semibold"
                   value={workspaceSearch}
                   onChange={(e) => setWorkspaceSearch(e.target.value)}
                 />
@@ -1558,11 +1525,11 @@ const DocumentWorkspace: React.FC = () => {
                   <div key={w.id || `ws-grid-${wIdx}`} className="bg-white rounded-3xl border border-slate-200 overflow-hidden hover:shadow-xl transition-all p-6 relative flex flex-col justify-between">
                     <div>
                       <div className="flex justify-between items-start mb-4">
-                        <div className="p-3 bg-indigo-50 text-indigo-600 rounded-xl"><Briefcase size={22} /></div>
+                        <div className="p-3 bg-[#eee1ba]/10 text-black rounded-xl"><Briefcase size={22} /></div>
                         <div className="flex gap-1">
                           <button 
                             onClick={() => { setWorkspaceToRename(w); setRenameWorkspaceName(w.name); setRenameWorkspaceDesc(w.description || ''); }}
-                            className="p-1 px-2 hover:bg-indigo-50 rounded text-slate-400 hover:text-indigo-600 transition-all text-xs font-bold"
+                            className="p-1 px-2 hover:bg-[#eee1ba]/10 rounded text-slate-400 hover:text-black transition-all text-xs font-bold"
                           >
                             Rename
                           </button>
@@ -1581,7 +1548,7 @@ const DocumentWorkspace: React.FC = () => {
                       <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 bg-slate-50 px-2 py-1 rounded">Active environment</span>
                       <button 
                         onClick={() => { setSelectedWorkspace(w); setCurrentMainTab('project-hub'); }}
-                        className="flex items-center gap-1 text-[10px] font-black uppercase tracking-widest text-indigo-600 hover:text-indigo-800 transition-all"
+                        className="flex items-center gap-1 text-[10px] font-black uppercase tracking-widest text-black hover:text-black transition-all"
                       >
                         Enter Projects <ChevronRight size={12} />
                       </button>
@@ -1607,13 +1574,13 @@ const DocumentWorkspace: React.FC = () => {
                         <td className="p-4 text-right pr-6 space-x-2">
                           <button 
                             onClick={() => { setSelectedWorkspace(w); setCurrentMainTab('project-hub'); }}
-                            className="px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 rounded-lg text-xs font-bold"
+                            className="px-3 py-1.5 bg-[#eee1ba]/10 hover:bg-[#eee1ba]/15 text-black rounded-lg text-xs font-bold"
                           >
                             Explore Open
                           </button>
                           <button 
                             onClick={() => { setWorkspaceToRename(w); setRenameWorkspaceName(w.name); setRenameWorkspaceDesc(w.description || ''); }}
-                            className="px-2 py-1.5 hover:bg-slate-100 text-slate-400 hover:text-indigo-600 rounded-lg text-xs font-bold"
+                            className="px-2 py-1.5 hover:bg-slate-100 text-slate-400 hover:text-black rounded-lg text-xs font-bold"
                           >
                             Rename
                           </button>
@@ -1655,7 +1622,7 @@ const DocumentWorkspace: React.FC = () => {
                           setSelectedWorkspace(ws);
                         }
                       }}
-                      className="bg-slate-50 border border-slate-200 text-slate-800 font-bold px-3 py-1.5 rounded-xl text-xs outline-none focus:ring-2 focus:ring-indigo-500/20"
+                      className="bg-slate-50 border border-slate-200 text-slate-800 font-bold px-3 py-1.5 rounded-xl text-xs outline-none focus:ring-2 focus:ring-[#eee1ba]/20"
                     >
                       {(Array.isArray(workspaces) ? workspaces : []).map(w => (
                         <option key={w.id} value={w.id}>{w.name}</option>
@@ -1663,7 +1630,7 @@ const DocumentWorkspace: React.FC = () => {
                     </select>
                     <button 
                       onClick={() => setShowAddWorkspaceModal(true)}
-                      className="p-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 rounded-lg text-xs font-black uppercase tracking-wider flex items-center gap-1 transition-all"
+                      className="p-1.5 bg-[#eee1ba]/10 hover:bg-[#eee1ba]/15 text-black rounded-lg text-xs font-black uppercase tracking-wider flex items-center gap-1 transition-all"
                       title="Add New Workspace"
                     >
                       <Plus size={14} />
@@ -1711,10 +1678,10 @@ const DocumentWorkspace: React.FC = () => {
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                   <div 
                     onClick={() => setProjectTab('projects')}
-                    className="bg-white rounded-2xl border border-slate-200 p-6 flex items-center gap-4 shadow-sm hover:shadow-md hover:border-indigo-300 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer"
+                    className="bg-white rounded-2xl border border-slate-200 p-6 flex items-center gap-4 shadow-sm hover:shadow-md hover:border-[#eee1ba]/40 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer"
                     title="View Projects list"
                   >
-                    <div className="p-3 bg-indigo-50 text-indigo-600 rounded-xl"><FileStack size={22} /></div>
+                    <div className="p-3 bg-[#eee1ba]/10 text-black rounded-xl"><FileStack size={22} /></div>
                     <div>
                       <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Projects</h4>
                       <div className="text-xl font-black text-slate-900">{activeWorkspaceProjects.length}</div>
@@ -1795,7 +1762,7 @@ const DocumentWorkspace: React.FC = () => {
                               {activeWorkspaceProjects.filter(p => p.isBookmarked).map((p, idx) => (
                                 <div key={p.id || `featured-${idx}`} className="p-4 bg-slate-50 border border-slate-200 rounded-2xl flex justify-between items-center hover:bg-slate-100 transition-all cursor-pointer" onClick={() => { setSelectedProject(p); setCurrentMainTab('document-canvas'); }}>
                                   <div className="flex items-center gap-3">
-                                    <div className="p-2 bg-indigo-50 text-indigo-600 rounded-lg"><FileText size={16} /></div>
+                                    <div className="p-2 bg-[#eee1ba]/10 text-black rounded-lg"><FileText size={16} /></div>
                                     <span className="text-sm font-bold text-slate-800 truncate max-w-44">{p.title}</span>
                                   </div>
                                   <ArrowUpRight size={14} className="text-slate-400" />
@@ -1871,7 +1838,7 @@ const DocumentWorkspace: React.FC = () => {
                       <button onClick={() => setProjectViewMode('list')} className={`p-2 rounded border text-xs font-bold ${projectViewMode === 'list' ? 'bg-slate-900 border-slate-900 text-white' : 'border-slate-250 text-slate-400 hover:bg-slate-50'}`}>List</button>
                       <button 
                         onClick={() => setShowAddProjectModal(true)} 
-                        className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-1.5 shadow-sm hover:shadow-md transition-all active:scale-95 ml-2"
+                        className="px-4 py-2 bg-black hover:bg-black text-white rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-1.5 shadow-sm hover:shadow-md transition-all active:scale-95 ml-2"
                       >
                         <Plus size={14} />
                         <span>New Project</span>
@@ -1887,7 +1854,7 @@ const DocumentWorkspace: React.FC = () => {
                       <div className="flex justify-center gap-3">
                         <button 
                           onClick={() => setShowAddProjectModal(true)}
-                          className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-black uppercase tracking-wider inline-flex items-center gap-1.5 shadow-md active:scale-95 animate-in"
+                          className="px-4 py-2 bg-black hover:bg-black text-white rounded-xl text-xs font-black uppercase tracking-wider inline-flex items-center gap-1.5 shadow-md active:scale-95 animate-in"
                         >
                           <Plus size={14} />
                           <span>Create Project</span>
@@ -1920,7 +1887,7 @@ const DocumentWorkspace: React.FC = () => {
                     <div 
                       {...getRootProps()} 
                       className={`border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-all ${
-                        isDragActive ? 'border-indigo-600 bg-indigo-50/45' : 'border-slate-300 hover:border-indigo-400 bg-slate-50/35'
+                        isDragActive ? 'border-black bg-[#eee1ba]/45' : 'border-slate-300 hover:border-[#eee1ba] bg-slate-50/35'
                       }`}
                     >
                       <input {...getInputProps()} />
@@ -1951,7 +1918,7 @@ const DocumentWorkspace: React.FC = () => {
                     <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
                     <input 
                       type="text"
-                      className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none text-xs font-black placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500/20 transition-all"
+                      className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none text-xs font-black placeholder:text-slate-400 focus:ring-2 focus:ring-[#eee1ba]/20 transition-all"
                       placeholder="Type keywords to search projects, pages, or index titles..."
                       value={globalSearchTerm}
                       onChange={(e) => setGlobalSearchTerm(e.target.value)}
@@ -2030,7 +1997,7 @@ const DocumentWorkspace: React.FC = () => {
                                       className="hover:bg-slate-50/50 cursor-pointer transition-colors"
                                       onClick={() => { setCurrentMainTab('document-canvas'); }}
                                     >
-                                      <td className="p-4 pl-6 font-bold text-indigo-600">{res.type}</td>
+                                      <td className="p-4 pl-6 font-bold text-black">{res.type}</td>
                                       <td className="p-4 font-black">{highlightText(res.title, globalSearchTerm)}</td>
                                       <td className="p-4 text-slate-500 italic max-w-md truncate font-semibold">
                                         {highlightText(res.snippet, globalSearchTerm)}
@@ -2089,7 +2056,7 @@ const DocumentWorkspace: React.FC = () => {
                                           {/* Project Settings Trigger */}
                                           <button
                                             onClick={(e) => { e.stopPropagation(); handleOpenProjectSettings(p); }}
-                                            className="p-1 rounded border border-slate-250 text-slate-400 bg-white hover:text-indigo-600 hover:border-indigo-300 text-[10px] font-bold transition-all hover:scale-105 active:scale-95 mr-1"
+                                            className="p-1 rounded border border-slate-250 text-slate-400 bg-white hover:text-black hover:border-[#eee1ba]/40 text-[10px] font-bold transition-all hover:scale-105 active:scale-95 mr-1"
                                             title="Project Settings"
                                           >
                                             <Settings2 size={12} />
@@ -2104,7 +2071,7 @@ const DocumentWorkspace: React.FC = () => {
                                         </div>
                                       </div>
                                       <p className="text-[10px] text-slate-500 font-semibold line-clamp-1 mt-1">{p.description || "No project description declared."}</p>
-                                      <span className="inline-block mt-2 text-[8px] font-black uppercase tracking-widest text-indigo-600">Open Workspace &rarr;</span>
+                                      <span className="inline-block mt-2 text-[8px] font-black uppercase tracking-widest text-black">Open Workspace &rarr;</span>
                                     </div>
                                   </div>
                                 ))}
@@ -2115,7 +2082,7 @@ const DocumentWorkspace: React.FC = () => {
                           {bookmarkProjects.length > 0 && (
                             <div className="space-y-3 pt-4 border-t border-slate-100/60">
                               <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-1.5 mb-2">
-                                <Bookmark size={10} className="text-indigo-600 fill-current" />
+                                <Bookmark size={10} className="text-black fill-current" />
                                 <span>Starred Bookmark Projects</span>
                               </h4>
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -2305,7 +2272,7 @@ const DocumentWorkspace: React.FC = () => {
 
                     {pagesToRender.length === 0 ? (
                       <div className="text-center py-20 bg-white rounded-2xl border border-dashed border-slate-200 p-8">
-                        <FilePlus size={36} className="mx-auto text-indigo-400 mb-3" />
+                        <FilePlus size={36} className="mx-auto text-[#eee1ba] mb-3" />
                         <h3 className="text-sm font-black text-slate-800 mb-1">Workspace Documentation Empty</h3>
                         <p className="text-xs text-slate-400 max-w-sm mx-auto mb-6">Create single draft outline pages or seed a rich, pre-configured Guide & API Spec sequence layout with 1-click.</p>
                         <div className="flex justify-center gap-3">
@@ -2317,7 +2284,7 @@ const DocumentWorkspace: React.FC = () => {
                           </button>
                           <button
                             onClick={() => setCurrentMainTab('project-hub')}
-                            className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-black transition-all shadow-md shadow-indigo-600/15"
+                            className="px-4 py-2 bg-black hover:bg-black text-white rounded-xl text-xs font-black transition-all shadow-md shadow-black/15"
                           >
                             &larr; Back to Projects
                           </button>
@@ -2465,7 +2432,7 @@ const DocumentWorkspace: React.FC = () => {
                     <CheckCircle2 size={32} />
                   </div>
                 ) : (
-                  <div className="w-16 h-16 bg-indigo-50 dark:bg-indigo-950/50 rounded-2xl flex items-center justify-center text-indigo-600 dark:text-indigo-400 mb-2 relative">
+                  <div className="w-16 h-16 bg-[#eee1ba]/10 dark:bg-black/50 rounded-2xl flex items-center justify-center text-black dark:text-[#eee1ba] mb-2 relative">
                     <Loader2 size={32} className="animate-spin" />
                   </div>
                 )}
@@ -2480,7 +2447,7 @@ const DocumentWorkspace: React.FC = () => {
                 <div className="space-y-2">
                   <div className="w-full bg-slate-100 dark:bg-slate-850 h-2 rounded-full overflow-hidden">
                     <motion.div 
-                      className={`h-full ${nexusExportDone ? 'bg-emerald-500' : 'bg-indigo-600'}`}
+                      className={`h-full ${nexusExportDone ? 'bg-emerald-500' : 'bg-black'}`}
                       initial={{ width: 0 }}
                       animate={{ width: `${nexusExportProgress}%` }}
                       transition={{ duration: 0.2 }}
@@ -2546,7 +2513,7 @@ const DocumentWorkspace: React.FC = () => {
                 </div>
                 <div className="flex gap-3 pt-4">
                   <button type="button" onClick={() => setShowAddWorkspaceModal(false)} className="flex-grow py-3 px-4 border border-slate-200 text-slate-500 hover:bg-slate-50 rounded-xl text-xs font-black uppercase tracking-wider">Cancel</button>
-                  <button type="submit" className="flex-grow py-3 px-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-black uppercase tracking-wider">Create Unit</button>
+                  <button type="submit" className="flex-grow py-3 px-4 bg-black hover:bg-black text-white rounded-xl text-xs font-black uppercase tracking-wider">Create Unit</button>
                 </div>
               </form>
             </motion.div>
@@ -2572,7 +2539,7 @@ const DocumentWorkspace: React.FC = () => {
                 </div>
                 <div className="flex gap-3 pt-4">
                   <button type="button" onClick={() => setShowAddProjectModal(false)} className="flex-grow py-3 px-4 border border-slate-200 text-slate-500 hover:bg-slate-50 rounded-xl text-xs font-black uppercase tracking-wider">Cancel</button>
-                  <button type="submit" className="flex-grow py-3 px-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-black uppercase tracking-wider">Create Project</button>
+                  <button type="submit" className="flex-grow py-3 px-4 bg-black hover:bg-black text-white rounded-xl text-xs font-black uppercase tracking-wider">Create Project</button>
                 </div>
               </form>
             </motion.div>
@@ -2706,7 +2673,7 @@ const DocumentWorkspace: React.FC = () => {
                 </div>
                 <div className="flex gap-3 pt-4">
                   <button type="button" onClick={() => setWorkspaceToRename(null)} className="flex-grow py-3 px-4 border border-slate-200 text-slate-500 rounded-xl text-xs font-black uppercase">Cancel</button>
-                  <button type="submit" className="flex-grow py-3 px-4 bg-indigo-600 text-white rounded-xl text-xs font-black uppercase">Update Metadata</button>
+                  <button type="submit" className="flex-grow py-3 px-4 bg-black text-white rounded-xl text-xs font-black uppercase">Update Metadata</button>
                 </div>
               </form>
             </motion.div>
@@ -2739,7 +2706,7 @@ const DocumentWorkspace: React.FC = () => {
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowIndexModal(false)} className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" />
             <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="relative bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden p-8 z-10">
               <h2 className="text-xl font-black text-slate-900 mb-6 flex items-center gap-2">
-                <LayoutList className="text-indigo-600" />
+                <LayoutList className="text-black" />
                 <span>Add Index Item</span>
               </h2>
               <form onSubmit={handleIndexAdd} className="space-y-5">
@@ -2764,10 +2731,10 @@ const DocumentWorkspace: React.FC = () => {
                           return `${idx + 1}th`;
                         };
                         return (
-                          <button key={p.id || `outline-page-item-${pIdx}`} type="button" onClick={() => isSel ? setIndexForm({...indexForm, pageIds: indexForm.pageIds.filter(id => id !== p.id)}) : setIndexForm({...indexForm, pageIds: [...indexForm.pageIds, p.id]})} className={`w-full text-left p-2 rounded-lg flex items-center justify-between ${isSel ? 'bg-indigo-50 text-indigo-700 font-bold' : 'hover:bg-slate-100 text-slate-650'}`}>
+                          <button key={p.id || `outline-page-item-${pIdx}`} type="button" onClick={() => isSel ? setIndexForm({...indexForm, pageIds: indexForm.pageIds.filter(id => id !== p.id)}) : setIndexForm({...indexForm, pageIds: [...indexForm.pageIds, p.id]})} className={`w-full text-left p-2 rounded-lg flex items-center justify-between ${isSel ? 'bg-[#eee1ba]/10 text-black font-bold' : 'hover:bg-slate-100 text-slate-650'}`}>
                             <span>{p.title}</span>
                             {isSel && (
-                              <span className="text-[9px] font-mono font-bold bg-indigo-600 text-white rounded px-1.5 py-0.5 leading-none shadow-sm">
+                              <span className="text-[9px] font-mono font-bold bg-black text-white rounded px-1.5 py-0.5 leading-none shadow-sm">
                                 {getOrdinal(selIdx)}
                               </span>
                             )}
@@ -2784,16 +2751,16 @@ const DocumentWorkspace: React.FC = () => {
 
                 {/* Visual Path Preview of combined sequential pages */}
                 {indexForm.pageIds.length > 0 && (
-                  <div className="p-3 bg-indigo-50/40 border border-indigo-100/60 rounded-xl space-y-1.5">
-                    <span className="block text-[10px] font-black text-indigo-600 uppercase tracking-widest">Selected Sequential Path</span>
+                  <div className="p-3 bg-[#eee1ba]/40 border border-[#eee1ba]/60 rounded-xl space-y-1.5">
+                    <span className="block text-[10px] font-black text-black uppercase tracking-widest">Selected Sequential Path</span>
                     <div className="flex flex-wrap items-center gap-1.5 text-xs text-slate-700 font-semibold">
                       {indexForm.pageIds.map((id, pIdx) => {
                         const page = (Array.isArray(pages) ? pages : []).find((pg) => pg.id === id);
                         return (
                           <React.Fragment key={`seq-${id}-${pIdx}`}>
-                            {pIdx > 0 && <span className="text-indigo-400 font-extrabold">➔</span>}
-                            <span className="bg-white px-2.5 py-1 rounded-lg border border-indigo-150 shadow-sm text-[11px] text-indigo-950 flex items-center gap-1">
-                              <span className="font-mono text-[9px] text-indigo-500 font-bold">#{pIdx + 1}</span>
+                            {pIdx > 0 && <span className="text-[#eee1ba] font-extrabold">➔</span>}
+                            <span className="bg-white px-2.5 py-1 rounded-lg border border-[#eee1ba] shadow-sm text-[11px] text-black flex items-center gap-1">
+                              <span className="font-mono text-[9px] text-[#eee1ba] font-bold">#{pIdx + 1}</span>
                               <span className="truncate max-w-[120px]">{page?.title || 'Blank Page'}</span>
                             </span>
                           </React.Fragment>
@@ -2805,7 +2772,7 @@ const DocumentWorkspace: React.FC = () => {
 
                 <div className="flex gap-3 pt-2">
                   <button type="button" onClick={() => setShowIndexModal(false)} className="flex-grow py-3 bg-slate-100 text-slate-500 rounded-xl font-bold uppercase text-[10px]">Cancel</button>
-                  <button type="submit" className="flex-grow py-3 bg-indigo-600 text-white rounded-xl font-bold uppercase text-[10px]">Create Link</button>
+                  <button type="submit" className="flex-grow py-3 bg-black text-white rounded-xl font-bold uppercase text-[10px]">Create Link</button>
                 </div>
               </form>
             </motion.div>
@@ -2891,12 +2858,12 @@ const DocumentWorkspace: React.FC = () => {
                       value={projectSettingsNewTag}
                       onChange={(e) => setProjectSettingsNewTag(e.target.value)}
                       onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddProjectSettingsTag(); } }}
-                      className="flex-grow bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-900 focus:ring-1 focus:ring-indigo-500 focus:outline-none"
+                      className="flex-grow bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-900 focus:ring-1 focus:ring-[#eee1ba] focus:outline-none"
                     />
                     <button
                       type="button"
                       onClick={handleAddProjectSettingsTag}
-                      className="px-4 py-2.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-xl text-xs font-black uppercase tracking-wider"
+                      className="px-4 py-2.5 bg-[#eee1ba]/10 hover:bg-[#eee1ba]/15 text-black rounded-xl text-xs font-black uppercase tracking-wider"
                     >
                       Add
                     </button>
@@ -2967,10 +2934,10 @@ const DocIndexPanel: React.FC<any> = ({ indices, pages, onIndexSelect, onIndexAd
     <div className="flex flex-col h-full bg-slate-900 text-slate-300 w-full overflow-hidden">
       <div className="p-4 border-b border-slate-800 flex justify-between items-center bg-slate-900 z-10">
         <div className="flex items-center gap-2 font-bold text-white uppercase tracking-wider text-xs">
-          <LayoutList size={16} className="text-indigo-400" />
+          <LayoutList size={16} className="text-[#eee1ba]" />
           <span>Document Outline / Index Structure</span>
         </div>
-        {!readOnly && <button onClick={onIndexAdd} className="p-1.5 hover:bg-slate-800 rounded-lg text-indigo-400"><Plus size={18} /></button>}
+        {!readOnly && <button onClick={onIndexAdd} className="p-1.5 hover:bg-slate-800 rounded-lg text-[#eee1ba]"><Plus size={18} /></button>}
       </div>
       
       <div className="px-4 py-2 border-b border-slate-800 bg-[#0f172a]/40">
@@ -2979,7 +2946,7 @@ const DocIndexPanel: React.FC<any> = ({ indices, pages, onIndexSelect, onIndexAd
           <input 
             type="text"
             placeholder="Search index or pages..."
-            className="w-full bg-slate-800 border-none rounded-lg py-1.5 pl-8 text-xs text-slate-250 placeholder-slate-550 outline-none focus:ring-1 focus:ring-indigo-600"
+            className="w-full bg-slate-800 border-none rounded-lg py-1.5 pl-8 text-xs text-slate-250 placeholder-slate-550 outline-none focus:ring-1 focus:ring-black"
             value={indexSearch}
             onChange={(e) => setIndexSearch(e.target.value)}
           />

@@ -179,7 +179,14 @@ export const contentService = {
       const q = query(collection(db, pathForDocs), where("slug", "==", slug));
       const snapshot = await getDocs(q);
       if (snapshot.empty) {
-        return { data: null };
+        // The live collection may not have this doc yet (e.g. it was only
+        // ever auto-seeded in-memory for a non-admin viewer by getAll(),
+        // never persisted to Firestore). Fall back to the same seed source
+        // getAll() uses so a slug it displayed a card for is always
+        // resolvable here too, instead of returning a false "not found".
+        const local = getLocalFallbackContents();
+        const item = local.find(x => x.slug === slug);
+        return { data: item || null };
       }
       const docSnap = snapshot.docs[0];
       return {

@@ -34,11 +34,11 @@ export const WorkspaceHubProjectCard: React.FC<WorkspaceHubProjectCardProps> = (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className={`bg-white rounded-2xl border border-slate-200 overflow-hidden hover:shadow-2xl hover:shadow-slate-200/50 transition-all group ${isEditing ? 'ring-2 ring-indigo-600 ring-opacity-20' : ''}`}
+      className={`bg-white rounded-2xl border border-slate-200 overflow-hidden hover:shadow-2xl hover:shadow-slate-200/50 transition-all group ${isEditing ? 'ring-2 ring-black ring-opacity-20' : ''}`}
     >
       <div className="p-6 transition-colors group-hover:bg-slate-50/50">
         <div className="flex justify-between items-start mb-4">
-          <div className={`p-3 rounded-lg transition-colors ${isEditing ? 'bg-indigo-600 text-white shadow-xl scale-110' : 'bg-slate-100 text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white border border-slate-200 shadow-sm'}`}>
+          <div className={`p-3 rounded-lg transition-colors ${isEditing ? 'bg-black text-white shadow-xl scale-110' : 'bg-slate-100 text-black group-hover:bg-black group-hover:text-white border border-slate-200 shadow-sm'}`}>
             <Book size={24} />
           </div>
           <div className="flex gap-1">
@@ -113,7 +113,7 @@ export const WorkspaceHubProjectCard: React.FC<WorkspaceHubProjectCardProps> = (
           <div className="mb-4">
             <input 
               autoFocus
-              className="w-full text-xl font-bold text-slate-900 border-b-2 border-indigo-600 outline-none bg-slate-50 px-1"
+              className="w-full text-xl font-bold text-slate-900 border-b-2 border-black outline-none bg-slate-50 px-1"
               value={tempTitle}
               onChange={(e) => onTempTitleChange(e.target.value)}
               onKeyDown={(e) => {
@@ -125,7 +125,7 @@ export const WorkspaceHubProjectCard: React.FC<WorkspaceHubProjectCardProps> = (
           </div>
         ) : (
           <Link to={`/listing/read/${listing.id}`} className="block group/title">
-            <h3 className="text-xl font-black text-slate-900 mb-2 truncate group-hover/title:text-indigo-600 transition-colors">
+            <h3 className="text-xl font-black text-slate-900 mb-2 truncate group-hover/title:text-black transition-colors">
               {listing.title}
             </h3>
           </Link>
@@ -192,14 +192,14 @@ export const WorkspaceHubProjectCard: React.FC<WorkspaceHubProjectCardProps> = (
         </Link>
 
         {/* Eye-Comfort Settings Link Indicator inside selecting options footer */}
-        <div className="px-6 py-2.5 bg-indigo-50/30 border-t border-slate-100 flex items-center justify-between">
+        <div className="px-6 py-2.5 bg-[#eee1ba]/30 border-t border-slate-100 flex items-center justify-between">
           <span className="text-[9px] font-black uppercase tracking-wider text-slate-400/90 flex items-center gap-1">
             👁️ CLARITY TUNABLE:
           </span>
           <div className="flex gap-1 text-[8px] font-black uppercase tracking-wider">
             <span className="px-1.5 py-0.5 bg-sky-50 text-sky-700 rounded border border-sky-100/50">Slate</span>
             <span className="px-1.5 py-0.5 bg-amber-50 text-amber-700 rounded border border-amber-100/50">Vanilla</span>
-            <span className="px-1.5 py-0.5 bg-indigo-50 text-indigo-750 rounded border border-indigo-100/50">Midnight</span>
+            <span className="px-1.5 py-0.5 bg-[#eee1ba]/10 text-[#eee1ba] rounded border border-[#eee1ba]/50">Midnight</span>
           </div>
         </div>
       </div>

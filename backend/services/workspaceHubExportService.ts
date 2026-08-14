@@ -1,6 +1,7 @@
-import { ListingService } from "./listingService";
+
 import { ProjectExporter } from "./projectExporter";
 import { ZipService } from "./zipService";
+import { listingService } from "../di/container";
 
 export class WorkspaceHubExportService {
   /**
@@ -13,7 +14,7 @@ export class WorkspaceHubExportService {
     }
 
     // 1. Get all listings owned by the user
-    const hubListings = await ListingService.getAllByUser(userEmail);
+    const hubListings = await listingService.getAllByUser(userEmail);
 
     if (hubListings.length === 0) {
       throw new Error("No projects found in your Workspace Hub to export.");

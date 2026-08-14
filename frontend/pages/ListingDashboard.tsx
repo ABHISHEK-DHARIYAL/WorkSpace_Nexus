@@ -34,28 +34,12 @@ import {
   Bookmark, Activity, Star, Filter, Calendar, List, Globe, FolderDown
 } from 'lucide-react';
 import { publicService } from '../services/api/public';
+import { listingService } from '../services/api/listing';
+import { pageService } from '../services/api/page';
+import { workspaceService } from '../services/api/workspace';
 import { WorkspaceHubProjectsView } from '../components/workspace/WorkspaceHubProjectsView';
 import { useAuth } from '../context/AuthContext';
 import { useNotifications, triggerNotification } from '../context/NotificationContext';
-
-const listingService = {
-  getAll: () => api.get("/listing"),
-  getByWorkspace: (workspaceId: string) => api.get(`/listing/workspace/${workspaceId}`),
-  getById: (id: string) => api.get(`/listing/${id}`),
-  create: (data: any) => api.post("/listing", data),
-  update: (id: string, data: any) => api.put(`/listing/${id}`, data),
-  delete: (id: string) => api.delete(`/listing/${id}`),
-  searchInWorkspace: (workspaceId: string, q: string) => api.get(`/listing/search/${workspaceId}?q=${q}`),
-};
-
-const pageService = {
-  getAll: () => api.get("/page"),
-  getByWorkspace: (workspaceId: string) => api.get(`/page/workspace/${workspaceId}`),
-};
-
-const workspaceService = {
-  getById: (id: string) => api.get(`/workspace/${id}`),
-};
 
 import SharedLoader from '../components/ui/Loader';
 
@@ -82,7 +66,7 @@ const SidebarItem: React.FC<SidebarItemProps> = ({ icon, label, active, onClick,
     title={collapsed ? label : undefined}
     className={`w-full flex items-center ${collapsed ? 'justify-center p-3' : 'justify-between px-4 py-3'} rounded-xl transition-all duration-300 group ${
       active 
-        ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/10' 
+        ? 'bg-black text-white shadow-lg shadow-black/10' 
         : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-[#1a1f29]'
     }`}
   >
@@ -224,12 +208,12 @@ const DocUpload: React.FC<DocUploadProps> = ({ onSuccess, onCancel, workspaceId 
               <div 
                 {...getRootProps()} 
                 className={`border-2 border-dashed rounded-2xl p-12 text-center transition-all cursor-pointer ${
-                  isDragActive ? 'border-indigo-500 bg-indigo-50/50 scale-[0.98]' : 'border-slate-200 hover:border-indigo-400 hover:bg-slate-50'
+                  isDragActive ? 'border-[#eee1ba] bg-[#eee1ba]/50 scale-[0.98]' : 'border-slate-200 hover:border-[#eee1ba] hover:bg-slate-50'
                 }`}
               >
                 <input {...getInputProps()} />
                 <div className="mx-auto w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center mb-4 border border-slate-100">
-                  <Upload className="text-indigo-600" size={32} />
+                  <Upload className="text-black" size={32} />
                 </div>
                 <p className="text-lg font-semibold text-slate-800 mb-1">
                   Drag & drop file here
@@ -246,7 +230,7 @@ const DocUpload: React.FC<DocUploadProps> = ({ onSuccess, onCancel, workspaceId 
               <div className="bg-slate-50 rounded-2xl p-6 border border-slate-200 relative overflow-hidden">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 bg-slate-50 rounded-xl flex items-center justify-center flex-shrink-0 border border-slate-100">
-                    <FileText className="text-indigo-600" size={24} />
+                    <FileText className="text-black" size={24} />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="font-bold text-slate-900 truncate">{file.name}</p>
@@ -268,17 +252,17 @@ const DocUpload: React.FC<DocUploadProps> = ({ onSuccess, onCancel, workspaceId 
                        <span className="text-xs font-bold text-slate-600 uppercase tracking-wider">
                         {status === 'processing' ? 'Processing Document...' : 'Uploading...'}
                       </span>
-                      <span className="text-xs font-bold text-indigo-600">{progress}%</span>
+                      <span className="text-xs font-bold text-black">{progress}%</span>
                     </div>
                     <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
                       <motion.div 
                         initial={{ width: 0 }}
                         animate={{ width: `${progress}%` }}
-                        className="h-full bg-indigo-600"
+                        className="h-full bg-black"
                       />
                     </div>
                     {status === 'processing' && (
-                      <div className="mt-3 flex items-center gap-2 text-indigo-600">
+                      <div className="mt-3 flex items-center gap-2 text-black">
                         <Loader2 className="animate-spin" size={14} />
                         <span className="text-xs font-medium italic">This may take a moment for large documents</span>
                       </div>
@@ -289,7 +273,7 @@ const DocUpload: React.FC<DocUploadProps> = ({ onSuccess, onCancel, workspaceId 
                 {!isUploading && (
                   <button 
                     onClick={handleUpload}
-                    className="w-full mt-6 bg-slate-50 border border-slate-200 text-indigo-600 hover:bg-slate-100 font-black uppercase tracking-widest py-4 rounded-xl transition-all shadow-sm active:scale-[0.98]"
+                    className="w-full mt-6 bg-slate-50 border border-slate-200 text-black hover:bg-slate-100 font-black uppercase tracking-widest py-4 rounded-xl transition-all shadow-sm active:scale-[0.98]"
                   >
                     Start Importing
                   </button>
@@ -780,7 +764,7 @@ const ListingDashboard: React.FC = () => {
             <motion.div 
                animate={{ rotate: 360 }}
                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-               className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full"
+               className="w-12 h-12 border-4 border-black border-t-transparent rounded-full"
             />
             <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">Searching across database...</p>
          </div>
@@ -802,7 +786,7 @@ const ListingDashboard: React.FC = () => {
                    {universalSearchResults.listings.map(l => (
                      <Link key={l.id} to={`/listing/read/${l.id}`} className="block bg-white p-6 rounded-2xl border border-slate-100 hover:shadow-lg transition-all group">
                         <div className="flex items-center gap-4 mb-4">
-                           <div className="p-3 bg-indigo-50 text-indigo-600 rounded-xl group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                           <div className="p-3 bg-[#eee1ba]/10 text-black rounded-xl group-hover:bg-black group-hover:text-white transition-colors">
                               <Book size={20} />
                            </div>
                            <h5 className="font-bold text-slate-900 truncate">{l.title}</h5>
@@ -843,7 +827,7 @@ const ListingDashboard: React.FC = () => {
                                        <span className="text-xs font-black text-slate-400 uppercase tracking-widest">{project?.title || 'Unknown Project'}</span>
                                     </td>
                                     <td className="px-8 py-6 text-right">
-                                       <Link to={`/listing/read/${p.listingId}?page=${pageIdx + 1}`} className="text-indigo-600 hover:underline text-xs font-black uppercase tracking-widest">Open Page</Link>
+                                       <Link to={`/listing/read/${p.listingId}?page=${pageIdx + 1}`} className="text-black hover:underline text-xs font-black uppercase tracking-widest">Open Page</Link>
                                     </td>
                                  </tr>
                                );
@@ -863,10 +847,10 @@ const ListingDashboard: React.FC = () => {
     <div className="space-y-12">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard 
-          icon={<FileStack className="text-indigo-600" size={24} />} 
+          icon={<FileStack className="text-black" size={24} />} 
           label="Total Projects" 
           value={stats.totalProjects.toString()} 
-          color="bg-indigo-50"
+          color="bg-[#eee1ba]/10"
           onClick={() => setCurrentView('projects')}
         />
         <StatCard 
@@ -902,7 +886,7 @@ const ListingDashboard: React.FC = () => {
               </h3>
               <button 
                 onClick={() => setCurrentView('projects')}
-                className="text-xs font-black text-indigo-600 hover:underline uppercase tracking-widest"
+                className="text-xs font-black text-black hover:underline uppercase tracking-widest"
               >
                 View All
               </button>
@@ -917,7 +901,7 @@ const ListingDashboard: React.FC = () => {
                   to={`/listing/read/${listing.id}`}
                   className="flex items-center gap-4 p-4 rounded-2xl hover:bg-slate-50 border border-transparent hover:border-slate-100 transition-all group"
                 >
-                  <div className={`p-3 rounded-xl transition-colors ${listing.isBookmarked ? 'bg-amber-50 text-amber-600 group-hover:bg-amber-600 group-hover:text-white' : 'bg-indigo-50 text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white'}`}>
+                  <div className={`p-3 rounded-xl transition-colors ${listing.isBookmarked ? 'bg-amber-50 text-amber-600 group-hover:bg-amber-600 group-hover:text-white' : 'bg-[#eee1ba]/10 text-black group-hover:bg-black group-hover:text-white'}`}>
                     {listing.isBookmarked ? <Star size={20} fill="currentColor" /> : <Book size={20} />}
                   </div>
                   <div className="min-w-0">
@@ -938,12 +922,12 @@ const ListingDashboard: React.FC = () => {
           <div className="bg-white rounded-[32px] border border-slate-100 p-8 shadow-sm">
              <div className="flex items-center justify-between mb-8">
                <h3 className="text-xl font-black text-slate-900 uppercase tracking-widest flex items-center gap-2">
-                  <Bookmark size={20} className="text-indigo-600 fill-indigo-100" />
+                  <Bookmark size={20} className="text-black fill-[#eee1ba]/15" />
                   Recent Bookmarks
                 </h3>
                 <button 
                   onClick={() => setCurrentView('page-bookmarks')}
-                  className="text-xs font-black text-indigo-600 hover:underline uppercase tracking-widest"
+                  className="text-xs font-black text-black hover:underline uppercase tracking-widest"
                 >
                   View All
                 </button>
@@ -955,14 +939,14 @@ const ListingDashboard: React.FC = () => {
                     to={page.link}
                     className="flex items-center gap-4 p-3 rounded-2xl hover:bg-slate-50 border border-transparent hover:border-slate-100 transition-all group"
                   >
-                    <div className="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center font-black group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                    <div className="w-10 h-10 bg-[#eee1ba]/10 text-black rounded-xl flex items-center justify-center font-black group-hover:bg-black group-hover:text-white transition-colors">
                       {page.pageNumber || 'P'}
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="font-bold text-slate-900 truncate">{page.title}</p>
                       <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest truncate">{page.projectTitle}</p>
                     </div>
-                    <ChevronRight size={14} className="text-slate-200 group-hover:text-indigo-400" />
+                    <ChevronRight size={14} className="text-slate-200 group-hover:text-[#eee1ba]" />
                   </Link>
                 ))}
                 {bookmarkedPages.length === 0 && (
@@ -977,7 +961,7 @@ const ListingDashboard: React.FC = () => {
 
         <div className="space-y-8">
            <div className="bg-slate-900 rounded-[32px] p-8 text-white shadow-xl relative overflow-hidden">
-              <div className="absolute top-0 right-0 -mr-10 -mt-10 w-40 h-40 bg-indigo-500/10 rounded-full blur-3xl" />
+              <div className="absolute top-0 right-0 -mr-10 -mt-10 w-40 h-40 bg-[#eee1ba]/10 rounded-full blur-3xl" />
               <h3 className="text-lg font-black uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
                 <Activity size={18} />
                 Activity Timeline
@@ -986,7 +970,7 @@ const ListingDashboard: React.FC = () => {
                 {[...workspaceListings].sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()).slice(0, 5).map((l, i) => (
                   <div key={l.id} className="flex gap-4 relative">
                     {i < 4 && <div className="absolute left-[9px] top-6 bottom-0 w-px bg-slate-800" />}
-                    <div className="w-5 h-5 rounded-full border-2 border-indigo-500 bg-slate-900 shrink-0 z-10" />
+                    <div className="w-5 h-5 rounded-full border-2 border-[#eee1ba] bg-slate-900 shrink-0 z-10" />
                     <div>
                       <p className="text-sm font-bold text-slate-200">{l.title} updated</p>
                       <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">
@@ -1001,14 +985,14 @@ const ListingDashboard: React.FC = () => {
               </div>
            </div>
 
-           <div className="bg-indigo-600 rounded-[32px] p-8 text-white shadow-xl">
+           <div className="bg-black rounded-[32px] p-8 text-white shadow-xl">
               <h3 className="text-lg font-black uppercase tracking-[0.2em] mb-4">Pro Tip</h3>
-              <p className="text-indigo-100 text-sm leading-relaxed mb-6 font-medium">
+              <p className="text-[#eee1ba]/15 text-sm leading-relaxed mb-6 font-medium">
                 Importing a PDF automatically generates a linked index for your project. Use it for fast navigation.
               </p>
               <button 
                 onClick={() => setShowUploadModal(true)}
-                className="w-full bg-white text-indigo-600 py-3 rounded-xl font-black uppercase tracking-widest text-xs hover:bg-slate-50 transition-colors"
+                className="w-full bg-white text-black py-3 rounded-xl font-black uppercase tracking-widest text-xs hover:bg-slate-50 transition-colors"
                 >
                 Try It Now
               </button>
@@ -1050,7 +1034,7 @@ const ListingDashboard: React.FC = () => {
             <input 
               type="text" 
               placeholder="Search projects..."
-              className="pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500/20 outline-none w-64"
+              className="pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-[#eee1ba]/20 outline-none w-64"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -1119,7 +1103,7 @@ const ListingDashboard: React.FC = () => {
         <div className="p-8 border-b border-slate-50 bg-slate-50/50 flex flex-col md:flex-row justify-between items-center gap-4">
           <div>
             <h3 className="text-xl font-black text-slate-900 uppercase tracking-widest flex items-center gap-2">
-              <FileText className="text-indigo-600" size={24} />
+              <FileText className="text-black" size={24} />
               All Project Pages
             </h3>
             <p className="text-slate-500 text-sm font-medium">Browse and manage every single page across all projects in this workspace.</p>
@@ -1129,7 +1113,7 @@ const ListingDashboard: React.FC = () => {
             <input 
               type="text" 
               placeholder="Search pages..."
-              className="pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500/20 outline-none w-64"
+              className="pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-[#eee1ba]/20 outline-none w-64"
               value={pageSearchTerm}
               onChange={(e) => setPageSearchTerm(e.target.value)}
             />
@@ -1208,7 +1192,7 @@ const ListingDashboard: React.FC = () => {
             <input 
               type="text" 
               placeholder="Search pages..."
-              className="pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500/20 outline-none w-64"
+              className="pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-[#eee1ba]/20 outline-none w-64"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -1234,7 +1218,7 @@ const ListingDashboard: React.FC = () => {
                     <div className="flex items-center gap-3">
                       <button 
                         onClick={() => handleTogglePageBookmark(item.id, true)}
-                        className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-black transition-all hover:scale-110 bg-indigo-50 text-indigo-600 hover:bg-indigo-100"
+                        className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-black transition-all hover:scale-110 bg-[#eee1ba]/10 text-black hover:bg-[#eee1ba]/15"
                         title="Remove Bookmark"
                       >
                         <Bookmark size={14} fill="currentColor" />
@@ -1291,7 +1275,7 @@ const ListingDashboard: React.FC = () => {
         <div className={`workspace-hub-top-pane transition-all duration-300 ${isSidebarCollapsed ? 'p-4 pb-2' : 'p-8 pb-4'}`}>
           <div className="flex items-center justify-between mb-10">
             <Link to="/dashboard" className={`flex items-center gap-3 group ${isSidebarCollapsed ? 'md:justify-center' : ''}`}>
-               <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-black text-sm shadow-md shadow-indigo-600/20">D</div>
+               <div className="w-8 h-8 rounded-lg bg-black flex items-center justify-center text-white font-black text-sm shadow-md shadow-black/20">D</div>
                {(!isSidebarCollapsed || isMobileSidebarOpen) && (
                  <span className="text-xl font-black text-slate-900 dark:text-white tracking-tighter uppercase whitespace-nowrap">Doc Hub</span>
                )}
@@ -1331,7 +1315,7 @@ const ListingDashboard: React.FC = () => {
             ) : (
               <button
                 onClick={() => setIsSidebarCollapsed(false)}
-                className="p-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/50 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 transition-all cursor-pointer flex items-center justify-center"
+                className="p-1.5 rounded-lg bg-[#eee1ba]/10 dark:bg-black/50 hover:bg-[#eee1ba]/15 dark:hover:bg-black/50 text-black dark:text-[#eee1ba] transition-all cursor-pointer flex items-center justify-center"
                 title="Expand Sidebar"
               >
                 <ChevronRight size={16} />
@@ -1393,13 +1377,13 @@ const ListingDashboard: React.FC = () => {
               collapsed={isSidebarCollapsed}
             />
             {!isSidebarCollapsed && (
-              <div className="mt-6 p-6 bg-indigo-50 dark:bg-indigo-950/40 rounded-2xl">
+              <div className="mt-6 p-6 bg-[#eee1ba]/10 dark:bg-black/40 rounded-2xl">
                  <div 
                     onClick={() => setIsStatusCollapsed(!isStatusCollapsed)}
                     className="flex items-center justify-between cursor-pointer select-none group/status"
                     title={isStatusCollapsed ? "Expand Status Details" : "Collapse Status Details"}
                  >
-                   <p className="text-[10px] font-black text-indigo-400 dark:text-indigo-350 uppercase tracking-widest flex items-center gap-1.5 group-hover/status:text-indigo-600 dark:group-hover/status:text-indigo-200 transition-colors">
+                   <p className="text-[10px] font-black text-[#eee1ba] dark:text-[#eee1ba] uppercase tracking-widest flex items-center gap-1.5 group-hover/status:text-black dark:group-hover/status:text-[#eee1ba]/25 transition-colors">
                       {isStatusCollapsed ? <ChevronRight size={11} /> : <ChevronDown size={11} />}
                       Workspace Status
                    </p>
@@ -1409,12 +1393,12 @@ const ListingDashboard: React.FC = () => {
                    <div className="mt-4 space-y-4">
                      <div className="flex items-center gap-2 mb-4">
                         <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                        <span className="text-xs font-bold text-indigo-900 dark:text-indigo-200">Synchronized</span>
+                        <span className="text-xs font-bold text-black dark:text-[#eee1ba]/25">Synchronized</span>
                      </div>
-                     <div className="h-1.5 bg-indigo-200 dark:bg-indigo-800 rounded-full overflow-hidden">
-                        <div className="h-full bg-indigo-600 w-3/4 rounded-full" />
+                     <div className="h-1.5 bg-[#eee1ba]/25 dark:bg-black rounded-full overflow-hidden">
+                        <div className="h-full bg-black w-3/4 rounded-full" />
                      </div>
-                     <p className="text-[9px] text-indigo-400 dark:text-indigo-300 mt-2 font-bold uppercase tracking-widest">Storage: 75% Used</p>
+                     <p className="text-[9px] text-[#eee1ba] dark:text-[#eee1ba]/40 mt-2 font-bold uppercase tracking-widest">Storage: 75% Used</p>
                    </div>
                  )}
               </div>
@@ -1439,12 +1423,12 @@ const ListingDashboard: React.FC = () => {
               <div>
                 <h2 className="text-lg font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
                    {workspace?.name || 'Main Workspace'}
-                   <span className="text-[10px] bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-300 px-2 py-0.5 rounded-full uppercase tracking-widest">Active</span>
+                   <span className="text-[10px] bg-[#eee1ba]/10 dark:bg-black text-black dark:text-[#eee1ba]/40 px-2 py-0.5 rounded-full uppercase tracking-widest">Active</span>
                 </h2>
                 <div className="flex items-center gap-2 text-[10px] text-slate-400 dark:text-slate-400 font-bold uppercase tracking-widest">
                    <span>Home</span>
                    <ChevronRight size={10} />
-                   <span className="text-indigo-600 dark:text-indigo-400">{currentView}</span>
+                   <span className="text-black dark:text-[#eee1ba]">{currentView}</span>
                 </div>
               </div>
            </div>
@@ -1477,7 +1461,7 @@ const ListingDashboard: React.FC = () => {
               </div>
               <button 
                 onClick={() => setShowCreateModal(true)}
-                className="bg-indigo-600 text-white p-2.5 rounded-xl hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100"
+                className="bg-black text-white p-2.5 rounded-xl hover:bg-black transition-all shadow-lg shadow-[#eee1ba]/15"
               >
                 <Plus size={20} />
               </button>
@@ -1504,19 +1488,19 @@ const ListingDashboard: React.FC = () => {
                   {currentView === 'settings' && (
                     <div className="bg-white rounded-[40px] border border-slate-100 p-12 min-h-[400px]">
                       <h3 className="text-2xl font-black text-slate-900 mb-8 uppercase tracking-widest flex items-center gap-3">
-                        <Settings className="text-indigo-600" />
+                        <Settings className="text-black" />
                         Workspace Configuration
                       </h3>
                        <div className="space-y-8 max-w-2xl">
                           <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100">
                             <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Workspace Name</label>
-                            <input className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold outline-none focus:ring-2 focus:ring-indigo-500/20" defaultValue={workspace?.name} />
+                            <input className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold outline-none focus:ring-2 focus:ring-[#eee1ba]/20" defaultValue={workspace?.name} />
                           </div>
                           <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100">
                             <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Description</label>
-                            <textarea className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium outline-none focus:ring-2 focus:ring-indigo-500/20 h-24" defaultValue={workspace?.description} />
+                            <textarea className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium outline-none focus:ring-2 focus:ring-[#eee1ba]/20 h-24" defaultValue={workspace?.description} />
                           </div>
-                          <button className="bg-indigo-600 text-white px-8 py-4 rounded-2xl font-black uppercase tracking-[0.2em] text-xs hover:bg-slate-900 transition-all shadow-xl shadow-indigo-100">
+                          <button className="bg-black text-white px-8 py-4 rounded-2xl font-black uppercase tracking-[0.2em] text-xs hover:bg-slate-900 transition-all shadow-xl shadow-[#eee1ba]/15">
                             Save Preferences
                           </button>
                        </div>
@@ -1620,7 +1604,7 @@ const ListingDashboard: React.FC = () => {
                     <CheckCircle2 size={32} />
                   </div>
                 ) : (
-                  <div className="w-16 h-16 bg-indigo-50 dark:bg-indigo-950/50 rounded-2xl flex items-center justify-center text-indigo-600 dark:text-indigo-400 mb-2 relative">
+                  <div className="w-16 h-16 bg-[#eee1ba]/10 dark:bg-black/50 rounded-2xl flex items-center justify-center text-black dark:text-[#eee1ba] mb-2 relative">
                     <Loader2 size={32} className="animate-spin" />
                   </div>
                 )}
@@ -1635,7 +1619,7 @@ const ListingDashboard: React.FC = () => {
                 <div className="space-y-2">
                   <div className="w-full bg-slate-100 dark:bg-slate-800 h-2.5 rounded-full overflow-hidden">
                     <motion.div 
-                      className={`h-full ${exportDone ? 'bg-emerald-500' : 'bg-indigo-600'}`}
+                      className={`h-full ${exportDone ? 'bg-emerald-500' : 'bg-black'}`}
                       initial={{ width: 0 }}
                       animate={{ width: `${exportProgress}%` }}
                       transition={{ duration: 0.2 }}
@@ -1718,7 +1702,7 @@ const ListingDashboard: React.FC = () => {
                       type="text" 
                       required
                       placeholder="e.g. Modern Physics Notes"
-                      className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-500/10 outline-none font-bold text-lg"
+                      className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-[#eee1ba]/10 outline-none font-bold text-lg"
                       value={newTitle}
                       onChange={(e) => setNewTitle(e.target.value)}
                     />
@@ -1727,7 +1711,7 @@ const ListingDashboard: React.FC = () => {
                     <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">A Brief Description</label>
                     <textarea 
                       placeholder="What are we working on here?"
-                      className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-500/10 outline-none min-h-[120px] font-medium resize-none"
+                      className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-[#eee1ba]/10 outline-none min-h-[120px] font-medium resize-none"
                       value={newDesc}
                       onChange={(e) => setNewDesc(e.target.value)}
                     />
@@ -1848,12 +1832,12 @@ const ListingDashboard: React.FC = () => {
                       value={projectSettingsNewTag}
                       onChange={(e) => setProjectSettingsNewTag(e.target.value)}
                       onKeyDown={(e) => { if (e.key === 'Enter') handleAddProjectSettingsTag(); }}
-                      className="flex-grow bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs font-bold focus:ring-1 focus:ring-indigo-500 focus:outline-none"
+                      className="flex-grow bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs font-bold focus:ring-1 focus:ring-[#eee1ba] focus:outline-none"
                     />
                     <button
                       type="button"
                       onClick={handleAddProjectSettingsTag}
-                      className="px-4 py-2.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-xl text-xs font-black uppercase tracking-wider"
+                      className="px-4 py-2.5 bg-[#eee1ba]/10 hover:bg-[#eee1ba]/15 text-black rounded-xl text-xs font-black uppercase tracking-wider"
                     >
                       Add
                     </button>

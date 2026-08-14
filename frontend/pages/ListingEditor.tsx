@@ -16,7 +16,6 @@
 
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import api from '../services/api/client';
 import { 
   ChevronLeft, CheckCircle2, Trash2, Maximize2, Minimize2, BookOpen,
   PanelLeftClose, PanelLeftOpen, FileText, Loader2
@@ -28,27 +27,14 @@ import Editor from '../components/editor/Editor';
 import { EditorSidebar } from '../components/editor/EditorSidebar';
 import { EditorStats } from '../components/editor/EditorStats';
 import { ComfortWorkspaceSettings } from '../components/workspace/ComfortWorkspaceSettings';
+import { listingService } from '../services/api/listing';
+import { pageService } from '../services/api/page';
 
 import SharedLoader from '../components/ui/Loader';
 
 const Loader: React.FC = () => (
   <SharedLoader size="lg" message="Loading editor controls..." />
 );
-
-const listingService = {
-  getAll: () => api.get("/listing"),
-  getById: (id: string) => api.get(`/listing/${id}`),
-  create: (data: any) => api.post("/listing", data),
-  update: (id: string, data: any) => api.put(`/listing/${id}`, data),
-  delete: (id: string) => api.delete(`/listing/${id}`),
-};
-
-const pageService = {
-  getByListing: (listingId: string) => api.get(`/page/${listingId}`),
-  create: (data: any) => api.post("/page", data),
-  update: (id: string, data: any) => api.put(`/page/${id}`, data),
-  delete: (id: string) => api.delete(`/page/${id}`),
-};
 
 const ListingEditor: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -376,7 +362,7 @@ const ListingEditor: React.FC = () => {
             {!isSidebarOpen && !isZenMode && (
               <button 
                 onClick={() => setIsSidebarOpen(true)}
-                className="absolute left-6 top-6 z-40 p-3 bg-white/95 dark:bg-[#15181e]/95 backdrop-blur-md rounded-xl border border-slate-200 dark:border-[#2d323f]/80 shadow-lg text-slate-500 hover:text-indigo-605 dark:text-slate-300 dark:hover:text-white hover:scale-105 transition-all cursor-pointer active:scale-95 group flex items-center justify-center gap-1.5 font-bold text-xs"
+                className="absolute left-6 top-6 z-40 p-3 bg-white/95 dark:bg-[#15181e]/95 backdrop-blur-md rounded-xl border border-slate-200 dark:border-[#2d323f]/80 shadow-lg text-slate-500 hover:text-[#eee1ba] dark:text-slate-300 dark:hover:text-white hover:scale-105 transition-all cursor-pointer active:scale-95 group flex items-center justify-center gap-1.5 font-bold text-xs"
                 title="Open Sidebar"
                 id="editor-open-sidebar-btn"
               >
@@ -435,7 +421,7 @@ const ListingEditor: React.FC = () => {
                 <p className="text-lg">Select a page to start editing</p>
                 <button 
                   onClick={handlePageAdd}
-                  className="mt-4 text-indigo-600 font-bold hover:underline"
+                  className="mt-4 text-black font-bold hover:underline"
                 >
                   Create your first page
                 </button>

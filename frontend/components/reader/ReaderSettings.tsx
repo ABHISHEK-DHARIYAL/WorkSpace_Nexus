@@ -40,7 +40,7 @@ export const ReaderSettings: React.FC<ReaderSettingsProps> = ({
           <button 
             id="reader-theme-light-btn"
             onClick={() => onThemeChange('light')} 
-            className={`p-3 rounded-xl border flex flex-col items-center justify-center text-xs font-bold gap-1 ${theme === 'light' ? 'bg-indigo-55/70 border-indigo-200 text-indigo-600' : 'border-transparent hover:bg-slate-100 dark:hover:bg-white/10'}`}
+            className={`p-3 rounded-xl border flex flex-col items-center justify-center text-xs font-bold gap-1 ${theme === 'light' ? 'bg-[#eee1ba]/70 border-[#eee1ba]/25 text-black' : 'border-transparent hover:bg-slate-100 dark:hover:bg-white/10'}`}
           >
             <Sun size={18} />
             <span className="text-[9px]">Slate</span>
@@ -56,7 +56,7 @@ export const ReaderSettings: React.FC<ReaderSettingsProps> = ({
           <button 
             id="reader-theme-dark-btn"
             onClick={() => onThemeChange('dark')} 
-            className={`p-3 rounded-xl border flex flex-col items-center justify-center text-xs font-bold gap-1 ${theme === 'dark' ? 'bg-indigo-600 border-indigo-550 text-white' : 'border-transparent hover:bg-slate-100 dark:hover:bg-white/10'}`}
+            className={`p-3 rounded-xl border flex flex-col items-center justify-center text-xs font-bold gap-1 ${theme === 'dark' ? 'bg-black border-[#eee1ba] text-white' : 'border-transparent hover:bg-slate-100 dark:hover:bg-white/10'}`}
           >
             <Moon size={18} />
             <span className="text-[9px]">Midnight</span>
@@ -93,21 +93,21 @@ export const ReaderSettings: React.FC<ReaderSettingsProps> = ({
               <button 
                 id="reader-lh-tight"
                 onClick={() => setLineHeight(1.2)} 
-                className={`px-2 py-1 rounded text-[10px] font-bold ${lineHeight === 1.2 ? 'bg-indigo-500 text-white' : 'bg-slate-100 hover:bg-slate-200/40 dark:bg-white/5 dark:hover:bg-white/10'}`}
+                className={`px-2 py-1 rounded text-[10px] font-bold ${lineHeight === 1.2 ? 'bg-[#eee1ba] text-white' : 'bg-slate-100 hover:bg-slate-200/40 dark:bg-white/5 dark:hover:bg-white/10'}`}
               >
                 Tight
               </button>
               <button 
                 id="reader-lh-normal"
                 onClick={() => setLineHeight(1.6)} 
-                className={`px-2 py-1 rounded text-[10px] font-bold ${lineHeight === 1.6 ? 'bg-indigo-500 text-white' : 'bg-slate-100 hover:bg-slate-200/40 dark:bg-white/5 dark:hover:bg-white/10'}`}
+                className={`px-2 py-1 rounded text-[10px] font-bold ${lineHeight === 1.6 ? 'bg-[#eee1ba] text-white' : 'bg-slate-100 hover:bg-slate-200/40 dark:bg-white/5 dark:hover:bg-white/10'}`}
               >
                 Normal
               </button>
               <button 
                 id="reader-lh-wide"
                 onClick={() => setLineHeight(2.0)} 
-                className={`px-2 py-1 rounded text-[10px] font-bold ${lineHeight === 2.0 ? 'bg-indigo-500 text-white' : 'bg-slate-100 hover:bg-slate-200/40 dark:bg-white/5 dark:hover:bg-white/10'}`}
+                className={`px-2 py-1 rounded text-[10px] font-bold ${lineHeight === 2.0 ? 'bg-[#eee1ba] text-white' : 'bg-slate-100 hover:bg-slate-200/40 dark:bg-white/5 dark:hover:bg-white/10'}`}
               >
                 Wide
               </button>
@@ -122,21 +122,21 @@ export const ReaderSettings: React.FC<ReaderSettingsProps> = ({
           <button 
             id="reader-aid-focus"
             onClick={() => { setFocusLine(!focusLine); setRulerMode(false); setReadingMode('standard'); }} 
-            className={`px-4 py-2 rounded-xl border text-[10px] font-black uppercase tracking-widest flex items-center gap-2 ${focusLine ? 'bg-indigo-550 border-indigo-550 text-white' : 'border-slate-200 hover:bg-slate-50 dark:border-white/10 dark:hover:bg-white/10'}`}
+            className={`px-4 py-2 rounded-xl border text-[10px] font-black uppercase tracking-widest flex items-center gap-2 ${focusLine ? 'bg-[#eee1ba] border-[#eee1ba] text-white' : 'border-slate-200 hover:bg-slate-50 dark:border-white/10 dark:hover:bg-white/10'}`}
           >
             <Focus size={14} /> Focus Line
           </button>
           <button 
             id="reader-aid-ruler"
             onClick={() => { setRulerMode(!rulerMode); setFocusLine(false); setReadingMode('standard'); }} 
-            className={`px-4 py-2 rounded-xl border text-[10px] font-black uppercase tracking-widest flex items-center gap-2 ${rulerMode ? 'bg-indigo-550 border-indigo-550 text-white' : 'border-slate-200 hover:bg-slate-50 dark:border-white/10 dark:hover:bg-white/10'}`}
+            className={`px-4 py-2 rounded-xl border text-[10px] font-black uppercase tracking-widest flex items-center gap-2 ${rulerMode ? 'bg-[#eee1ba] border-[#eee1ba] text-white' : 'border-slate-200 hover:bg-slate-50 dark:border-white/10 dark:hover:bg-white/10'}`}
           >
             <Ruler size={14} /> Ruler
           </button>
           <button 
             id="reader-aid-guide"
             onClick={() => { setReadingMode(readingMode === 'guide' ? 'standard' : 'guide'); setFocusLine(false); setRulerMode(false); }} 
-            className={`px-4 py-2 rounded-xl border text-[10px] font-black uppercase tracking-widest flex items-center gap-2 col-span-2 ${readingMode === 'guide' ? 'bg-indigo-550 border-indigo-550 text-white' : 'border-slate-200 hover:bg-slate-50 dark:border-white/10 dark:hover:bg-white/10'}`}
+            className={`px-4 py-2 rounded-xl border text-[10px] font-black uppercase tracking-widest flex items-center gap-2 col-span-2 ${readingMode === 'guide' ? 'bg-[#eee1ba] border-[#eee1ba] text-white' : 'border-slate-200 hover:bg-slate-50 dark:border-white/10 dark:hover:bg-white/10'}`}
           >
             <Eye size={14} /> Reading Guide Overlay
           </button>

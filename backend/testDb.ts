@@ -1,14 +1,15 @@
 import { testFirestoreConnection } from "./config/firebase";
-import { ListingService } from "./services/listingService";
+import { listingService } from "./di/container";
+
 
 async function main() {
   console.log("Starting test-get-by-id diagnostic...");
   await testFirestoreConnection();
   
   const id = "81jk4vr16mplr4rah";
-  console.log(`Querying ListingService.getById("${id}"):`);
+  console.log(`Querying listingService.getById("${id}"):`);
   try {
-    const listing = await ListingService.getById(id);
+    const listing = await listingService.getById(id);
     if (listing) {
       console.log("SUCCESS! Listing found:", listing);
     } else {

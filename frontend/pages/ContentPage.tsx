@@ -67,7 +67,7 @@ const ContentPage = () => {
         )}
       </div>
 
-      <span className="text-xs font-black uppercase tracking-widest text-indigo-600 dark:text-indigo-400">
+      <span className="text-xs font-black uppercase tracking-widest text-black dark:text-[#eee1ba]">
         Category: {content.category || 'General'}
       </span>
       <h1 className="text-4xl sm:text-5xl font-black text-slate-900 dark:text-white mt-2 mb-8 uppercase tracking-tight">

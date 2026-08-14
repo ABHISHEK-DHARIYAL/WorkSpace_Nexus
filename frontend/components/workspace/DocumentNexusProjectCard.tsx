@@ -57,18 +57,18 @@ export const DocumentNexusProjectCard: React.FC<DocumentNexusProjectCardProps> =
       onClick={() => { setSelectedProject(p); setCurrentMainTab('document-canvas'); }}
       className={`rounded-2xl border p-6 flex flex-col justify-between cursor-pointer transition-all hover:shadow-lg duration-250 ${
         selectedProject?.id === p.id 
-          ? 'bg-indigo-50/20 border-indigo-500 shadow-md ring-2 ring-indigo-500/10' 
+          ? 'bg-[#eee1ba]/20 border-[#eee1ba] shadow-md ring-2 ring-[#eee1ba]/10' 
           : 'bg-white border-slate-200 hover:border-slate-350'
       }`}
     >
       <div className="space-y-4">
         <div className="flex justify-between items-start">
-          <div className="p-2.5 bg-indigo-50 text-indigo-600 rounded-lg"><FileText size={20} /></div>
+          <div className="p-2.5 bg-[#eee1ba]/10 text-black rounded-lg"><FileText size={20} /></div>
           <div className="flex items-center gap-1">
             {/* Project Settings Trigger */}
             <button
               onClick={(e) => { e.stopPropagation(); handleOpenProjectSettings(p); }}
-              className="p-1.5 rounded border border-slate-250 text-slate-400 bg-white hover:text-indigo-600 hover:border-indigo-300 text-xs font-bold transition-all hover:scale-105 active:scale-95 mr-1"
+              className="p-1.5 rounded border border-slate-250 text-slate-400 bg-white hover:text-black hover:border-[#eee1ba]/40 text-xs font-bold transition-all hover:scale-105 active:scale-95 mr-1"
               title="Project Settings"
             >
               <Settings2 size={14} />
@@ -84,7 +84,7 @@ export const DocumentNexusProjectCard: React.FC<DocumentNexusProjectCardProps> =
             {allowedToEdit && (
               <button 
                 onClick={handleStartRename} 
-                className="p-1 px-2.5 hover:bg-slate-100 dark:hover:bg-slate-800 text-indigo-600 rounded border border-transparent text-xs font-bold transition-all hover:scale-105 active:scale-95"
+                className="p-1 px-2.5 hover:bg-slate-100 dark:hover:bg-slate-800 text-black rounded border border-transparent text-xs font-bold transition-all hover:scale-105 active:scale-95"
               >
                 Rename
               </button>
@@ -105,7 +105,7 @@ export const DocumentNexusProjectCard: React.FC<DocumentNexusProjectCardProps> =
                 type="text"
                 value={editTitle}
                 onChange={(e) => setEditTitle(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-250 rounded-lg p-2 text-xs font-bold text-slate-900 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:bg-white"
+                className="w-full bg-slate-50 border border-slate-250 rounded-lg p-2 text-xs font-bold text-slate-900 focus:outline-none focus:ring-1 focus:ring-[#eee1ba] focus:bg-white"
                 autoFocus
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') handleSaveRename(e as any);
@@ -127,7 +127,7 @@ export const DocumentNexusProjectCard: React.FC<DocumentNexusProjectCardProps> =
                 </button>
                 <button
                   onClick={handleSaveRename}
-                  className="px-2 py-1 text-[10px] bg-indigo-600 hover:bg-slate-900 text-white rounded font-bold transition-all hover:scale-105"
+                  className="px-2 py-1 text-[10px] bg-black hover:bg-slate-900 text-white rounded font-bold transition-all hover:scale-105"
                 >
                   Save
                 </button>
@@ -171,8 +171,8 @@ export const DocumentNexusProjectCard: React.FC<DocumentNexusProjectCardProps> =
             onClick={(e) => { e.stopPropagation(); setSelectedProject(p); setCurrentMainTab('document-canvas'); }}
             className={`font-black uppercase tracking-wider text-[10px] flex items-center gap-1 border-b transition-all ${
               selectedProject?.id === p.id 
-                ? 'text-indigo-600 border-indigo-600 font-extrabold' 
-                : 'text-slate-500 border-transparent hover:text-indigo-600 hover:border-indigo-600'
+                ? 'text-black border-black font-extrabold' 
+                : 'text-slate-500 border-transparent hover:text-black hover:border-black'
             }`}
           >
             {selectedProject?.id === p.id ? 'Workspace Bound ✓' : 'Load Document Workspace'}

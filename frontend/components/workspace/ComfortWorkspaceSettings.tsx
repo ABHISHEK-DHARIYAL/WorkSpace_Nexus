@@ -91,10 +91,10 @@ export const ComfortWorkspaceSettings: React.FC<ComfortWorkspaceSettingsProps> =
   }[theme] || 'bg-white/95 dark:bg-[#15181e]/95 border-slate-200 dark:border-[#2d323f]/80 text-slate-800 dark:text-white shadow-xl';
 
   const brandIconThemeClass = {
-    slate: 'bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400',
+    slate: 'bg-[#eee1ba]/10 dark:bg-black/40 text-black dark:text-[#eee1ba]',
     vanilla: 'bg-[#eadfca] dark:bg-[#342921] text-[#7d5d42] dark:text-[#edd6c1]',
-    midnight: 'bg-indigo-950/50 dark:bg-[#131929] text-indigo-400 dark:text-[#eee1ba] border border-indigo-500/10',
-  }[theme] || 'bg-indigo-50 dark:bg-indigo-950/40 text-indigo-605 dark:text-indigo-400';
+    midnight: 'bg-black/50 dark:bg-[#131929] text-[#eee1ba] dark:text-[#eee1ba] border border-[#eee1ba]/10',
+  }[theme] || 'bg-[#eee1ba]/10 dark:bg-black/40 text-[#eee1ba] dark:text-[#eee1ba]';
 
   const brandTitleThemeClass = {
     slate: 'text-slate-800 dark:text-white',
@@ -105,7 +105,7 @@ export const ComfortWorkspaceSettings: React.FC<ComfortWorkspaceSettingsProps> =
   const brandDescThemeClass = {
     slate: 'text-slate-400 dark:text-slate-500',
     vanilla: 'text-[#8c7462] dark:text-[#aba198]',
-    midnight: 'text-slate-450 dark:text-indigo-400/80',
+    midnight: 'text-slate-450 dark:text-[#eee1ba]/80',
   }[theme] || 'text-slate-400';
 
   const pillThemeClass = {
@@ -254,7 +254,7 @@ export const ComfortWorkspaceSettings: React.FC<ComfortWorkspaceSettingsProps> =
               <button
                 type="button"
                 onClick={onSeedGuides}
-                className="px-2.5 py-1.5 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white rounded-xl text-[9px] font-black uppercase tracking-wider flex items-center gap-1 transition-all shadow-sm cursor-pointer"
+                className="px-2.5 py-1.5 bg-gradient-to-r from-violet-600 to-black hover:from-violet-700 hover:to-black text-white rounded-xl text-[9px] font-black uppercase tracking-wider flex items-center gap-1 transition-all shadow-sm cursor-pointer"
               >
                 <Sparkles size={10} className="text-amber-300 animate-pulse" />
                 <span>Seed Guides</span>
@@ -291,7 +291,7 @@ export const ComfortWorkspaceSettings: React.FC<ComfortWorkspaceSettingsProps> =
                   : theme === 'midnight'
                     ? 'bg-[#eee1ba] border-[#eee1ba] text-black hover:bg-[#dfd4bd]'
                     : 'bg-slate-900 border-slate-950 text-white dark:bg-[#eee1ba] dark:text-black dark:border-[#eee1ba] hover:opacity-90'
-                : 'bg-indigo-600 border-indigo-700 text-white hover:bg-indigo-700'
+                : 'bg-black border-black text-white hover:bg-black'
             }`}
           >
             {isReaderMode ? <Edit2 size={10} /> : <BookOpen size={10} />}
@@ -326,7 +326,7 @@ export const ComfortWorkspaceSettings: React.FC<ComfortWorkspaceSettingsProps> =
                 ? 'text-[#8c7462] hover:text-[#5b4636] hover:bg-black/5' 
                 : theme === 'midnight' 
                   ? 'text-slate-400 hover:text-white hover:bg-white/5' 
-                  : 'text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5'
+                  : 'text-slate-500 hover:text-black dark:text-slate-400 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5'
             }`}
             title="Toggle outline index list view"
           >

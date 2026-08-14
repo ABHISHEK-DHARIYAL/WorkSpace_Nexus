@@ -763,12 +763,12 @@ export function PublicContentContainer() {
                       value={newProjectTag}
                       onChange={(e) => setNewProjectTag(e.target.value)}
                       onKeyDown={(e) => { if (e.key === 'Enter') handleAddTag(); }}
-                      className="flex-grow bg-slate-50 dark:bg-black/20 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2.5 text-xs focus:ring-1 focus:ring-indigo-500 focus:outline-none"
+                      className="flex-grow bg-slate-50 dark:bg-black/20 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2.5 text-xs focus:ring-1 focus:ring-[#eee1ba] focus:outline-none"
                     />
                     <button
                       type="button"
                       onClick={handleAddTag}
-                      className="px-4 py-2.5 bg-indigo-50 text-indigo-700 dark:bg-[#eee1ba] dark:text-black rounded-xl text-xs font-black uppercase tracking-wider"
+                      className="px-4 py-2.5 bg-[#eee1ba]/10 text-black dark:bg-[#eee1ba] dark:text-black rounded-xl text-xs font-black uppercase tracking-wider"
                     >
                       Add
                     </button>
@@ -888,7 +888,7 @@ export function PublicContentContainer() {
                     {adminActionProject.isFeatured ? (
                       <button
                         onClick={() => handleExecuteAdminAction('unfeature')}
-                        className="py-3 px-2.5 bg-indigo-50 text-indigo-700 dark:bg-indigo-950/25 border border-indigo-500/10 text-xs font-black uppercase rounded-2xl hover:bg-indigo-100 transition-colors"
+                        className="py-3 px-2.5 bg-[#eee1ba]/10 text-black dark:bg-black/25 border border-[#eee1ba]/10 text-xs font-black uppercase rounded-2xl hover:bg-[#eee1ba]/15 transition-colors"
                       >
                         Unfeature Best
                       </button>

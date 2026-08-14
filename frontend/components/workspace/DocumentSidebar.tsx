@@ -124,8 +124,8 @@ export const DocumentSidebar: React.FC<DocumentSidebarProps> = ({
       contentView: 'bg-[#0f1116]',
       itemRow: 'bg-[#151922] border-[#222938] hover:bg-[#1c2230] hover:border-[#38435c] text-slate-300 hover:text-white',
       itemTitle: 'text-slate-200 group-hover:text-white',
-      itemBadge: 'bg-[#1e2635] text-indigo-300 font-medium',
-      pathBadge: 'bg-[#1e2635] text-indigo-300',
+      itemBadge: 'bg-[#1e2635] text-[#eee1ba]/40 font-medium',
+      pathBadge: 'bg-[#1e2635] text-[#eee1ba]/40',
       textMuted: 'text-slate-400',
     };
   }, [readerTheme]);
@@ -161,7 +161,7 @@ export const DocumentSidebar: React.FC<DocumentSidebarProps> = ({
       {isSidebarCollapsed ? (
         <div className="flex flex-col items-center py-4 gap-4 h-full">
           {/* Compact collapsed view */}
-          <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-black text-sm shadow-md shadow-indigo-600/20">
+          <div className="w-8 h-8 rounded-lg bg-black flex items-center justify-center text-white font-black text-sm shadow-md shadow-black/20">
             D
           </div>
           
@@ -169,7 +169,7 @@ export const DocumentSidebar: React.FC<DocumentSidebarProps> = ({
           
           <button
             onClick={() => setIsSidebarCollapsed(false)}
-            className="p-2 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 font-bold transition-all cursor-pointer flex items-center justify-center"
+            className="p-2 rounded-xl bg-[#eee1ba]/10 dark:bg-black/50 hover:bg-[#eee1ba]/15 dark:hover:bg-black/50 text-black dark:text-[#eee1ba] font-bold transition-all cursor-pointer flex items-center justify-center"
             title="Expand Sidebar"
           >
             <ChevronRight size={16} />
@@ -184,7 +184,7 @@ export const DocumentSidebar: React.FC<DocumentSidebarProps> = ({
               setIsSidebarCollapsed(false);
             }}
             className={`p-2 rounded-xl transition-all cursor-pointer relative ${
-              activeTab === 'pages' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-[#1a1f29]'
+              activeTab === 'pages' ? 'bg-black text-white shadow-sm' : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-[#1a1f29]'
             }`}
             title="Pages"
           >
@@ -197,7 +197,7 @@ export const DocumentSidebar: React.FC<DocumentSidebarProps> = ({
               setIsSidebarCollapsed(false);
             }}
             className={`p-2 rounded-xl transition-all cursor-pointer relative ${
-              activeTab === 'index' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-[#1a1f29]'
+              activeTab === 'index' ? 'bg-black text-white shadow-sm' : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-[#1a1f29]'
             }`}
             title="Index"
           >
@@ -207,7 +207,7 @@ export const DocumentSidebar: React.FC<DocumentSidebarProps> = ({
           <div className="mt-auto flex flex-col items-center gap-4 pb-2">
             <button
               onClick={activeTab === 'index' ? onIndexAdd : onPageAdd}
-              className="p-2 rounded-xl bg-slate-100 hover:bg-indigo-600 dark:bg-slate-800 hover:text-white text-indigo-600 dark:text-indigo-400 transition-all cursor-pointer"
+              className="p-2 rounded-xl bg-slate-100 hover:bg-black dark:bg-slate-800 hover:text-white text-black dark:text-[#eee1ba] transition-all cursor-pointer"
               title={activeTab === 'index' ? "Add Index Item" : "Add Page"}
             >
               <Plus size={18} />
@@ -246,7 +246,7 @@ export const DocumentSidebar: React.FC<DocumentSidebarProps> = ({
             <input
               type="text"
               placeholder={activeTab === 'pages' ? "Search page titles..." : "Search index outline elements..."}
-              className={`w-full border focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/20 rounded-lg py-1.5 pl-9 pr-8 text-[11.5px] outline-none transition-all ${sidebarClasses.searchInput}`}
+              className={`w-full border focus:border-[#eee1ba] focus:ring-1 focus:ring-[#eee1ba]/20 rounded-lg py-1.5 pl-9 pr-8 text-[11.5px] outline-none transition-all ${sidebarClasses.searchInput}`}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -281,7 +281,7 @@ export const DocumentSidebar: React.FC<DocumentSidebarProps> = ({
                   }}
                   className={`w-1/2 py-2 px-3 rounded-lg font-black text-[10px] uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 cursor-pointer text-center select-none ${
                     (activeTab as string) === 'pages'
-                      ? 'bg-indigo-600 text-white shadow-sm font-black'
+                      ? 'bg-black text-white shadow-sm font-black'
                       : `${sidebarClasses.textMuted} hover:text-slate-950 dark:hover:text-white`
                   }`}
                 >
@@ -297,7 +297,7 @@ export const DocumentSidebar: React.FC<DocumentSidebarProps> = ({
                   }}
                   className={`w-1/2 py-2 px-3 rounded-lg font-black text-[10px] uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 cursor-pointer text-center select-none ${
                     (activeTab as string) === 'index'
-                      ? 'bg-indigo-600 text-white shadow-sm font-black'
+                      ? 'bg-black text-white shadow-sm font-black'
                       : `${sidebarClasses.textMuted} hover:text-slate-950 dark:hover:text-white`
                   }`}
                 >
@@ -307,7 +307,7 @@ export const DocumentSidebar: React.FC<DocumentSidebarProps> = ({
               </div>
               <button
                 onClick={onPageAdd}
-                className="p-1.5 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white rounded-lg text-[10px] font-bold flex items-center justify-center transition-all shadow-sm flex-shrink-0"
+                className="p-1.5 bg-black hover:bg-black active:bg-black text-white rounded-lg text-[10px] font-bold flex items-center justify-center transition-all shadow-sm flex-shrink-0"
                 title="Create New Page"
               >
                 <Plus size={12} />
@@ -355,7 +355,7 @@ export const DocumentSidebar: React.FC<DocumentSidebarProps> = ({
                             }}
                             className={`group flex items-center justify-between p-3 rounded-xl cursor-pointer transition-all border ${
                               isCurrent
-                                ? 'bg-indigo-600 text-white border-indigo-700 font-bold shadow-md shadow-indigo-600/10'
+                                ? 'bg-black text-white border-black font-bold shadow-md shadow-black/10'
                                 : sidebarClasses.itemRow
                             }`}
                           >
@@ -364,7 +364,7 @@ export const DocumentSidebar: React.FC<DocumentSidebarProps> = ({
                                 <input
                                   autoFocus
                                   type="text"
-                                  className="flex-grow bg-white text-slate-900 px-2.5 py-1 rounded-lg text-[11px] border border-slate-300 font-semibold outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/20"
+                                  className="flex-grow bg-white text-slate-900 px-2.5 py-1 rounded-lg text-[11px] border border-slate-300 font-semibold outline-none focus:border-[#eee1ba] focus:ring-1 focus:ring-[#eee1ba]/20"
                                   value={editingPageTitle}
                                   onChange={(e) => setEditingPageTitle(e.target.value)}
                                   onKeyDown={(e) => {
@@ -397,7 +397,7 @@ export const DocumentSidebar: React.FC<DocumentSidebarProps> = ({
                               <>
                                 {/* Page Monospace Badge */}
                                 <span className={`text-[9px] font-mono px-1.5 py-0.5 rounded leading-none ${
-                                  isCurrent ? 'bg-indigo-550/40 text-indigo-100 font-bold' : sidebarClasses.itemBadge
+                                  isCurrent ? 'bg-[#eee1ba]/40 text-[#eee1ba]/15 font-bold' : sidebarClasses.itemBadge
                                 }`}>
                                   Page {pageDisplayNumber}
                                 </span>
@@ -418,7 +418,7 @@ export const DocumentSidebar: React.FC<DocumentSidebarProps> = ({
                                       setEditingPageTitle(page.title);
                                     }}
                                     className={`p-1 rounded-md transition-colors ${
-                                      isCurrent ? 'hover:bg-indigo-500 text-white' : 'hover:bg-slate-200/50 text-slate-500 hover:text-[#5b4636]'
+                                      isCurrent ? 'hover:bg-[#eee1ba] hover:text-black text-white' : 'hover:bg-slate-200/50 text-slate-500 hover:text-[#5b4636]'
                                     }`}
                                     title="Edit Title"
                                   >
@@ -430,7 +430,7 @@ export const DocumentSidebar: React.FC<DocumentSidebarProps> = ({
                                       onPageDelete(page.id);
                                     }}
                                     className={`p-1 rounded-md transition-colors ${
-                                      isCurrent ? 'hover:bg-indigo-500 text-white' : 'hover:bg-slate-200/50 text-slate-500 hover:text-red-500'
+                                      isCurrent ? 'hover:bg-[#eee1ba] hover:text-black text-white' : 'hover:bg-slate-200/50 text-slate-500 hover:text-red-500'
                                     }`}
                                     title="Delete Page"
                                   >
@@ -465,7 +465,7 @@ export const DocumentSidebar: React.FC<DocumentSidebarProps> = ({
                   }}
                   className={`w-1/2 py-2 px-3 rounded-lg font-black text-[10px] uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 cursor-pointer text-center select-none ${
                     (activeTab as string) === 'pages'
-                      ? 'bg-indigo-600 text-white shadow-sm font-black'
+                      ? 'bg-black text-white shadow-sm font-black'
                       : `${sidebarClasses.textMuted} hover:text-slate-900 dark:hover:text-white hover:bg-white/60`
                   }`}
                 >
@@ -481,7 +481,7 @@ export const DocumentSidebar: React.FC<DocumentSidebarProps> = ({
                   }}
                   className={`w-1/2 py-2 px-3 rounded-lg font-black text-[10px] uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 cursor-pointer text-center select-none ${
                     (activeTab as string) === 'index'
-                      ? 'bg-indigo-600 text-white shadow-sm font-black'
+                      ? 'bg-black text-white shadow-sm font-black'
                       : `${sidebarClasses.textMuted} hover:text-slate-900 dark:hover:text-white hover:bg-white/60`
                   }`}
                 >
@@ -491,7 +491,7 @@ export const DocumentSidebar: React.FC<DocumentSidebarProps> = ({
               </div>
               <button
                 onClick={onIndexAdd}
-                className="p-1.5 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white rounded-lg text-[10px] font-bold flex items-center justify-center transition-all shadow-sm flex-shrink-0"
+                className="p-1.5 bg-black hover:bg-black active:bg-black text-white rounded-lg text-[10px] font-bold flex items-center justify-center transition-all shadow-sm flex-shrink-0"
                 title="Create New Index"
               >
                 <Plus size={12} />
@@ -542,12 +542,12 @@ export const DocumentSidebar: React.FC<DocumentSidebarProps> = ({
                             onClick={() => onIndexSelect(item.linkedPage, item.linkedSectionId)}
                             className={`group flex items-start gap-4 p-3 rounded-xl cursor-pointer transition-all border ${
                               isCurrent
-                                ? 'bg-indigo-600 text-white border-indigo-700 font-bold shadow-md shadow-indigo-600/10'
+                                ? 'bg-black text-white border-black font-bold shadow-md shadow-black/10'
                                 : sidebarClasses.itemRow
                             }`}
                           >
                             <span className={`text-[9px] font-mono px-1.5 py-0.5 rounded leading-none mt-0.5 select-none ${
-                              isCurrent ? 'bg-indigo-550/40 text-indigo-100 font-bold' : sidebarClasses.itemBadge
+                              isCurrent ? 'bg-[#eee1ba]/40 text-[#eee1ba]/15 font-bold' : sidebarClasses.itemBadge
                             }`}>
                               Idx {sequentialNumber}
                             </span>
@@ -560,10 +560,10 @@ export const DocumentSidebar: React.FC<DocumentSidebarProps> = ({
                               </div>
                               {linkedBreadcrumb && (
                                 <div className={`text-[9.5px] truncate mt-1 font-medium flex items-center gap-1 ${
-                                  isCurrent ? 'text-indigo-100' : 'opacity-80'
+                                  isCurrent ? 'text-[#eee1ba]/15' : 'opacity-80'
                                 }`}>
                                   <span className={`text-[8px] px-1.5 py-0.5 rounded leading-none select-none font-bold ${
-                                    isCurrent ? 'bg-indigo-550/50 text-indigo-100' : sidebarClasses.pathBadge
+                                    isCurrent ? 'bg-[#eee1ba]/50 text-[#eee1ba]/15' : sidebarClasses.pathBadge
                                   }`}>Path</span>
                                   <span className="truncate">{linkedBreadcrumb}</span>
                                 </div>
@@ -576,7 +576,7 @@ export const DocumentSidebar: React.FC<DocumentSidebarProps> = ({
                                 onIndexDelete(item.id);
                               }}
                               className={`opacity-0 group-hover:opacity-100 p-1 rounded-md transition-all flex-shrink-0 ${
-                                isCurrent ? 'hover:bg-indigo-500 text-white' : 'hover:bg-slate-200/50 text-slate-500 hover:text-red-500'
+                                isCurrent ? 'hover:bg-[#eee1ba] hover:text-black text-white' : 'hover:bg-slate-200/50 text-slate-500 hover:text-red-500'
                               }`}
                               title="Delete Index"
                             >

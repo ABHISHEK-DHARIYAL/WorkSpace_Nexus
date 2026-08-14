@@ -104,7 +104,7 @@ export const DocumentNexusProjectsView: React.FC<DocumentNexusProjectsViewProps>
                       setSelectedProject(p);
                       setCurrentMainTab('document-canvas');
                     }}
-                    className="px-3 py-1.5 bg-indigo-600 hover:bg-slate-900 text-white rounded-lg font-bold transition-colors"
+                    className="px-3 py-1.5 bg-black hover:bg-slate-900 text-white rounded-lg font-bold transition-colors"
                   >
                     Open Workspace
                   </button>

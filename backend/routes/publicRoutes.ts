@@ -1,18 +1,18 @@
 import { Router } from "express";
 import { PublicController } from "../controllers/publicController";
-import { authenticate, optionalAuthenticate } from "../middleware/auth";
+import { authenticate } from "../middleware/auth";
 import { checkDb } from "../middleware/checkDb";
 
 const router = Router();
 
-// Public Exploration Dashboard / Nexus
-router.get("/dashboardHub", optionalAuthenticate, checkDb, PublicController.getDashboardHub);
-router.get("/documentNexus", optionalAuthenticate, checkDb, PublicController.getDocumentNexus);
+// Public Exploration Dashboard / Nexus -- now requires login site-wide
+router.get("/dashboardHub", authenticate, checkDb, PublicController.getDashboardHub);
+router.get("/documentNexus", authenticate, checkDb, PublicController.getDocumentNexus);
 
 // public listings / details
-router.get("/projects", optionalAuthenticate, checkDb, PublicController.getProjects);
-router.get("/project/:id", optionalAuthenticate, checkDb, PublicController.getProjectById);
-router.get("/page/:id", optionalAuthenticate, checkDb, PublicController.getPageById);
+router.get("/projects", authenticate, checkDb, PublicController.getProjects);
+router.get("/project/:id", authenticate, checkDb, PublicController.getProjectById);
+router.get("/page/:id", authenticate, checkDb, PublicController.getPageById);
 
 // Update / Toggle Project Visibility -> Strict Authenticate
 router.patch("/project/:id/visibility", authenticate, checkDb, PublicController.updateProjectVisibility);

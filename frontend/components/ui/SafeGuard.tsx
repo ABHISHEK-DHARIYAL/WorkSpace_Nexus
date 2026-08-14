@@ -83,7 +83,7 @@ export class SafeGuard extends Component<Props, State> {
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
               <button
                 onClick={this.handleReset}
-                className="w-full sm:w-auto px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+                className="w-full sm:w-auto px-6 py-3 bg-black hover:bg-black text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
                 <RotateCcw className="h-4 w-4" />
                 Hard Reset & Reload

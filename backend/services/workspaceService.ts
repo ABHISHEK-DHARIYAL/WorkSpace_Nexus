@@ -1,132 +1,124 @@
-import { 
-  collection, 
-  getDocs, 
-  getDoc, 
-  doc, 
-  addDoc,
-  setDoc,
-  updateDoc, 
-  deleteDoc, 
-  query, 
-  where, 
-  orderBy,
-  db
-} from "../config/firebase";
+import { IWorkspaceRepository, WorkspaceRecord } from '../repositories/IWorkspaceRepository';
+import { IListingRepository } from '../repositories/IListingRepository';
+import { IWorkspaceService, CreateWorkspaceInput, UpdateWorkspaceInput } from './IWorkspaceService';
+import { IListingService } from './IListingService';
+import { NotFoundError } from '../errors';
+import { ILogger } from '../utils/logger';
+import { logger as defaultLogger } from '../utils/logger';
 
-export class WorkspaceService {
-  static async getAllByUser(userId: string) {
-    const q = query(
-      collection(db, "workspaceHubWorkspaces"), 
-      where("owner", "==", userId)
+/**
+ * All business rules for workspaces live here, and only here:
+ *   - every user gets an auto-created "Main Workspace" the first time they
+ *     have none
+ *   - a workspace's projectCount is continuously auto-healed against the
+ *     real listing count rather than trusted as a stored value
+ *   - deleting a workspace deletes every listing inside it too (and, by
+ *     extension via IListingService.delete, every page and highlight each
+ *     of those listings owns) — a workspace is the root of that whole tree,
+ *     so nothing should be left behind as an orphan when it's removed
+ *
+ * This class knows nothing about Express (no req/res) and nothing about
+ * Firestore (only the repository/service abstractions) — all dependencies
+ * are injected via the constructor (Dependency Inversion), so this class is
+ * trivially unit-testable with fakes and the persistence layer can be
+ * swapped without touching a single line here.
+ */
+export class WorkspaceServiceImpl implements IWorkspaceService {
+  constructor(
+    private readonly workspaceRepo: IWorkspaceRepository,
+    private readonly listingRepo: IListingRepository,
+    private readonly listingService: IListingService,
+    private readonly logger: ILogger = defaultLogger
+  ) {}
+
+  async getAllByUser(owner: string): Promise<WorkspaceRecord[]> {
+    let workspaces = await this.workspaceRepo.findAllByOwner(owner);
+    workspaces.sort(
+      (a, b) => new Date(b.updatedAt || 0).getTime() - new Date(a.updatedAt || 0).getTime()
     );
-    const snapshot = await getDocs(q);
-    let workspaces = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() as any }));
-    workspaces.sort((a, b) => new Date(b.updatedAt || 0).getTime() - new Date(a.updatedAt || 0).getTime());
 
     if (workspaces.length === 0) {
-      const defaultId = `main-${userId.replace(/[^a-zA-Z0-9]/g, '-')}`;
-      const defaultWs = {
-        name: "Main Workspace",
-        description: "Your default workspace for projects.",
-        owner: userId,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        projectCount: 0
-      };
-      await setDoc(doc(db, "workspaceHubWorkspaces", defaultId), defaultWs);
-      workspaces = [{ id: defaultId, ...defaultWs }];
+      workspaces = [await this.createDefaultWorkspace(owner)];
     }
 
-    // Fetch all listings owned by this user to dynamically calculate and auto-heal projectCount (excluding Document Nexus projects)
-    try {
-      const listingsQuery = query(
-        collection(db, "workspaceHubProjects"),
-        where("owner", "==", userId)
-      );
-      const listingsSnapshot = await getDocs(listingsQuery);
-      const allListings = listingsSnapshot.docs.map(d => d.data());
-
-      for (const ws of workspaces) {
-        const isMain = ws.id.startsWith('main-');
-        const wsListings = allListings.filter(l => {
-          if (isMain) {
-            return !l.workspaceId || l.workspaceId === ws.id || l.workspaceId === 'main';
-          }
-          return l.workspaceId === ws.id;
-        });
-        const realCount = wsListings.length;
-        if (ws.projectCount !== realCount) {
-          const docRef = doc(db, "workspaceHubWorkspaces", ws.id);
-          await updateDoc(docRef, { projectCount: realCount });
-          ws.projectCount = realCount;
-        }
-      }
-    } catch (err) {
-      console.error("Failed to dynamically sync project counts:", err);
-    }
-
+    await this.syncProjectCounts(workspaces, owner);
     return workspaces;
   }
 
-  static async getById(id: string) {
-    const docRef = doc(db, "workspaceHubWorkspaces", id);
-    const docSnap = await getDoc(docRef);
-    if (!docSnap.exists()) return null;
-    const ws = { id: docSnap.id, ...docSnap.data() as any };
+  async getById(id: string): Promise<WorkspaceRecord> {
+    const workspace = await this.workspaceRepo.findById(id);
+    if (!workspace) {
+      throw new NotFoundError('Workspace not found');
+    }
+    await this.syncProjectCounts([workspace], workspace.owner);
+    return workspace;
+  }
 
-    // Dynamically calculate and sync projectCount (excluding Document Nexus projects)
+  async create(input: CreateWorkspaceInput, owner: string): Promise<WorkspaceRecord> {
+    const now = new Date().toISOString();
+    return this.workspaceRepo.create({
+      name: input.name,
+      description: input.description || '',
+      owner,
+      createdAt: now,
+      updatedAt: now,
+      projectCount: 0,
+    });
+  }
+
+  async update(id: string, input: UpdateWorkspaceInput): Promise<WorkspaceRecord> {
+    return this.workspaceRepo.update(id, { ...input, updatedAt: new Date().toISOString() });
+  }
+
+  async delete(id: string): Promise<void> {
+    const workspace = await this.workspaceRepo.findById(id);
+    if (workspace) {
+      const listingsInWorkspace = await this.listingService.getByWorkspace(id, workspace.owner);
+      await Promise.all(listingsInWorkspace.map((listing) => this.listingService.delete(listing.id)));
+    }
+    await this.workspaceRepo.delete(id);
+  }
+
+  /** Business rule: a brand-new user always gets one default workspace to start in. */
+  private async createDefaultWorkspace(owner: string): Promise<WorkspaceRecord> {
+    const defaultId = `main-${owner.replace(/[^a-zA-Z0-9]/g, '-')}`;
+    const now = new Date().toISOString();
+    return this.workspaceRepo.createWithId(defaultId, {
+      name: 'Main Workspace',
+      description: 'Your default workspace for projects.',
+      owner,
+      createdAt: now,
+      updatedAt: now,
+      projectCount: 0,
+    });
+  }
+
+  /**
+   * Business rule: projectCount is never trusted as a stored value — it's
+   * recomputed from real listing data and the record auto-healed if it
+   * drifts. Mutates the passed-in records in place (matching prior behavior)
+   * so callers see the corrected count immediately.
+   */
+  private async syncProjectCounts(workspaces: WorkspaceRecord[], owner: string): Promise<void> {
     try {
-      const listingsQuery = query(
-        collection(db, "workspaceHubProjects"),
-        where("owner", "==", ws.owner)
-      );
-      const listingsSnapshot = await getDocs(listingsQuery);
-      const isMain = ws.id.startsWith('main-');
-      const wsListings = listingsSnapshot.docs.map(d => d.data()).filter(l => {
-        if (isMain) {
-          return !l.workspaceId || l.workspaceId === ws.id || l.workspaceId === 'main';
+      const allListings = await this.listingRepo.findAllByOwner(owner);
+
+      for (const ws of workspaces) {
+        const isMain = ws.id.startsWith('main-');
+        const wsListingCount = allListings.filter((listing) => {
+          if (isMain) {
+            return !listing.workspaceId || listing.workspaceId === ws.id || listing.workspaceId === 'main';
+          }
+          return listing.workspaceId === ws.id;
+        }).length;
+
+        if (ws.projectCount !== wsListingCount) {
+          await this.workspaceRepo.updateProjectCount(ws.id, wsListingCount);
+          ws.projectCount = wsListingCount;
         }
-        return l.workspaceId === ws.id;
-      });
-      const realCount = wsListings.length;
-      if (ws.projectCount !== realCount) {
-        await updateDoc(docRef, { projectCount: realCount });
-        ws.projectCount = realCount;
       }
     } catch (err) {
-      console.error("Failed to dynamically sync projectCount for workspace by id:", err);
+      this.logger.error('Failed to dynamically sync workspace project counts', err, { owner });
     }
-
-    return ws;
-  }
-
-  static async create(data: any, ownerId: string) {
-    const newWorkspace = {
-      name: data.name,
-      description: data.description || "",
-      owner: ownerId,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      projectCount: 0
-    };
-    const docRef = await addDoc(collection(db, "workspaceHubWorkspaces"), newWorkspace);
-    return { id: docRef.id, ...newWorkspace };
-  }
-
-  static async update(id: string, data: any) {
-    const docRef = doc(db, "workspaceHubWorkspaces", id);
-    const updateData = {
-      ...data,
-      updatedAt: new Date().toISOString()
-    };
-    await updateDoc(docRef, updateData);
-    return { id, ...updateData };
-  }
-
-  static async delete(id: string) {
-    // Note: We might want to handle what happens to listings in this workspace
-    // For now, just delete the workspace
-    await deleteDoc(doc(db, "workspaceHubWorkspaces", id));
-    return { message: "Workspace deleted successfully" };
   }
 }

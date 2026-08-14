@@ -48,7 +48,7 @@ export const WorkspaceHubProjectsView: React.FC<WorkspaceHubProjectsViewProps> =
           <input 
             type="text" 
             placeholder="Filter projects..." 
-            className="w-full pl-12 pr-4 py-4 bg-white border border-slate-200 rounded-2xl focus:ring-2 focus:ring-indigo-500/20 outline-none shadow-sm transition-all text-slate-900 font-medium placeholder:text-slate-400"
+            className="w-full pl-12 pr-4 py-4 bg-white border border-slate-200 rounded-2xl focus:ring-2 focus:ring-[#eee1ba]/20 outline-none shadow-sm transition-all text-slate-900 font-medium placeholder:text-slate-400"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -79,7 +79,7 @@ export const WorkspaceHubProjectsView: React.FC<WorkspaceHubProjectsViewProps> =
           </div>
           <button 
             onClick={() => setShowCreateModal(true)}
-            className="p-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100"
+            className="p-3 bg-black text-white rounded-xl hover:bg-black transition-all shadow-lg shadow-[#eee1ba]/15"
           >
             <Plus size={20} />
           </button>
@@ -93,7 +93,7 @@ export const WorkspaceHubProjectsView: React.FC<WorkspaceHubProjectsViewProps> =
           <p className="text-slate-500 mb-8">Get started by creating your first project!</p>
           <button 
             onClick={() => setShowCreateModal(true)}
-            className="text-indigo-600 font-bold hover:underline"
+            className="text-black font-bold hover:underline"
           >
             Create your first project
           </button>
@@ -152,7 +152,7 @@ export const WorkspaceHubProjectsView: React.FC<WorkspaceHubProjectsViewProps> =
                           <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
                             <input 
                               autoFocus
-                              className="text-sm font-bold text-slate-900 border-b-2 border-indigo-600 outline-none bg-slate-50 px-2 py-1 rounded"
+                              className="text-sm font-bold text-slate-900 border-b-2 border-black outline-none bg-slate-50 px-2 py-1 rounded"
                               value={tempTitle}
                               onChange={(e) => setTempTitle(e.target.value)}
                               onKeyDown={(e) => {
@@ -164,7 +164,7 @@ export const WorkspaceHubProjectsView: React.FC<WorkspaceHubProjectsViewProps> =
                             <button onClick={() => setEditingId(null)} className="p-1.5 bg-red-50 text-red-600 rounded-lg hover:bg-red-100"><X size={14} /></button>
                           </div>
                         ) : (
-                          <span className="font-bold text-slate-700 hover:text-indigo-600 transition-colors cursor-pointer" onClick={() => navigate(`/listing/read/${listing.id}`)}>
+                          <span className="font-bold text-slate-700 hover:text-black transition-colors cursor-pointer" onClick={() => navigate(`/listing/read/${listing.id}`)}>
                             {listing.title}
                           </span>
                         )}
@@ -174,7 +174,7 @@ export const WorkspaceHubProjectsView: React.FC<WorkspaceHubProjectsViewProps> =
                       <span className="text-sm text-slate-500 line-clamp-1">{listing.description || 'No description provided.'}</span>
                     </td>
                     <td className="px-8 py-5">
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-indigo-50 text-indigo-600 text-[10px] font-black uppercase rounded-lg border border-indigo-100">
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#eee1ba]/10 text-black text-[10px] font-black uppercase rounded-lg border border-[#eee1ba]/15">
                         <FileText size={12} />
                         {listing.pages?.length || 0} {listing.pages?.length === 1 ? 'Page' : 'Pages'}
                       </span>

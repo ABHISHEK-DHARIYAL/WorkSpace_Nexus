@@ -197,7 +197,7 @@ const FloatingToolbar: React.FC<FloatingToolbarProps> = ({ editor, listingId, pa
       className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 flex items-center gap-1 p-2 bg-white/95 dark:bg-[#15181e]/95 backdrop-blur-xl border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl max-w-[95vw] overflow-x-auto md:max-w-none md:overflow-visible custom-scrollbar"
     >
       {/* Advanced Annotation Group (Highlighter + Underline + Eraser) */}
-      <div className="flex items-center gap-1 p-1 bg-indigo-50/50 rounded-xl border border-indigo-100">
+      <div className="flex items-center gap-1 p-1 bg-[#eee1ba]/50 rounded-xl border border-[#eee1ba]/15">
         <div className="relative group/highlight">
           <button 
             onMouseDown={(e) => e.preventDefault()}
@@ -220,7 +220,7 @@ const FloatingToolbar: React.FC<FloatingToolbarProps> = ({ editor, listingId, pa
               e.preventDefault();
               setShowHighlightPicker(!showHighlightPicker);
             }}
-            className={`p-2 rounded-lg transition-all flex flex-col items-center ${activeTools.highlight ? 'bg-yellow-400 text-slate-900 shadow-sm' : showHighlightPicker ? 'bg-white shadow-sm text-indigo-600' : 'hover:bg-white/50 text-slate-600'}`}
+            className={`p-2 rounded-lg transition-all flex flex-col items-center ${activeTools.highlight ? 'bg-yellow-400 text-slate-900 shadow-sm' : showHighlightPicker ? 'bg-white shadow-sm text-black' : 'hover:bg-white/50 text-slate-600'}`}
             title="Highlight Tool (Sticky if no selection)"
           >
             <Highlighter size={16} />
@@ -241,9 +241,9 @@ const FloatingToolbar: React.FC<FloatingToolbarProps> = ({ editor, listingId, pa
                 initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
                 className="absolute bottom-full mb-2 left-0 bg-white border border-slate-200 rounded-xl shadow-xl p-3 w-52 overflow-hidden z-[60]"
               >
-                <div className="text-[9px] font-black uppercase tracking-widest text-indigo-500 mb-3 flex items-center justify-between">
+                <div className="text-[9px] font-black uppercase tracking-widest text-[#eee1ba] mb-3 flex items-center justify-between">
                   <span>Highlight Colors</span>
-                  <Square size={10} className="fill-indigo-500 opacity-20" />
+                  <Square size={10} className="fill-[#eee1ba] opacity-20" />
                 </div>
                 <div className="grid grid-cols-6 gap-1.5 mb-4">
                   {highlights.map(color => (
@@ -335,7 +335,7 @@ const FloatingToolbar: React.FC<FloatingToolbarProps> = ({ editor, listingId, pa
               e.preventDefault();
               setShowUnderlinePicker(!showUnderlinePicker);
             }}
-            className={`p-2 rounded-lg transition-all flex flex-col items-center ${activeTools.underline ? 'bg-indigo-600 text-white shadow-sm' : showUnderlinePicker ? 'bg-white shadow-sm text-indigo-600' : 'hover:bg-white/50 text-slate-600'}`}
+            className={`p-2 rounded-lg transition-all flex flex-col items-center ${activeTools.underline ? 'bg-black text-white shadow-sm' : showUnderlinePicker ? 'bg-white shadow-sm text-black' : 'hover:bg-white/50 text-slate-600'}`}
             title="Underline Tool (Sticky if no selection)"
           >
             <UnderlineIcon size={16} />
@@ -356,21 +356,21 @@ const FloatingToolbar: React.FC<FloatingToolbarProps> = ({ editor, listingId, pa
                 initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
                 className="absolute bottom-full mb-2 left-0 bg-white border border-slate-200 rounded-xl shadow-xl p-3 w-52 z-[60]"
               >
-                <div className="text-[9px] font-black uppercase tracking-widest text-indigo-500 mb-3">Underline Styles</div>
+                <div className="text-[9px] font-black uppercase tracking-widest text-[#eee1ba] mb-3">Underline Styles</div>
                 <div className="grid grid-cols-5 gap-1.5 mb-4">
                   {underlineStyles.map(style => (
                     <button 
                       key={style.name} 
                       onMouseDown={(e) => e.preventDefault()}
                       onClick={() => { handleApplyAnnotation('underline', editor.getAttributes('underlineAnnotation').color, style.value); setShowUnderlinePicker(false); }}
-                      className={`p-2 rounded-lg border transition-all ${editor.getAttributes('underlineAnnotation').style === style.value ? 'bg-indigo-50 border-indigo-200 text-indigo-600' : 'border-slate-100 hover:bg-slate-50 text-slate-500'}`}
+                      className={`p-2 rounded-lg border transition-all ${editor.getAttributes('underlineAnnotation').style === style.value ? 'bg-[#eee1ba]/10 border-[#eee1ba]/25 text-black' : 'border-slate-100 hover:bg-slate-50 text-slate-500'}`}
                       title={style.name}
                     >
                       <style.icon size={14} />
                     </button>
                   ))}
                 </div>
-                <div className="text-[9px] font-black uppercase tracking-widest text-indigo-500 mb-3">Line Color</div>
+                <div className="text-[9px] font-black uppercase tracking-widest text-[#eee1ba] mb-3">Line Color</div>
                 <div className="grid grid-cols-6 gap-1.5">
                   {highlights.map(color => (
                     <button 
@@ -511,35 +511,35 @@ const FloatingToolbar: React.FC<FloatingToolbarProps> = ({ editor, listingId, pa
 
       {/* Basic Formatting */}
       <div className="flex items-center gap-1">
-        <button onMouseDown={(e) => e.preventDefault()} onClick={() => editor.chain().focus().toggleBold().run()} className={`p-2 rounded-lg transition-colors ${editor.isActive('bold') ? 'bg-indigo-600 text-white' : 'hover:bg-slate-100 text-slate-600'}`}><Bold size={16} /></button>
-        <button onMouseDown={(e) => e.preventDefault()} onClick={() => editor.chain().focus().toggleItalic().run()} className={`p-2 rounded-lg transition-colors ${editor.isActive('italic') ? 'bg-indigo-600 text-white' : 'hover:bg-slate-100 text-slate-600'}`}><Italic size={16} /></button>
-        <button onMouseDown={(e) => e.preventDefault()} onClick={() => editor.chain().focus().toggleUnderline().run()} className={`p-2 rounded-lg transition-colors ${editor.isActive('underline') ? 'bg-indigo-600 text-white' : 'hover:bg-slate-100 text-slate-600'}`}><Underline size={16} /></button>
-        <button onMouseDown={(e) => e.preventDefault()} onClick={() => editor.chain().focus().toggleStrike().run()} className={`p-2 rounded-lg transition-colors ${editor.isActive('strike') ? 'bg-indigo-600 text-white' : 'hover:bg-slate-100 text-slate-600'}`}><Strikethrough size={16} /></button>
+        <button onMouseDown={(e) => e.preventDefault()} onClick={() => editor.chain().focus().toggleBold().run()} className={`p-2 rounded-lg transition-colors ${editor.isActive('bold') ? 'bg-black text-white' : 'hover:bg-slate-100 text-slate-600'}`}><Bold size={16} /></button>
+        <button onMouseDown={(e) => e.preventDefault()} onClick={() => editor.chain().focus().toggleItalic().run()} className={`p-2 rounded-lg transition-colors ${editor.isActive('italic') ? 'bg-black text-white' : 'hover:bg-slate-100 text-slate-600'}`}><Italic size={16} /></button>
+        <button onMouseDown={(e) => e.preventDefault()} onClick={() => editor.chain().focus().toggleUnderline().run()} className={`p-2 rounded-lg transition-colors ${editor.isActive('underline') ? 'bg-black text-white' : 'hover:bg-slate-100 text-slate-600'}`}><Underline size={16} /></button>
+        <button onMouseDown={(e) => e.preventDefault()} onClick={() => editor.chain().focus().toggleStrike().run()} className={`p-2 rounded-lg transition-colors ${editor.isActive('strike') ? 'bg-black text-white' : 'hover:bg-slate-100 text-slate-600'}`}><Strikethrough size={16} /></button>
       </div>
 
       <div className="w-px h-6 bg-slate-200 mx-1" />
 
       {/* Alignments */}
       <div className="flex items-center gap-1">
-        <button onMouseDown={(e) => e.preventDefault()} onClick={() => editor.chain().focus().setTextAlign('left').run()} className={`p-2 rounded-lg ${editor.isActive({ textAlign: 'left' }) ? 'bg-indigo-50 text-indigo-600' : 'hover:bg-slate-100 text-slate-500'}`}><AlignLeft size={16} /></button>
-        <button onMouseDown={(e) => e.preventDefault()} onClick={() => editor.chain().focus().setTextAlign('center').run()} className={`p-2 rounded-lg ${editor.isActive({ textAlign: 'center' }) ? 'bg-indigo-50 text-indigo-600' : 'hover:bg-slate-100 text-slate-500'}`}><AlignCenter size={16} /></button>
-        <button onMouseDown={(e) => e.preventDefault()} onClick={() => editor.chain().focus().setTextAlign('right').run()} className={`p-2 rounded-lg ${editor.isActive({ textAlign: 'right' }) ? 'bg-indigo-50 text-indigo-600' : 'hover:bg-slate-100 text-slate-500'}`}><AlignRight size={16} /></button>
+        <button onMouseDown={(e) => e.preventDefault()} onClick={() => editor.chain().focus().setTextAlign('left').run()} className={`p-2 rounded-lg ${editor.isActive({ textAlign: 'left' }) ? 'bg-[#eee1ba]/10 text-black' : 'hover:bg-slate-100 text-slate-500'}`}><AlignLeft size={16} /></button>
+        <button onMouseDown={(e) => e.preventDefault()} onClick={() => editor.chain().focus().setTextAlign('center').run()} className={`p-2 rounded-lg ${editor.isActive({ textAlign: 'center' }) ? 'bg-[#eee1ba]/10 text-black' : 'hover:bg-slate-100 text-slate-500'}`}><AlignCenter size={16} /></button>
+        <button onMouseDown={(e) => e.preventDefault()} onClick={() => editor.chain().focus().setTextAlign('right').run()} className={`p-2 rounded-lg ${editor.isActive({ textAlign: 'right' }) ? 'bg-[#eee1ba]/10 text-black' : 'hover:bg-slate-100 text-slate-500'}`}><AlignRight size={16} /></button>
       </div>
 
       <div className="w-px h-6 bg-slate-200 mx-1" />
 
       {/* Lists */}
       <div className="flex items-center gap-1">
-        <button onMouseDown={(e) => e.preventDefault()} onClick={() => editor.chain().focus().toggleBulletList().run()} className={`p-2 rounded-lg ${editor.isActive('bulletList') ? 'bg-indigo-50 text-indigo-600' : 'hover:bg-slate-100 text-slate-500'}`}><List size={16} /></button>
-        <button onMouseDown={(e) => e.preventDefault()} onClick={() => editor.chain().focus().toggleOrderedList().run()} className={`p-2 rounded-lg ${editor.isActive('orderedList') ? 'bg-indigo-50 text-indigo-600' : 'hover:bg-slate-100 text-slate-500'}`}><ListOrdered size={16} /></button>
-        <button onMouseDown={(e) => e.preventDefault()} onClick={() => editor.chain().focus().toggleTaskList().run()} className={`p-2 rounded-lg ${editor.isActive('taskList') ? 'bg-indigo-50 text-indigo-600' : 'hover:bg-slate-100 text-slate-500'}`}><CheckSquare size={16} /></button>
+        <button onMouseDown={(e) => e.preventDefault()} onClick={() => editor.chain().focus().toggleBulletList().run()} className={`p-2 rounded-lg ${editor.isActive('bulletList') ? 'bg-[#eee1ba]/10 text-black' : 'hover:bg-slate-100 text-slate-500'}`}><List size={16} /></button>
+        <button onMouseDown={(e) => e.preventDefault()} onClick={() => editor.chain().focus().toggleOrderedList().run()} className={`p-2 rounded-lg ${editor.isActive('orderedList') ? 'bg-[#eee1ba]/10 text-black' : 'hover:bg-slate-100 text-slate-500'}`}><ListOrdered size={16} /></button>
+        <button onMouseDown={(e) => e.preventDefault()} onClick={() => editor.chain().focus().toggleTaskList().run()} className={`p-2 rounded-lg ${editor.isActive('taskList') ? 'bg-[#eee1ba]/10 text-black' : 'hover:bg-slate-100 text-slate-500'}`}><CheckSquare size={16} /></button>
       </div>
 
       <div className="w-px h-6 bg-slate-200 mx-1" />
 
       {/* Insertables */}
       <div className="flex items-center gap-1">
-        <button onMouseDown={(e) => e.preventDefault()} onClick={addLink} className={`p-2 rounded-lg ${editor.isActive('link') ? 'bg-indigo-50 text-indigo-600' : 'hover:bg-slate-100 text-slate-500'}`}><LinkIcon size={16} /></button>
+        <button onMouseDown={(e) => e.preventDefault()} onClick={addLink} className={`p-2 rounded-lg ${editor.isActive('link') ? 'bg-[#eee1ba]/10 text-black' : 'hover:bg-slate-100 text-slate-500'}`}><LinkIcon size={16} /></button>
         <button onMouseDown={(e) => e.preventDefault()} onClick={addTable} className="p-2 hover:bg-slate-100 rounded-lg text-slate-500"><TableIcon size={16} /></button>
         <button onMouseDown={(e) => e.preventDefault()} onClick={() => editor.chain().focus().setHorizontalRule().run()} className="p-2 hover:bg-slate-100 rounded-lg text-slate-500"><Minus size={16} /></button>
       </div>
